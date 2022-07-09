@@ -48,10 +48,11 @@ const GameLogSchema = new Schema({
 });
 
 GameLogSchema.statics.findAll = function() {
+  console.log(1);
   return this.find().exec();
 };
 
-GameLogSchema.statics.create = function(data) {
+GameLogSchema.statics.createLog = function(data) {
   return this.create(data);
 }
 

@@ -28,11 +28,12 @@ POST: /api/gamelog
 
 exports.create = async (req, res) => {
     try {
-        console.log(req.body);
-      const channel = await GameLog.findAll();
+    console.log(req.body);
+      const channel = await GameLog.createLog(req.body);
+    //   const channel = await GameLog.findAll();
   
       res.status(200).json({
-        channel,
+        // channel,
         success: true
       });
     } catch(err) {
