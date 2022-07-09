@@ -1,6 +1,7 @@
 const express = require('express')
 const cors = require('cors');
 const routes = require("./routes/");
+const db = require('./lib/db');
 const app = express()
 
 const PORTNUM = 3000;
@@ -10,6 +11,8 @@ app.use(cors());
 app.use(express.json());
 app.use(routes);
 
-app.listen(PORTNUM, function() {
+db.connect();
+
+app.listen(PORTNUM, () => {
   console.log(`Server is running... port: ${PORTNUM}`)
 })
