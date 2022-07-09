@@ -1,4 +1,8 @@
 const Github = require("../models/github");
+const Problem = require("../models/problem");
+const User = require("../models/user");
+const GameLog = require("../models/gamelog");
+const Ranking = require("../models/ranking");
 const request = require('superagent');
 require("dotenv").config();
 
@@ -35,3 +39,19 @@ exports.githubLogin = function(req, res) {
     console.error(error)
   } 
 }
+
+exports.getProblem = async (req, res) => {
+  try {
+    const problems = await Problem.findAll();
+
+    res.status(200).json({
+      problems,
+      success: true
+    });
+  } catch(err) {
+    res.status(409).json({
+      success: false,
+      message: err.message
+    });
+  }
+};
