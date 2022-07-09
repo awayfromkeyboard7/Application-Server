@@ -31,21 +31,29 @@ const UserHistorySchema = new Schema({
 const GameLogSchema = new Schema({
   startAt: {
     type: Date,
-    required: true
+    // required: true
   },
   problemId: {
     type: Schema.Types.ObjectId,
-    required: true,
+    // required: true,
     ref: 'Problem'
   },
   userHistory: {
     type: [UserHistorySchema],
-    required: true
+    // required: true
+  },
+  code: {
+    type: String
   }
 });
 
 GameLogSchema.statics.findAll = function() {
   return this.find().exec();
 };
+
+GameLogSchema.statics.create = function(data) {
+  return this.create(data);
+}
+
 
 module.exports = mongoose.model('GameLog', GameLogSchema);

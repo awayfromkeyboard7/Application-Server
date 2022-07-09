@@ -1,6 +1,7 @@
 const SENDBIRD_API_TOKEN = process.env.SENDBIRD_API_TOKEN;
-
+const request = require('superagent');
 const GameLog = require('../../../models/gamelog');
+// require("dotenv").config();
 
 /*
 [Game Logs] 개인전 / 팀전
@@ -27,9 +28,11 @@ POST: /api/gamelog
 
 exports.create = async (req, res) => {
     try {
-      const channel = await GameLog.create(req.body);
+        console.log(req.body);
+      const channel = await GameLog.findAll();
   
       res.status(200).json({
+        channel,
         success: true
       });
     } catch(err) {
