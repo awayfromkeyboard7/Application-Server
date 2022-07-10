@@ -1,42 +1,47 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const ExampleSchema = new Schema({
   inputText: {
     type: String,
-    required: true
+    required: true,
   },
   outputText: {
     type: String,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
 const ProblemSchema = new Schema({
   title: {
     type: String,
-    required: true
+    required: true,
   },
   content: {
     type: String,
-    required: true
+    required: true,
   },
   inputText: {
     type: String,
-    required: true
+    required: true,
   },
   outputText: {
     type: String,
-    required: true
+    required: true,
   },
   examples: {
     type: [ExampleSchema],
-    required: true
-  }
+    required: true,
+  },
 });
 
-ProblemSchema.statics.findAll = function() {
-  return this.find().exec();
+// https://getridbug.com/node-js/random-document-from-a-collection-in-mongoose/
+
+ProblemSchema.statics.random = async function () {
+  const count = await this.count();
+  const rand = Math.floor(Math.random() * count);
+  const randomDoc = await this.findOne().skip(rand);
+  return randomDoc;
 };
 
-module.exports = mongoose.model('Problem', ProblemSchema);
+module.exports = mongoose.model("Problem", ProblemSchema);
