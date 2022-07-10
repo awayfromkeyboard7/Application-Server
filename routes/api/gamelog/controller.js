@@ -1,6 +1,9 @@
 const SENDBIRD_API_TOKEN = process.env.SENDBIRD_API_TOKEN;
 const request = require('superagent');
+const { find } = require('../../../models/gamelog');
 const GameLog = require('../../../models/gamelog');
+const problem = require('../../../models/problem');
+const Problem = require('../../../models/problem');
 // require("dotenv").config();
 
 /*
@@ -65,3 +68,28 @@ exports.updateGamelog = async (req, res) => {
   }
 };
 
+//도현 추가
+exports.createGamelog = async (req, res) => {
+  try {
+    const moderater = {
+      gitId : req.body['gitId'],
+    }
+
+    const info = {
+      problemId : await Problem.random(),
+      userHistory: [moderater]
+    }
+
+    const GameLog_id = await GameLog.createLog(info);
+
+    res.status(200).json({
+      GameLog_id,
+      success: true
+    });
+  } catch(err) {
+    res.status(409).json({
+      success: false,
+      message: err.message
+    });
+  }
+};

@@ -8,7 +8,7 @@ const UserHistorySchema = new Schema({
   },
   language: {
     type: String,
-    required: true
+    default : ''
   },
   code: {
     type: String,
@@ -20,30 +20,29 @@ const UserHistorySchema = new Schema({
   },
   ranking: {
     type: Number,
-    required: true
+    default: 0
   },
   passRate: {
     type: Number,
-    required: true
+    default: 0
   }
 });
 
 const GameLogSchema = new Schema({
   startAt: {
     type: Date,
+    default : Date.now
     // required: true
   },
   problemId: {
     type: Schema.Types.ObjectId,
     // required: true,
+    default : '',
     ref: 'Problem'
   },
   userHistory: {
     type: [UserHistorySchema],
     // required: true
-  },
-  code: {
-    type: String
   }
 });
 
