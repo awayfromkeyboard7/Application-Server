@@ -5,6 +5,7 @@ const User = require('../../../models/user');
 const client_id = process.env.GITHUB_CLIENT_ID;
 const client_secret = process.env.GITHUB_CLIENT_SECRET_KEY;
 const cookie_secret = process.env.COOKIE_SECRET;
+const redirect_url = process.env.CLIENT_REDIRECT_URL;
 
 async function getAccessToken (code) {
   const res = await fetch("https://github.com/login/oauth/access_token", {
@@ -54,10 +55,7 @@ exports.githubCallBack = async (req, res) => {
       if (user === null) {
         user = await User.createUser(info);
       }
-      res.status(200).json({
-        user,
-        success: true
-      });
+      res.redirect(redirect_url);
     } catch(err) {
       console.log(err);
       res.status(409).json({
