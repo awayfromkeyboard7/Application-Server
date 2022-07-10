@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const controller = require('./controller');
-const gamelog = require('../../../models/gamelog');
+// const gamelog = require('../../../models/gamelog');
 
 // router.use('/', gamelog);
 router.post('/', controller.create);
