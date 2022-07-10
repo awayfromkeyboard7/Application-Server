@@ -49,12 +49,11 @@ exports.githubCallBack = async (req, res) => {
     }
 
     try {
-      console.log(">>>>>>>>>> HERE");
       let user = await User.isExist(githubData['id'], token);
-      console.log("Done");
       if (user === null) {
         user = await User.createUser(info);
       }
+      res.cookie('uid', githubData['id'], { signed: true });
       res.redirect(redirect_url);
     } catch(err) {
       console.log(err);
