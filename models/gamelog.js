@@ -32,7 +32,7 @@ const UserHistorySchema = new Schema({
 const GameLogSchema = new Schema({
   startAt: {
     type: Date,
-    default : Date.now
+    default : Date.now,
     required: true
   },
   problemId: {
