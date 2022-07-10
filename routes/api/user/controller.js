@@ -65,7 +65,7 @@ exports.githubCallBack = async (req, res) => {
         user = await User.createUser(info);
       }
 
-      res.cookie('uname', githubData['gitId'], cookieConfigWithOutKey);
+      res.cookie('uname', githubData['login'], cookieConfigWithOutKey);
       res.cookie('uid', githubData['id'], cookieConfigWithKey);
       res.redirect(302, redirect_url);
     } catch(err) {
