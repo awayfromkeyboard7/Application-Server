@@ -43,3 +43,25 @@ exports.create = async (req, res) => {
       });
     }
   };
+
+exports.updateGamelog = async (req, res) => {
+  console.log('updategamelog')
+  try {
+    find_field = req.body['find_field']
+    find_field_name = req.body['find_field_name']
+    update_field = req.body['update_field']
+    update_field_name = req.body['update_field_name']
+
+    const update_gamelog = await GameLog.updateLog(find_field,find_field_name,update_field,update_field_name);
+
+    res.status(200).json({
+      success: true
+    });
+  } catch(err) {
+    res.status(409).json({
+      success: false,
+      message: err.message
+    })
+  }
+};
+

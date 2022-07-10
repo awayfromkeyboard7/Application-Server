@@ -56,5 +56,9 @@ GameLogSchema.statics.createLog = function(data) {
   return this.create(data);
 }
 
+GameLogSchema.statics.updateLog = function(find_field, find_field_name, update_field, update_field_name) {
+  console.log('2');
+  return this.findOneAndUpdate({ code : find_field_name },{code : update_field_name});
+};
 
 module.exports = mongoose.model('GameLog', GameLogSchema);
