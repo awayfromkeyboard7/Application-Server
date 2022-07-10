@@ -7,6 +7,17 @@ const client_secret = process.env.GITHUB_CLIENT_SECRET_KEY;
 const cookie_secret = process.env.COOKIE_SECRET;
 const redirect_url = process.env.CLIENT_REDIRECT_URL;
 
+const cookieConfigWithKey = {
+  httpOnly: true, 
+  maxAge: 6000000,
+  signed: true 
+}
+
+const cookieConfigWithOutKey = {
+  httpOnly: true, 
+  maxAge: 6000000
+}
+
 async function getAccessToken (code) {
   const res = await fetch("https://github.com/login/oauth/access_token", {
     method: 'POST',
@@ -53,7 +64,9 @@ exports.githubCallBack = async (req, res) => {
       if (user === null) {
         user = await User.createUser(info);
       }
-      res.cookie('uid', githubData['id'], { signed: true });
+
+      res.cookie('uname', githubData['gitId'], cookieConfigWithOutKey);
+      res.cookie('uid', githubData['id'], cookieConfigWithKey);
       res.redirect(302, redirect_url);
     } catch(err) {
       console.log(err);
