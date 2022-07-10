@@ -1,4 +1,10 @@
 const mongoose = require("mongoose");
+// https://www.npmjs.com/package/mongoose-random
+// const Schema = mongoose.Schema;
+// 원본
+
+// https://getridbug.com/node-js/random-document-from-a-collection-in-mongoose/
+
 const Schema = mongoose.Schema;
 
 const ExampleSchema = new Schema({
@@ -35,10 +41,15 @@ const ProblemSchema = new Schema({
   },
 });
 
-ProblemSchema.statics.findAll = function () {
-  return this.find().exec();
+// ProblemSchema.statics.findAll = function () {
+//   return this.find().exec();
+// };
+
+ProblemSchema.statics.random = async function () {
+  const count = await this.count();
+  const rand = Math.floor(Math.random() * count);
+  const randomDoc = await this.findOne().skip(rand);
+  return randomDoc;
 };
 
-// db.collection.aggregate({ $sample: { size: 1 } });
-
-module.exports = mongoose.model("Problem", test);
+module.exports = mongoose.model("Problem", ProblemSchema);
