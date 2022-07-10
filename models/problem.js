@@ -1,10 +1,4 @@
 const mongoose = require("mongoose");
-// https://www.npmjs.com/package/mongoose-random
-// const Schema = mongoose.Schema;
-// 원본
-
-// https://getridbug.com/node-js/random-document-from-a-collection-in-mongoose/
-
 const Schema = mongoose.Schema;
 
 const ExampleSchema = new Schema({
@@ -41,9 +35,7 @@ const ProblemSchema = new Schema({
   },
 });
 
-// ProblemSchema.statics.findAll = function () {
-//   return this.find().exec();
-// };
+// https://getridbug.com/node-js/random-document-from-a-collection-in-mongoose/
 
 ProblemSchema.statics.random = async function () {
   const count = await this.count();
