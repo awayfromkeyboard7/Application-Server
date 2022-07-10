@@ -1,9 +1,8 @@
 const router = require('express').Router();
-const judge = require('./judge');
-const gamelog = require('./gamelog');
 
-router.use('/judge', judge);
-
-router.use('/gamelog', gamelog);
+router.use('/judge', require('./judge'));
+router.use('/login', require('./login'));
+router.use('/user',  require('./user'));
+router.use('/gamelog', require('./gamelog'));
 
 module.exports = router;
