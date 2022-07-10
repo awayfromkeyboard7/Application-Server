@@ -5,7 +5,7 @@ const controller = require('./controller');
 // router.use('/', gamelog);
 router.post('/', controller.create);
 router.post('/update', controller.updateGamelog);
-
+router.post('/createNew', controller.createGamelog);
 // router.post('/', (req, res) => {
 // 	res.status(200).json(req.body);
 // });

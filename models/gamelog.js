@@ -9,7 +9,7 @@ const UserHistorySchema = new Schema({
   },
   language: {
     type: String,
-    default: '0'
+    default : ''
   },
   code: {
     type: String,
@@ -32,6 +32,7 @@ const UserHistorySchema = new Schema({
 const GameLogSchema = new Schema({
   startAt: {
     type: Date,
+    default : Date.now
     required: true
   },
   problemId: {
