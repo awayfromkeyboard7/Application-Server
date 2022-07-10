@@ -1,16 +1,36 @@
 ## 👩‍💻 API 
 | 번호 | URL | 기능 | request | response | 
 | ---------------------- | ------------------------- | -------------------------- | ------------------------- | ------------------------- |
-| 1 | GET `/api/gamelog/createNew` | 새로운 게임로그를 생성한다. |  | {{ \_id :  , place_name:,  category:, user_id:, likes(수):, comments(수):, recommend_reason:, }}
-| 2 | POST `/api/gamelog/update` | 게임종료 후 게임로그를 갱신한다. | {{
-	gameId: string(gameObjId),
-	language: 유저가 선택한 언어,
-	code: 유저가 제출한 코드, 
-	passRate: {통과한 테스트케이스}/{전체 테스트케이스 수}, 
-	gitId: 유저 git id }} | | 
-
-
-
+| 1 | GET `/api/login` | 로그인 요청 |  | {{ url: 깃허브 로그인 요청 url }}
+| 2 | GET `/api/user/get-info` | 유저 정보를 가져온다. | | {{ <br>gitId: 깃허브 아이디,<br> imgUrl: 프로필 이미지 url,<br> totalScore: 유저가 획득한 점수,<br> problemHistory: 유저가 푼 문제,<br> gameHistory: 유저가 참여한 게임 기록<br>}} 
+| 3 | GET `/api/problem` | 문제 하나를 랜덤으로 가져온다. |  | {{ <br>_id: 문제번호,<br>title: 문제이름 ,<br>content: 문제설명,<br>inputText:입력값설명,<br>outputText:출력값설명,<br>examples: <br>[{<br>inputText:입력값예시 ,<br>outputText:출력값예시<br>}]<br>}}
+| 4 | POST `/api/gamelog/createNew` | 새로운 로그를 생성한다 | {{ gitId : user_name }} | 너무 기네요~ 밑에 참고 |
+| 5 | POST `/api/gamelog/update` | 게임종료 후 게임로그를 갱신한다. | {{ <br>gameId: string(gameObjId) ,<br> language: 유저가 선택한 언어,<br> code: 유저가 제출한 코드, <br> passRate: 테스트케이스 통과율, <br>gitId:,<br> }} | | 
+```
+/* 4. game log createNew response */
+{{
+	problemId: {
+		_id: 문제id,
+		title: 문제제목,
+		content: 문제 내용.,
+		inputText: 인풋 설명,
+		outputText: 아웃풋 설명,
+		examples: [{ 
+			inputText: 인풋 예시, outputText: 아웃풋예시 
+		}]
+	},
+	userHistory: [{
+			gitId: 깃아이디,
+			language: ,
+			code: ,
+			ranking: 0,
+			passRate: 0,
+			submitAt: "유저 생성시간"
+	}]
+	_id: 게임로그 id,
+	startAt: 게임시작시간,
+}}
+```
 
 
 ## 👲 커밋 컨벤션 
