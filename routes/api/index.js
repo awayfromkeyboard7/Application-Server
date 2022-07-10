@@ -1,12 +1,9 @@
-const router = require("express").Router();
-const judge = require("./judge");
-const problem = require("./problem");
+const router = require('express').Router();
 
-router.use("/judge", judge);
-router.post("/", (req, res) => {
-  res.status(200).json(req.body);
-});
-
-router.use("/problem", problem);
+router.use('/judge', require('./judge'));
+router.use('/login', require('./login'));
+router.use('/user',  require('./user'));
+router.use('/gamelog', require('./gamelog'));
+router.use('/problem', require('./problem'));
 
 module.exports = router;

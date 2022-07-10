@@ -21,6 +21,7 @@
     "dotenv": "16.0.1",
     "express": "4.18.1",
     "mongoose": "6.4.4",
+    "node-fetch": "2.6.7",
     "superagent": "8.0.0"
   }
 }
