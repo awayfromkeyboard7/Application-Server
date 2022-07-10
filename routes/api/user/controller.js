@@ -54,7 +54,7 @@ exports.githubCallBack = async (req, res) => {
         user = await User.createUser(info);
       }
       res.cookie('uid', githubData['id'], { signed: true });
-      res.redirect(redirect_url);
+      res.redirect(302, redirect_url);
     } catch(err) {
       console.log(err);
       res.status(409).json({
