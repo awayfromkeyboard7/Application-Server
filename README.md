@@ -2,13 +2,12 @@
 | 번호 | URL | 기능 | request | response | 
 | ---------------------- | ------------------------- | -------------------------- | ------------------------- | ------------------------- |
 | 1 | GET `/api/gamelog/createNew` | 새로운 게임로그를 생성한다. |  | {{ \_id :  , place_name:,  category:, user_id:, likes(수):, comments(수):, recommend_reason:, }}
-| 2 | POST `/api/gamelog/update` | 게임종료 후 게임로그를 갱신한다. | {
+| 2 | POST `/api/gamelog/update` | 게임종료 후 게임로그를 갱신한다. | {{
 	gameId: string(gameObjId),
 	language: 유저가 선택한 언어,
 	code: 유저가 제출한 코드, 
 	passRate: {통과한 테스트케이스}/{전체 테스트케이스 수}, 
-	gitId: 유저 git id
-} | 
+	gitId: 유저 git id }} | | 
 
 
 
