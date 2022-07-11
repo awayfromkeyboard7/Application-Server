@@ -15,7 +15,7 @@ const io = SocketIO(server, {
   }
 });
 
-const PORTNUM = 3001;
+const PORTNUM = 3000;
 
 // https://m.blog.naver.com/psj9102/221282415870
 db.connect();
@@ -61,12 +61,12 @@ io.on("connection", socket => {
     console.log('socket >> userName ', userInfo.uname);
   })
 
-  socket.on('startGame', () => {
+  socket.on('startGame', (gameLogId) => {
     const rooms = socket.rooms;
     // let result;
     for(let i of rooms) {
       if(i !== socket.id) {
-        socket.nsp.to(i).emit('startGame')
+        socket.nsp.to(i).emit('startGame', gameLogId)
       }
     }
   })
