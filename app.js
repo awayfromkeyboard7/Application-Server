@@ -4,6 +4,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const db = require('./lib/db');
 const app = express();
+const User = require('./models/user');
 
 const SocketIO = require("socket.io");
 const server = http.createServer(app);
@@ -14,7 +15,7 @@ const io = SocketIO(server, {
   }
 });
 
-const PORTNUM = 3001;
+const PORTNUM = 3000;
 
 // https://m.blog.naver.com/psj9102/221282415870
 db.connect();
@@ -23,6 +24,14 @@ app.use(cookieParser(process.env.COOKIE_SECRET))
 app.use(express.json());
 app.use('/', require('./routes/'));
 
+let waiting = 0;
+let idx = 0;
+let room = [];
+
+function countRoom(roomName) {
+  return io.sockets.adapter.rooms.get(roomName)?.size;
+}
+
 io.on("connection", socket => {
   console.log(`user connected: ${socket.id}`)
   
@@ -30,16 +39,36 @@ io.on("connection", socket => {
     console.log('socket >> message ', data);
   })
 
+  socket.on('waitGame', (userInfo, done) => {
+    
+    if (waiting == 0) {
+      room.push([userInfo]);
+      socket.join(`room${idx}`)
+      waiting += 1;
+    } else if (waiting < 2) {
+      waiting += 1;
+      room[idx].push(userInfo);
+      socket.join(`room${idx}`);
+    } else {
+      waiting = 1;
+      idx += 1
+      room.push([userInfo]);
+      socket.join(`room${idx}`);
+    }
 
-  socket.on('result', data => {
-    console.log('socket >> result ', data);
-    socket.broadcast.emit('receive_result', { userId: data.userId, success: data.success });
+    socket.nsp.to(`room${idx}`).emit('enterNewUser', room[idx])
+
+    console.log('socket >> userName ', userInfo.uname);
   })
 
-
-  socket.on('problem', data => {
-    console.log('socket >> problem ', data);
-    socket.emit('receive_problem', { title: '2. 일루미네이션', content: `부유한 집안의 상속자 상근이네 집은 그림과 같이 1미터의 정육각형이 붙어있는 상태이다. 크리스마스가 다가오기 때문에, 여자친구에게 잘 보이기 위해 상근이는 건물의 벽면을 조명으로 장식하려고 한다. 외부에 보이지 않는 부분에 조명을 장식하는 것은 낭비라고 생각했기 때문에, 밖에서 보이는 부분만 장식하려고 한다.`, timeLimit: 300 });
+  socket.on('startGame', () => {
+    const rooms = socket.rooms;
+    // let result;
+    for(let i of rooms) {
+      if(i !== socket.id) {
+        socket.nsp.to(i).emit('startGame')
+      }
+    }
   })
 
   socket.on('disconnect', () => {

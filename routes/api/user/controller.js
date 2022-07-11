@@ -8,13 +8,11 @@ const cookie_secret = process.env.COOKIE_SECRET;
 const redirect_url = process.env.CLIENT_REDIRECT_URL;
 
 const cookieConfigWithKey = {
-  httpOnly: true, 
   maxAge: 6000000,
   signed: true 
 }
 
 const cookieConfigWithOutKey = {
-  httpOnly: true, 
   maxAge: 6000000
 }
 
@@ -65,6 +63,7 @@ exports.githubCallBack = async (req, res) => {
         user = await User.createUser(info);
       }
 
+      res.cookie('uimg', githubData['avatar_url'], cookieConfigWithOutKey);
       res.cookie('uname', githubData['login'], cookieConfigWithOutKey);
       res.cookie('uid', githubData['id'], cookieConfigWithKey);
       res.redirect(302, redirect_url);
