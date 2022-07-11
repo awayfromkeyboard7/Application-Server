@@ -1,0 +1,1 @@
+exports.message= require('./message');
