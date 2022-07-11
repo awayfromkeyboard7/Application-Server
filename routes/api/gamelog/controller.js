@@ -43,7 +43,9 @@ exports.updateGamelog = async (req, res) => {
 };
 
 exports.createGamelog = async (req, res) => {
-  // req.body = [user1: {gitId, profileImg}, user2: {gitId, profileImg}, ...]
+  // req.body = {
+  // players :[{gitId, profileImg}, {gitId, profileImg}, ...]
+  // }
   try {
     // const moderater = {
     //   gitId : req.body['gitId'],
@@ -54,10 +56,27 @@ exports.createGamelog = async (req, res) => {
       userHistory: req.body.players
     }
 
-    const gameLogId = await GameLog.createLog(info);
+    const gameLog = await GameLog.createLog(info);
 
     res.status(200).json({
-      gameLogId,
+      gameLogId : gameLog._id,
+      success: true
+    });
+  } catch(err) {
+    res.status(409).json({
+      success: false,
+      message: err.message
+    });
+  }
+};
+
+exports.getGamelog = async (req, res) => {
+  try {
+    logId = req.body['gameLogId']
+    const info = await GameLog.getLog(logId);
+
+    res.status(200).json({
+      info,
       success: true
     });
   } catch(err) {

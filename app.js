@@ -15,7 +15,7 @@ const io = SocketIO(server, {
   }
 });
 
-const PORTNUM = 3000;
+const PORTNUM = 3001;
 
 // https://m.blog.naver.com/psj9102/221282415870
 db.connect();

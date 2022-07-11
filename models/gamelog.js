@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { findOne } = require('./problem');
 const Schema = mongoose.Schema;
 
 /* userHistory: Array of attributes updated after game closed */
@@ -77,5 +78,9 @@ GameLogSchema.statics.updateLog = function(data) {
     }
   )
 };
+
+GameLogSchema.statics.getLog = function(logId) {
+  return this.findOne( { _id : logId } );
+}
 
 module.exports = mongoose.model('GameLog', GameLogSchema);
