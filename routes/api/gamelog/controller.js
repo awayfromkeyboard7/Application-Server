@@ -1,4 +1,5 @@
 const request = require('superagent');
+const mongoose = require('mongoose');
 const GameLog = require('../../../models/gamelog');
 const Problem = require('../../../models/problem');
 
@@ -73,8 +74,8 @@ exports.createGamelog = async (req, res) => {
 exports.getGamelog = async (req, res) => {
   try {
     logId = req.body['gameLogId']
-    const info = await GameLog.getLog(logId);
-
+    let info = await GameLog.getLog(logId);
+    info.problemId = await Problem.getProblem(mongoose.Types.ObjectId(info.problemId));
     res.status(200).json({
       info,
       success: true

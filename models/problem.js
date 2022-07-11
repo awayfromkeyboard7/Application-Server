@@ -44,4 +44,8 @@ ProblemSchema.statics.random = async function () {
   return randomDoc;
 };
 
+ProblemSchema.statics.getProblem = async function (problemId) {
+  return await this.findById(problemId).exec();
+}
+
 module.exports = mongoose.model("Problem", ProblemSchema);
