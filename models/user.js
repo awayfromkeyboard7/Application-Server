@@ -64,4 +64,11 @@ UserSchema.statics.updateUserInfo = async function (nodeId, info) {
   )
 }
 
+UserSchema.statics.getUserImage = async function (gitId) {
+  console.log('gitId:', gitId)
+  const user = await this.findOne({gitId: gitId});
+  console.log(user['imgUrl']);
+  return user['imgUrl'];
+}
+
 module.exports = mongoose.model('User', UserSchema);

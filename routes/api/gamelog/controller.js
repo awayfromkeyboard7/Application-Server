@@ -1,10 +1,6 @@
-const SENDBIRD_API_TOKEN = process.env.SENDBIRD_API_TOKEN;
 const request = require('superagent');
-const { find } = require('../../../models/gamelog');
 const GameLog = require('../../../models/gamelog');
-const problem = require('../../../models/problem');
 const Problem = require('../../../models/problem');
-// require("dotenv").config();
 
 /*
 [Game Logs] 개인전 / 팀전
@@ -29,29 +25,11 @@ POST: /api/gamelog
 }
 */
 
-exports.create = async (req, res) => {
-    try {
-    console.log(req.body);
-      const channel = await GameLog.createLog(req.body);
-    //   const channel = await GameLog.findAll();
-  
-      res.status(200).json({
-        // channel,
-        success: true
-      });
-    } catch(err) {
-      res.status(409).json({
-        success: false,
-        message: err.message
-      });
-    }
-  };
-
 exports.updateGamelog = async (req, res) => {
   console.log('updategamelog')
   try {
     
-    const update_gamelog = await GameLog.updateLog(req.body);
+    await GameLog.updateLog(req.body);
 
     res.status(200).json({
       success: true
@@ -64,22 +42,22 @@ exports.updateGamelog = async (req, res) => {
   }
 };
 
-//도현 추가
 exports.createGamelog = async (req, res) => {
+  // req.body = [user1: {gitId, profileImg}, user2: {gitId, profileImg}, ...]
   try {
-    const moderater = {
-      gitId : req.body['gitId'],
-    }
+    // const moderater = {
+    //   gitId : req.body['gitId'],
+    // }
 
     const info = {
       problemId : await Problem.random(),
-      userHistory: [moderater]
+      userHistory: req.body.players
     }
 
-    const GameLog_id = await GameLog.createLog(info);
+    const gameLogId = await GameLog.createLog(info);
 
     res.status(200).json({
-      GameLog_id,
+      gameLogId,
       success: true
     });
   } catch(err) {

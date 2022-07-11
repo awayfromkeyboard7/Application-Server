@@ -7,13 +7,17 @@ const UserHistorySchema = new Schema({
     type: String,
     required: true
   },
+  avatarUrl: {
+    type: String,
+    required: true
+  },
   language: {
     type: String,
     default : ''
   },
   code: {
     type: String,
-    default: '0'
+    default: ''
   },
   submitAt: {
     type: Date,
@@ -51,12 +55,11 @@ GameLogSchema.statics.createLog = function(data) {
 }
 
 GameLogSchema.statics.updateLog = function(data) {
-  if (data['submitAt'] == null) {
+  if (data['submitAt'] === null) {
     date = Date.now();
   } else {
     date = new Date(data['submitAt'])
   }
-  console.log(date);
   return this.findOneAndUpdate(
     { _id: mongoose.Types.ObjectId(data['gameId']) },
     { 
