@@ -2,6 +2,7 @@ const request = require('superagent');
 const mongoose = require('mongoose');
 const GameLog = require('../../../models/gamelog');
 const Problem = require('../../../models/problem');
+const User = require('../../../models/user');
 
 /*
 [Game Logs] 개인전 / 팀전
@@ -32,6 +33,9 @@ exports.updateGamelog = async (req, res) => {
     
     await GameLog.updateLog(req.body);
 
+    const userId = req.body['gitId']
+    User.updateUserRank(userId, 8)
+
     res.status(200).json({
       success: true
     });
@@ -58,6 +62,8 @@ exports.createGamelog = async (req, res) => {
     }
 
     const gameLog = await GameLog.createLog(info);
+
+    // console.log('>>>>>>>', info.userHistory);
 
     res.status(200).json({
       gameLogId : gameLog._id,

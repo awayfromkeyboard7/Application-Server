@@ -47,14 +47,24 @@ UserSchema.statics.createUser = function (info) {
 	return this.create(info);
 }
 
+UserSchema.statics.updateUserRank = async function (gitId, rank) {
+  const user = await this.findOne({gitId: gitId});
+  return await this.findOneAndUpdate(
+    {gitId: gitId},
+    {
+      totalScore: user.totalScore + rank,
+    },
+    {new: true}
+  )
+}
+
 // 게임 끝난 후 업데이트
 // user = await User.updateUserInfo(user.nodeId, {score: 4, problemId: 8, gameId: 8})
-UserSchema.statics.updateUserInfo = async function (nodeId, info) {
-  const user = await this.findOne({nodeId: nodeId});
+UserSchema.statics.updateUserInfo = async function (gitId, info) {
+  const user = await this.findOne({gitId: gitId});
   return await this.findOneAndUpdate(
-    {nodeId: nodeId},
+    {gitId: gitId},
     {
-      totalScore: user.totalScore + info['score'],
       $push: {
         problemHistory: info['problemId'],
         gameHistory: info['gameId']
