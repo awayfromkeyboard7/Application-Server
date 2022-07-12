@@ -54,7 +54,7 @@ io.on("connection", socket => {
     if (room.length == 0) {
       room.push([userInfo]);
       socket.join(`room${idx}`)
-    } else if (room[idx].length < 2) {
+    } else if (room[idx].length < 3) {
       room[idx].push(userInfo)
       const temp = new Set()
       const unique = room[idx].filter(item => {
@@ -83,25 +83,31 @@ io.on("connection", socket => {
 
   socket.on('submitCode', (submitInfo) => { 
     const myRoom = getRoom(socket);
-    console.log('myRoom>>>>>', myRoom);
-    socket.nsp.to(myRoom).emit('submitCode', submitInfo)
+    io.in(myRoom).emit('submitCode', submitInfo)
   })
 
   socket.on('getRanking', async (gameLogId) => {
     const myRoom = await getRoom(socket);
     let info = await GameLog.getLog(gameLogId);
-    socket.nsp.to(myRoom).emit('getRanking', info['userHistory'], info['startAt']);
+
+    // https://www.javascripttutorial.net/array/javascript-sort-an-array-of-objects/
+    info['userHistory'].sort((a, b) => {
+      if (a.passRate === b.passRate) {
+        return a.submitAt - b.submitAt
+      } else {
+        return b.passRate - a.passRate
+      }
+    })
+
+    io.in(myRoom).emit('getRanking', info['userHistory'], info['startAt']);
   })
 
   socket.on('exitWait', async (userName) => {
-
-    console.log('exitWait: ', userName);
     let myRoom = await getRoom(socket);
     const myRealRoom = myRoom;
     const idx = Number(myRoom?.replace('room', ''))
-    console.log('exitWait >>>>>>', myRoom, idx)
+    console.log('exitWait >>>>>>', userName, myRoom, idx)
     room[idx] = room[idx].filter(item => item.gitId !== userName);
-    console.log('exitWait: ', room[idx]);
     socket.to(myRealRoom).emit('exitWait', room[idx])
   })
 
