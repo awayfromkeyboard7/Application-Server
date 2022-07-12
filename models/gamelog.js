@@ -30,7 +30,7 @@ const UserHistorySchema = new Schema({
   },
   passRate: {
     type: Number,
-    default: 0
+    default: -1
   }
 });
 

@@ -67,7 +67,7 @@ UserSchema.statics.updateUserInfo = async function (gitId, info) {
     {
       $push: {
         problemHistory: info['problemId'],
-        gameHistory: info['gameId']
+        gameHistory: info['gameLogId']
       }
     },
     {new: true}

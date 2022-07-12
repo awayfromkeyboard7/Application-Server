@@ -63,7 +63,13 @@ exports.createGamelog = async (req, res) => {
 
     const gameLog = await GameLog.createLog(info);
 
-    // console.log('>>>>>>>', info.userHistory);
+    console.log('>>>>>>>', info.userHistory);
+
+    info.userHistory.forEach(item => console.log(item.gitId))
+
+    // info.userHistory.forEach(item => {
+    //   User.updateUserInfo(item.gitId, { problemId: info.problemId, gameLogId: gameLogId})
+    // })
 
     res.status(200).json({
       gameLogId : gameLog._id,

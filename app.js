@@ -83,13 +83,14 @@ io.on("connection", socket => {
 
   socket.on('submitCode', (submitInfo) => { 
     const myRoom = getRoom(socket);
+    console.log('myRoom>>>>>', myRoom);
     socket.nsp.to(myRoom).emit('submitCode', submitInfo)
   })
 
   socket.on('getRanking', async (gameLogId) => {
     const myRoom = await getRoom(socket);
     let info = await GameLog.getLog(gameLogId);
-    socket.nsp.to(myRoom).emit('getRanking', info['userHistory']);
+    socket.nsp.to(myRoom).emit('getRanking', info['userHistory'], info['startAt']);
   })
 
   socket.on('exitWait', async (userName) => {
@@ -102,6 +103,10 @@ io.on("connection", socket => {
     room[idx] = room[idx].filter(item => item.gitId !== userName);
     console.log('exitWait: ', room[idx]);
     socket.to(myRealRoom).emit('exitWait', room[idx])
+  })
+
+  socket.on('disconnecting', () => {
+    console.log('user disconnecting');
   })
 });
 

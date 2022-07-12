@@ -18,6 +18,12 @@ exports.sendCode = async function(req, res) {
       console.log("Accept result from docker");
       console.log("Send result to Client");
       console.log(result.body);
+
+      let passRate = result.body.results.reduce((a, b) => a + b, 0);
+      passRate = passRate / result.body.results.length * 100
+
+      result.body['passRate'] = passRate
+
       res.status(200).json(result.body);
     })
     .catch(err => {
