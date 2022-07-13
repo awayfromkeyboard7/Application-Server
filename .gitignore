@@ -1,4 +1,5 @@
 /node_modules
+/code
 package-lock.json
 .env
 out.log

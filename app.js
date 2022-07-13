@@ -50,11 +50,11 @@ io.on("connection", socket => {
   })
 
   socket.on('waitGame', (userInfo, done) => {
-    console.log(userInfo)
-    if (room.length == 0) {
+
+    if (room.length === 0) {
       room.push([userInfo]);
       socket.join(`room${idx}`)
-    } else if (room[idx].length < 3) {
+    } else if (room[idx].length < 8) {
       room[idx].push(userInfo)
       const temp = new Set()
       const unique = room[idx].filter(item => {
@@ -69,28 +69,39 @@ io.on("connection", socket => {
       room.push([userInfo]);
       socket.join(`room${idx}`);
     }
-    socket.nsp.to(`room${idx}`).emit('enterNewUser', room[idx])
+    io.in(`room${idx}`).emit('enterNewUser', room[idx])
   })
 
   socket.on('startGame', (gameLogId) => {
+    idx += 1;
+    room.push([])
+    console.log('cur room >>>', idx)
     const rooms = socket.rooms;
     for(let i of rooms) {
       if(i !== socket.id) {
-        socket.nsp.to(i).emit('startGame', gameLogId)
+        io.in(i).emit('startGame', gameLogId)
       }
     }
   })
 
-  socket.on('submitCode', (submitInfo) => { 
+  socket.on('submitCode', async (data) => { 
     const myRoom = getRoom(socket);
-    io.in(myRoom).emit('submitCode', submitInfo)
+    let info = await GameLog.getLog(data.gameLogId);
+
+    info['userHistory'].sort((a, b) => {
+      if (a.passRate === b.passRate) {
+        return a.submitAt - b.submitAt
+      } else {
+        return b.passRate - a.passRate
+      }
+    })
+    io.in(myRoom).emit('submitCode', info['userHistory'])
   })
 
   socket.on('getRanking', async (gameLogId) => {
     const myRoom = await getRoom(socket);
-    let info = await GameLog.getLog(gameLogId);
-
     // https://www.javascripttutorial.net/array/javascript-sort-an-array-of-objects/
+    let info = await GameLog.getLog(gameLogId);
     info['userHistory'].sort((a, b) => {
       if (a.passRate === b.passRate) {
         return a.submitAt - b.submitAt
@@ -107,7 +118,8 @@ io.on("connection", socket => {
     const myRealRoom = myRoom;
     const idx = Number(myRoom?.replace('room', ''))
     console.log('exitWait >>>>>>', userName, myRoom, idx)
-    room[idx] = room[idx].filter(item => item.gitId !== userName);
+    room[idx] = room[idx]?.filter(item => item.gitId !== userName);
+    console.log(room[idx])
     socket.to(myRealRoom).emit('exitWait', room[idx])
   })
 
