@@ -84,10 +84,10 @@ io.on("connection", socket => {
     }
   })
 
-  socket.on('submitCode', async (submitInfo) => { 
+  socket.on('submitCode', async (data) => { 
     const myRoom = getRoom(socket);
+    let info = await GameLog.getLog(data.gameLogId);
 
-    let info = await GameLog.getLog(gameLogId);
     info['userHistory'].sort((a, b) => {
       if (a.passRate === b.passRate) {
         return a.submitAt - b.submitAt
@@ -95,7 +95,6 @@ io.on("connection", socket => {
         return b.passRate - a.passRate
       }
     })
-
     io.in(myRoom).emit('submitCode', info['userHistory'])
   })
 
@@ -119,8 +118,8 @@ io.on("connection", socket => {
     const myRealRoom = myRoom;
     const idx = Number(myRoom?.replace('room', ''))
     console.log('exitWait >>>>>>', userName, myRoom, idx)
-    console.log(room)
     room[idx] = room[idx]?.filter(item => item.gitId !== userName);
+    console.log(room[idx])
     socket.to(myRealRoom).emit('exitWait', room[idx])
   })
 
