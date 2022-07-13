@@ -79,7 +79,7 @@ io.on("connection", socket => {
     const rooms = socket.rooms;
     for(let i of rooms) {
       if(i !== socket.id) {
-        socket.nsp.to(i).emit('startGame', gameLogId)
+        io.in(i).emit('startGame', gameLogId)
       }
     }
   })
