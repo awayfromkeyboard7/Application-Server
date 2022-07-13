@@ -84,16 +84,25 @@ io.on("connection", socket => {
     }
   })
 
-  socket.on('submitCode', (submitInfo) => { 
+  socket.on('submitCode', async (submitInfo) => { 
     const myRoom = getRoom(socket);
-    io.in(myRoom).emit('submitCode', submitInfo)
+
+    let info = await GameLog.getLog(gameLogId);
+    info['userHistory'].sort((a, b) => {
+      if (a.passRate === b.passRate) {
+        return a.submitAt - b.submitAt
+      } else {
+        return b.passRate - a.passRate
+      }
+    })
+
+    io.in(myRoom).emit('submitCode', info['userHistory'])
   })
 
   socket.on('getRanking', async (gameLogId) => {
     const myRoom = await getRoom(socket);
-    let info = await GameLog.getLog(gameLogId);
-
     // https://www.javascripttutorial.net/array/javascript-sort-an-array-of-objects/
+    let info = await GameLog.getLog(gameLogId);
     info['userHistory'].sort((a, b) => {
       if (a.passRate === b.passRate) {
         return a.submitAt - b.submitAt

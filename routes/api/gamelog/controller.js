@@ -87,7 +87,12 @@ exports.getGamelog = async (req, res) => {
   try {
     logId = req.body['gameLogId']
     let info = await GameLog.getLog(logId);
-    info.problemId = await Problem.getProblem(mongoose.Types.ObjectId(info.problemId));
+
+    console.log(req.body)
+    const problemId = mongoose.Types.ObjectId(req.body.mode === 'team' ? '62cea4c0de41eb81f44ed976' : '62c973cd465933160b9499c1');
+    const problems = await Problem.getProblem(problemId);
+    info.problemId = problems
+    // info.problemId = await Problem.getProblem(mongoose.Types.ObjectId(info.problemId));
     res.status(200).json({
       info,
       success: true

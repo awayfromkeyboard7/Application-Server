@@ -26,7 +26,9 @@ exports.sendCode = async function(req, res) {
     .post(`${process.env.JUDGE_SERVER_URL}/judge`)
     .set('Accept', 'application/json')
     .send({
-      code: codetxt
+      language: req.body.language,
+      code: codetxt,
+      problemId: req.body.problemId
     })
     .then(function(result) {
       console.log("Accept result from docker");
