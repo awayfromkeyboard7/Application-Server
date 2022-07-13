@@ -8,12 +8,12 @@ const cookie_secret = process.env.COOKIE_SECRET;
 const redirect_url = process.env.CLIENT_REDIRECT_URL;
 
 const cookieConfigWithKey = {
-  maxAge: 6000000,
+  maxAge: 60000000,
   signed: true 
 }
 
 const cookieConfigWithOutKey = {
-  maxAge: 6000000
+  maxAge: 60000000
 }
 
 async function getAccessToken (code) {

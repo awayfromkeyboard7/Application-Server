@@ -121,6 +121,7 @@ io.on("connection", socket => {
     room[idx] = room[idx]?.filter(item => item.gitId !== userName);
     console.log(room[idx])
     socket.to(myRealRoom).emit('exitWait', room[idx])
+    socket.leave(myRealRoom)
   })
 
   socket.on('disconnecting', () => {
