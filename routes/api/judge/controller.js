@@ -1,4 +1,5 @@
 const request = require('superagent');
+const Judge = require('../../../models/judge');
 require("dotenv").config();
 
 exports.sendCode = async function(req, res) {
@@ -6,6 +7,19 @@ exports.sendCode = async function(req, res) {
   console.log("Some request accepted");
   
   const codetxt = req.body['code'];
+
+  // If use Judge API
+  // const data = await Judge.getResult(codetxt)
+
+  // const retVal = {
+  //   results: [true, true, false, false],
+  //   msg: [data['output']],
+  //   passRate: 50,
+  // }
+
+  // console.log(retVal)
+
+  // res.status(200).json(retVal);
   
   console.log("Send request to Container");
   request
@@ -17,7 +31,6 @@ exports.sendCode = async function(req, res) {
     .then(function(result) {
       console.log("Accept result from docker");
       console.log("Send result to Client");
-      console.log(result.body);
 
       let passRate = result.body.results.reduce((a, b) => a + b, 0);
       passRate = passRate / result.body.results.length * 100
