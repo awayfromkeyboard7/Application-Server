@@ -69,7 +69,7 @@ io.on("connection", socket => {
       room.push([userInfo]);
       socket.join(`room${idx}`);
     }
-    socket.nsp.to(`room${idx}`).emit('enterNewUser', room[idx])
+    io.in(`room${idx}`).emit('enterNewUser', room[idx])
   })
 
   socket.on('startGame', (gameLogId) => {
