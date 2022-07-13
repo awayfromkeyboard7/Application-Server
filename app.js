@@ -54,7 +54,7 @@ io.on("connection", socket => {
     if (room.length === 0) {
       room.push([userInfo]);
       socket.join(`room${idx}`)
-    } else if (room[idx].length < 3) {
+    } else if (room[idx].length < 8) {
       room[idx].push(userInfo)
       const temp = new Set()
       const unique = room[idx].filter(item => {
