@@ -50,8 +50,8 @@ io.on("connection", socket => {
   })
 
   socket.on('waitGame', (userInfo, done) => {
-    console.log(userInfo)
-    if (room.length == 0) {
+
+    if (room.length === 0) {
       room.push([userInfo]);
       socket.join(`room${idx}`)
     } else if (room[idx].length < 3) {
@@ -73,6 +73,9 @@ io.on("connection", socket => {
   })
 
   socket.on('startGame', (gameLogId) => {
+    idx += 1;
+    room.push([])
+    console.log('cur room >>>', idx)
     const rooms = socket.rooms;
     for(let i of rooms) {
       if(i !== socket.id) {
@@ -107,7 +110,8 @@ io.on("connection", socket => {
     const myRealRoom = myRoom;
     const idx = Number(myRoom?.replace('room', ''))
     console.log('exitWait >>>>>>', userName, myRoom, idx)
-    room[idx] = room[idx].filter(item => item.gitId !== userName);
+    console.log(room)
+    room[idx] = room[idx]?.filter(item => item.gitId !== userName);
     socket.to(myRealRoom).emit('exitWait', room[idx])
   })
 
