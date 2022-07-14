@@ -2,9 +2,9 @@ const GameRoom = require("../../models/gameroom");
 const GameLog = require("../../models/gamelog");
 
 module.exports = (socket, event) => {
-  socket.on(event, async (id) => {
+  socket.on(event, async (gameLogId) => {
     const myRoom = GameRoom.getRoom(socket);
-    let info = await GameLog.getLog(id);
+    let info = await GameLog.getLog(gameLogId);
   
     info["userHistory"].sort((a, b) => {
       if (a.passRate === b.passRate) {

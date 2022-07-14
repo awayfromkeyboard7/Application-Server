@@ -1,4 +1,4 @@
-'use strict';
+// 'use strict';
 
 exports.event = require('./event');
 exports.waitGame = require('./waitGame');

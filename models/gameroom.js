@@ -8,6 +8,7 @@ function getRoom(socket) {
       return i;
     }
   }
+  return rooms;
 }
 
 function createRoom(userInfo) {
@@ -19,25 +20,31 @@ function createRoom(userInfo) {
 }
 
 function joinRoom(userInfo) {
+  console.log('joinRoom>>>>>>', userInfo, idx);
   room[idx].push(userInfo);
 }
 
 function setRoom(roomInfo) {
-  console.log('setRoom>>>>>', roomInfo);
-  room[idx] = roomInfo;
+  if (roomInfo) {
+    console.log('setRoom>>>>>', roomInfo);
+    room[idx] = roomInfo;
+  }
 }
 
 function increaseIdx() {
   idx += 1;
-  console.log('increaseIdx>>>>', idx);
+}
+
+function getIdx() {
+  return idx;
 }
 
 module.exports = {
-  idx,
   room,
 	getRoom,
   setRoom,
   createRoom,
   joinRoom,
-	increaseIdx
+	increaseIdx,
+  getIdx
 };

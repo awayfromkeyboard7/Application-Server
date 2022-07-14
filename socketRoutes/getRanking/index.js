@@ -3,6 +3,7 @@ const GameLog = require("../../models/gamelog");
 
 module.exports = (socket, event) => {
   socket.on(event, async (id) => {
+    console.log('getRanking >>>>>>>>>', id);
     const myRoom = GameRoom.getRoom(socket);
     let info = await GameLog.getLog(id);
   

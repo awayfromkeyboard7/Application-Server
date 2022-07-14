@@ -32,9 +32,9 @@ io.on("connection", (socket) => {
 
   SocketRoutes.waitGame(socket, SocketRoutes.event.waitGame);
   SocketRoutes.startGame(socket, SocketRoutes.event.startGame);
-  SocketRoutes.submitCode(socket, SocketRoutes.event.startGame);
-  SocketRoutes.getRanking(socket, SocketRoutes.event.startGame);
-  SocketRoutes.exitWait(socket, SocketRoutes.event.startGame);
+  SocketRoutes.submitCode(socket, SocketRoutes.event.submitCode);
+  SocketRoutes.getRanking(socket, SocketRoutes.event.getRanking);
+  SocketRoutes.exitWait(socket, SocketRoutes.event.exitWait);
 
   // socket.on("disconnecting", () => {
   //   console.log("user disconnecting");

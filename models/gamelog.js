@@ -80,7 +80,9 @@ GameLogSchema.statics.updateLog = function(data) {
 };
 
 GameLogSchema.statics.getLog = function(logId) {
-  return this.findOne( { _id : logId } );
+  console.log('getLog::>>>>:>?>?>DFSDF', logId)
+  return this.findById(mongoose.Types.ObjectId(logId));
+  // return this.findOne( { _id : logId } );
 }
 
 module.exports = mongoose.model('GameLog', GameLogSchema);

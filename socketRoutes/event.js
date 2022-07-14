@@ -1,4 +1,4 @@
-"use strict";
+// "use strict";
 
 exports.waitGame = "waitGame";
 exports.startGame = "startGame";

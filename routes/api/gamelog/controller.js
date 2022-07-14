@@ -30,12 +30,10 @@ POST: /api/gamelog
 exports.updateGamelog = async (req, res) => {
   console.log('updategamelog')
   try {
-    
     await GameLog.updateLog(req.body);
 
     const userId = req.body['gitId']
     User.updateUserRank(userId, 8)
-
     res.status(200).json({
       success: true
     });
