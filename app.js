@@ -93,8 +93,8 @@ io.on("connection", (socket) => {
       const gameLogId = await gamelog.createTeamLog(teamRoom[waitingList[0]].players, teamRoom[roomId].players);
 
       // TODO2 client에서 teamGameStart 이벤트　on
-      socket.nsp.to([teamRoom[roomId].id, teamRoom[waitingList[0]].id]).emit("teamGameStart", gameLogId);
-
+      socket.nsp.to(teamRoom[waitingList[0]].id).emit("teamGameStart", teamRoom[waitingList[0]].id, gameLogId);
+      socket.nsp.to(teamRoom[roomId].id).emit("teamGameStart", teamRoom[roomId].id, gameLogId);
       waitingList = [];
     } else {
       console.log("teamgame should not be started yet!!!!!!!!");
