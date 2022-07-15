@@ -69,6 +69,8 @@ io.on("connection", (socket) => {
 
     teamRoom[roomId].players.push(userInfo);
 
+    console.log('teamRoom[roomId]', teamRoom[roomId])
+
     const temp = new Set()
     const unique = teamRoom[roomId].players.filter((item) => {
       const alreadyHas = temp.has(item.gitId);
@@ -81,6 +83,10 @@ io.on("connection", (socket) => {
     socket.nsp
       .to(teamRoom[roomId].id)
       .emit("enterNewUserToTeam", teamRoom[roomId].players);
+  });
+
+  socket.on('getUsers', (roomId) => {
+    socket.emit('setUsers', teamRoom[roomId].players);
   });
 
   // 게임 시작 버튼을 누르면 waiting리스트 확인 후 대기자가 있으면 게임 시작, 없으면 대기리스트에 추가
