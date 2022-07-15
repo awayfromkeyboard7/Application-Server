@@ -40,6 +40,12 @@ const GameLogSchema = new Schema({
     default : Date.now,
     required: true
   },
+
+  gameMode: {
+    type: string,
+    default : personal
+  },
+
   problemId: {
     type: Schema.Types.ObjectId,
     required: true,
@@ -49,9 +55,24 @@ const GameLogSchema = new Schema({
     type: [UserHistorySchema],
     required: true
   },
+
+  teamA: {
+    type: [UserHistorySchema],
+    required: true
+  },
+
+  teamB: {
+    type: [UserHistorySchema],
+    required: true
+  },
+
 });
 
 GameLogSchema.statics.createLog = function(data) {
+  return this.create(data);
+}
+
+GameLogSchema.statics.createTeamLog = function(data, teamA, teamB) {
   return this.create(data);
 }
 
@@ -80,9 +101,8 @@ GameLogSchema.statics.updateLog = function(data) {
 };
 
 GameLogSchema.statics.getLog = function(logId) {
-  console.log('getLog::>>>>:>?>?>DFSDF', logId)
+  console.log('getLog::>>>>:>?>?>DFSDF', logId);
   return this.findById(mongoose.Types.ObjectId(logId));
-  // return this.findOne( { _id : logId } );
 }
 
 module.exports = mongoose.model('GameLog', GameLogSchema);

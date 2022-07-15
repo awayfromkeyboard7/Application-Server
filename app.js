@@ -18,6 +18,7 @@ const io = SocketIO(server, {
   },
 });
 const SocketRoutes = require("./socketRoutes");
+const gamelog = require("./models/gamelog");
 
 const PORTNUM = 3000;
 
@@ -32,8 +33,11 @@ let teamRoom = {};
 // user들의 socket Id
 let usersSocketId = {};
 
+let waitingList = [];
+
 io.on("connection", (socket) => {
   console.log(`user connected: ${socket.id}`);
+  socket.onAny(e => console.log(e));
 
   socket.on("setGitId", (gitId) => {
     usersSocketId[gitId] = socket.id;
@@ -77,6 +81,25 @@ io.on("connection", (socket) => {
     socket.nsp
       .to(teamRoom[roomId].id)
       .emit("enterNewUserToTeam", teamRoom[roomId].players);
+  });
+
+  // 게임 시작 버튼을 누르면 waiting리스트 확인 후 대기자가 있으면 게임 시작, 없으면 대기리스트에 추가
+  socket.on("startMatching", (roomId) => {
+    console.log("startMatching", roomId, waitingList);
+    if (waitingList.length === 1) {
+
+      // create gamelog for 2 teams.......
+      gamelog.createTeamLog(teamRoom[waitingList[0]].players, teamRoom[roomId].players);
+
+      socket.to([teamRoom[roomId].id, teamRoom[waitingList[0]].id]).emit("teamGameStart");
+
+      waitingList = [];
+    } else {
+      console.log("teamgame should not be started yet!!!!!!!!");
+      waitingList.push(roomId);
+    }
+    console.log("startMatching", roomId, waitingList);
+
   });
 });
 
