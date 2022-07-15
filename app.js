@@ -69,9 +69,9 @@ io.on("connection", (socket) => {
     socket.join(teamRoomId);
     teamRoom[teamRoomId] = [userInfo];
     console.log('teamRoom>>>>', teamRoomId)
-    // socket["nickname"] = teamRoomId;
-    socket.to(socket.id).emit('setTeamRoomId', teamRoomId);
-    console.log(socket["teamRoomId"])
+    socket.teamRoomId = teamRoomId;
+    console.log("socketid: ", socket.id);
+    console.log("socket: ", socket);
     // 퍼플
     socket.emit('enterNewUserToTeam', teamRoom[teamRoomId]);
     }
