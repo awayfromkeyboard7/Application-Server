@@ -89,8 +89,10 @@ io.on("connection", (socket) => {
     if (waitingList.length === 1) {
 
       // create gamelog for 2 teams.......
+      // TODO1 양 팀의 유저들로 새 게임로그 생성
       gamelog.createTeamLog(teamRoom[waitingList[0]].players, teamRoom[roomId].players);
 
+      // TODO2 client에서 teamGameStart 이벤트　on
       socket.to([teamRoom[roomId].id, teamRoom[waitingList[0]].id]).emit("teamGameStart");
 
       waitingList = [];
