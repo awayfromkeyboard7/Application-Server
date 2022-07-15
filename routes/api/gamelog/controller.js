@@ -46,26 +46,13 @@ exports.updateGamelog = async (req, res) => {
 };
 
 exports.createGamelog = async (req, res) => {
-  // req.body = {
-  // players :[{gitId, profileImg}, {gitId, profileImg}, ...]
-  // }
   try {
-    // const moderater = {
-    //   gitId : req.body['gitId'],
-    // }
-
     const info = {
       problemId : await Problem.random(),
       userHistory: req.body.players
     }
-
     const gameLog = await GameLog.createLog(info);
-
     info.userHistory.forEach(item => console.log(item.gitId))
-
-    // info.userHistory.forEach(item => {
-    //   User.updateUserInfo(item.gitId, { problemId: info.problemId, gameLogId: gameLogId})
-    // })
 
     res.status(200).json({
       gameLogId : gameLog._id,
@@ -78,6 +65,27 @@ exports.createGamelog = async (req, res) => {
     });
   }
 };
+
+// exports.createTeamGamelog = async (req, res) => {
+//   try {
+//     const info = {
+//       problemId : await Problem.random(),
+//       teamA : req.body.teamA,
+//       teamB : req.body.teamB,
+//       gameMode : req.body.gameMode
+//     }
+//     const gameLog = await GameLog.createLog(info);
+//     res.status(200).json({
+//       gameLogId : gameLog._id,
+//       success: true
+//     });
+//   } catch(err) {
+//     res.status(409).json({
+//       success: false,
+//       message: err.message
+//     });
+//   }
+// };
 
 exports.getGamelog = async (req, res) => {
   try {

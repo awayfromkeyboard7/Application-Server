@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { findOne } = require('./problem');
+const Problem = require('./problem');
 const Schema = mongoose.Schema;
 
 /* userHistory: Array of attributes updated after game closed */
@@ -42,8 +42,8 @@ const GameLogSchema = new Schema({
   },
 
   gameMode: {
-    type: string,
-    default : personal
+    type: String,
+    default : 'personal'
   },
 
   problemId: {
@@ -53,27 +53,36 @@ const GameLogSchema = new Schema({
   },
   userHistory: {
     type: [UserHistorySchema],
-    required: true
+    defualt: []
   },
 
   teamA: {
     type: [UserHistorySchema],
-    required: true
+    default: []
   },
 
   teamB: {
     type: [UserHistorySchema],
-    required: true
+    defualt: []
   },
 
 });
 
 GameLogSchema.statics.createLog = function(data) {
+  
   return this.create(data);
 }
 
-GameLogSchema.statics.createTeamLog = function(data, teamA, teamB) {
-  return this.create(data);
+GameLogSchema.statics.createTeamLog = async function(teamA, teamB) {
+
+  const data ={
+    problemId : await Problem.random(),
+    teamA : teamA,
+    teamB : teamB,
+    gameMode : 'team'
+  }
+  newLog = await this.create(data);
+  return newLog._id;
 }
 
 GameLogSchema.statics.updateLog = function(data) {
