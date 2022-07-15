@@ -26,7 +26,7 @@ module.exports = (socket, event) => {
       GameRoom.createRoom(userInfo);
       socket.join(`room${idx}`);
     }
-    socket.nsp.to(`room${idx}`).emit('enterNewUser', GameRoom.room[idx])
+    socket.nsp.to(`room${idx}`).emit('enterNewUser', GameRoom.room[idx]);
     // io.in(`room${idx}`).emit('enterNewUser', room[idx])
   })
 }
