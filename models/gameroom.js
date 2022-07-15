@@ -3,12 +3,12 @@ const room = [];
 
 function getRoom(socket) {
   const rooms = socket.rooms;
+  console.log(rooms);
   for (let i of rooms) {
     if (i !== socket.id) {
       return i;
     }
   }
-  return rooms;
 }
 
 function createRoom(userInfo) {

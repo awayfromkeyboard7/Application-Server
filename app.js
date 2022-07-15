@@ -27,6 +27,8 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(express.json());
 app.use("/", require("./routes/"));
 
+let teamRoom = {}
+
 io.on("connection", (socket) => {
   console.log(`user connected: ${socket.id}`);
 
@@ -39,6 +41,20 @@ io.on("connection", (socket) => {
   // socket.on("disconnecting", () => {
   //   console.log("user disconnecting");
   // });
+
+  socket.on('createTeam', (userInfo) => {
+    console.log('createTeam........');
+    socket.join(socket.id);
+    teamRoom[socket.id] = [userInfo]
+    socket.emit('enterNewUserToTeam', teamRoom[socket.id]);
+    }
+  )
+
+  socket.on('inviteMember', (from, to) => {
+    socket.emit('inviteMember', to);
+    socket.emit('enterNewUserToTeam', teamRoom[socket.id]);
+    }
+  )
 });
 
 server.listen(PORTNUM, () => {
