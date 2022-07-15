@@ -81,7 +81,8 @@ GameLogSchema.statics.createTeamLog = async function(teamA, teamB) {
     teamB : teamB,
     gameMode : 'team'
   }
-  newLog = await this.create(data);
+  const newLog = await this.create(data);
+  console.log('newLog>>>>', newLog._id)
   return newLog._id;
 }
 

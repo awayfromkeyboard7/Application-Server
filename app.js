@@ -84,16 +84,16 @@ io.on("connection", (socket) => {
   });
 
   // 게임 시작 버튼을 누르면 waiting리스트 확인 후 대기자가 있으면 게임 시작, 없으면 대기리스트에 추가
-  socket.on("startMatching", (roomId) => {
+  socket.on("startMatching", async (roomId) => {
     console.log("startMatching", roomId, waitingList);
     if (waitingList.length === 1) {
 
       // create gamelog for 2 teams.......
       // TODO1 양 팀의 유저들로 새 게임로그 생성
-      gamelog.createTeamLog(teamRoom[waitingList[0]].players, teamRoom[roomId].players);
+      const gameLogId = await gamelog.createTeamLog(teamRoom[waitingList[0]].players, teamRoom[roomId].players);
 
       // TODO2 client에서 teamGameStart 이벤트　on
-      socket.to([teamRoom[roomId].id, teamRoom[waitingList[0]].id]).emit("teamGameStart");
+      socket.nsp.to([teamRoom[roomId].id, teamRoom[waitingList[0]].id]).emit("teamGameStart", gameLogId);
 
       waitingList = [];
     } else {
