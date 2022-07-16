@@ -26,6 +26,23 @@ POST: /api/gamelog
   }
 }
 */
+exports.updateGamelogTeam = async (req, res) => {
+  console.log('updategamelogTeam')
+  try {
+    await GameLog.updateLogTeam(req.body);
+
+    const userId = req.body['gitId']
+    User.updateUserRank(userId, 8)
+    res.status(200).json({
+      success: true
+    });
+  } catch(err) {
+    res.status(409).json({
+      success: false,
+      message: err.message
+    })
+  }
+};
 
 exports.updateGamelog = async (req, res) => {
   console.log('updategamelog')
@@ -65,27 +82,6 @@ exports.createGamelog = async (req, res) => {
     });
   }
 };
-
-// exports.createTeamGamelog = async (req, res) => {
-//   try {
-//     const info = {
-//       problemId : await Problem.random(),
-//       teamA : req.body.teamA,
-//       teamB : req.body.teamB,
-//       gameMode : req.body.gameMode
-//     }
-//     const gameLog = await GameLog.createLog(info);
-//     res.status(200).json({
-//       gameLogId : gameLog._id,
-//       success: true
-//     });
-//   } catch(err) {
-//     res.status(409).json({
-//       success: false,
-//       message: err.message
-//     });
-//   }
-// };
 
 exports.getGamelog = async (req, res) => {
   try {

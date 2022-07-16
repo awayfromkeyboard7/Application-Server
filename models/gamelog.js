@@ -34,6 +34,34 @@ const UserHistorySchema = new Schema({
   }
 });
 
+// const TeamInfo = new Schema({
+//   player: {
+//     type: [UserHistorySchema],
+//     default: []
+//   },
+//   language: {
+//     type: String,
+//     default : ''
+//   },
+//   code: {
+//     type: String,
+//     default: ''
+//   },
+//   submitAt: {
+//     type: Date,
+//     default: Date.now
+//   },
+//   ranking: {
+//     type: Number,
+//     default: 0
+//   },
+//   passRate: {
+//     type: Number,
+//     default: -1
+//   }
+
+// });
+
 const GameLogSchema = new Schema({
   startAt: {
     type: Date,
@@ -66,6 +94,16 @@ const GameLogSchema = new Schema({
     defualt: []
   },
 
+  roomIdA :{
+    type: String,
+    default : false
+  },
+  
+  roomIdB :{
+    type: String,
+    default : false
+  }
+
 });
 
 GameLogSchema.statics.createLog = function(data) {
@@ -73,13 +111,15 @@ GameLogSchema.statics.createLog = function(data) {
   return this.create(data);
 }
 
-GameLogSchema.statics.createTeamLog = async function(teamA, teamB) {
+GameLogSchema.statics.createTeamLog = async function(teamA, teamB, roomIdA, roomIdB) {
 
   const data ={
     problemId : await Problem.random(),
     teamA : teamA,
     teamB : teamB,
-    gameMode : 'team'
+    gameMode : 'team',
+    roomIdA : roomIdA,
+    roomIdB : roomIdB
   }
   const newLog = await this.create(data);
   console.log('newLog>>>>', newLog._id)
@@ -109,6 +149,53 @@ GameLogSchema.statics.updateLog = function(data) {
     }
   )
 };
+
+GameLogSchema.statics.updateLogTeam = function(data) {
+  if (data['submitAt'] === null) {
+    date = Date.now();
+  } else {
+    date = new Date(data['submitAt'])
+  }
+
+  Log = this.findById(mongoose.Types.ObjectId(logId))
+  myteam = "teamA"
+  for (let user in Log[teamB]){
+    if (user.gitId===data['gameId']){
+      myteam = "teamB"
+      break
+    } 
+  }
+
+  if (myteam === "teamA"){
+    return this.findOneAndUpdate(
+      { _id: mongoose.Types.ObjectId(data['gameId']) },
+      { 
+        $set: { 
+          'teamA[0].language': data['language'],
+          'teamA[0].code': data['code'],
+          'teamA[0].submitAt': date,
+          'teamA[0].ranking': data['ranking'],
+          'teamA[0].passRate': data['passRate']
+        }
+      },
+    )
+  }
+  else {
+    return this.findOneAndUpdate(
+      { _id: mongoose.Types.ObjectId(data['gameId']) },
+      { 
+        $set: { 
+          'teamB[0].language': data['language'],
+          'teamB[0].code': data['code'],
+          'teamB[0].submitAt': date,
+          'teamB[0].ranking': data['ranking'],
+          'teamB[0].passRate': data['passRate']
+        }
+      },
+    )
+  };
+};
+
 
 GameLogSchema.statics.getLog = function(logId) {
   console.log('getLog::>>>>:>?>?>DFSDF', logId);

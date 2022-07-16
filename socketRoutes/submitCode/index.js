@@ -3,9 +3,8 @@ const GameLog = require("../../models/gamelog");
 
 module.exports = (socket, event) => {
   socket.on(event, async (gameLogId) => {
-    const myRoom = GameRoom.getRoom(socket);
     let info = await GameLog.getLog(gameLogId);
-  
+    const myRoom = GameRoom.getRoom(socket);
     info["userHistory"].sort((a, b) => {
       if (a.passRate === b.passRate) {
         return a.submitAt - b.submitAt;
@@ -13,6 +12,6 @@ module.exports = (socket, event) => {
         return b.passRate - a.passRate;
       }
     });
-    socket.nsp.to(myRoom).emit(event, info["userHistory"]);
+    socket.nsp.to(myRoom).emit(event, info["userHistory"]);    
   });
 }

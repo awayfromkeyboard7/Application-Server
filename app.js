@@ -96,7 +96,7 @@ io.on("connection", (socket) => {
 
       // create gamelog for 2 teams.......
       // TODO1 양 팀의 유저들로 새 게임로그 생성
-      const gameLogId = await gamelog.createTeamLog(teamRoom[waitingList[0]].players, teamRoom[roomId].players);
+      const gameLogId = await gamelog.createTeamLog(teamRoom[waitingList[0]].players, teamRoom[roomId].players, teamRoom[waitingList[0]].id, teamRoom[roomId].id);
 
       // TODO2 client에서 teamGameStart 이벤트　on
       socket.nsp.to(teamRoom[waitingList[0]].id).emit("teamGameStart", teamRoom[waitingList[0]].id, gameLogId);
@@ -109,6 +109,22 @@ io.on("connection", (socket) => {
     console.log("startMatching", roomId, waitingList);
 
   });
+
+  //팀전에서 게임 제출
+  socket.on("SubmitCodeTeam", async (gameLogId) => {
+    // if (info[mode] === "team" )
+    let info = await GameLog.getLog(gameLogId);
+    result = [info["TeamA"],info["TeamB"]]
+    result.sort((a, b) => {
+      if (a[0].passRate === b[0].passRate) {
+        return a[0].submitAt - b[0].submitAt;
+      } else {
+        return b[0].passRate - a[0].passRate;
+      }
+    });
+    socket.nsp.to(info["roomIdA"]).to(info["roomIdB"]).emit("SubmitcodeTeam", result);
+  });
+
 });
 
 server.listen(PORTNUM, () => {
