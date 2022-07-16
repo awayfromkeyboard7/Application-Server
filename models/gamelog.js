@@ -127,18 +127,13 @@ GameLogSchema.statics.createTeamLog = async function(teamA, teamB, roomIdA, room
 }
 
 GameLogSchema.statics.updateLog = function(data) {
-  if (data['submitAt'] === null) {
-    const date = Date.now();
-  } else {
-    const date = new Date(data['submitAt'])
-  }
   return this.findOneAndUpdate(
     { _id: mongoose.Types.ObjectId(data['gameId']) },
     { 
       $set: { 
         'userHistory.$[element].language': data['language'],
         'userHistory.$[element].code': data['code'],
-        'userHistory.$[element].submitAt': date,
+        'userHistory.$[element].submitAt': data['submitAt'],
         'userHistory.$[element].ranking': data['ranking'],
         'userHistory.$[element].passRate': data['passRate']
       }
@@ -151,15 +146,8 @@ GameLogSchema.statics.updateLog = function(data) {
 };
 
 GameLogSchema.statics.updateLogTeam = async function(data) {
-  let date;
-  if (data['submitAt'] === null) {
-    date = Date.now();
-  } else {
-    date = new Date(data['submitAt']);
-  }
   console.log("updateLogTeam?>>>>>>>>", data);
-  const gameLog = this.findById(mongoose.Types.ObjectId(data["gameId"]));
-  console.log("gamelfiajsdofasd?>>>>>>>>",gameLog);
+  const gameLog = await this.findById(mongoose.Types.ObjectId(data["gameId"]));
   let myteam = "teamA";
   for (let userInfo of gameLog["teamB"]){
     if (userInfo.gitId === data["gitId"]){
@@ -168,35 +156,14 @@ GameLogSchema.statics.updateLogTeam = async function(data) {
     } 
   }
 
-  if (myteam === "teamA"){
-    await this.findByIdAndUpdate(
-      mongoose.Types.ObjectId(data['gameId']),
-      { 
-        $set: { 
-          'teamA.0.language': data['language'],
-          'teamA.0.code': data['code'],
-          'teamA.0.submitAt': date,
-          'teamA.0.ranking': data['ranking'],
-          'teamA.0.passRate': data['passRate']
-        }
-      },
-    )
-  }
-  else {
-    await this.findByIdAndUpdate(
-      mongoose.Types.ObjectId(data['gameId']),
-      { 
-        $set: { 
-          'teamB.0.language': data['language'],
-          'teamB.0.code': data['code'],
-          'teamB.0.submitAt': date,
-          'teamB.0.ranking': data['ranking'],
-          'teamB.0.passRate': data['passRate']
-        }
-      },
-    )
-  };
-  this.save();
+  gameLog[myteam][0]['language'] = data['language']
+  gameLog[myteam][0]['code'] = data['code']
+  gameLog[myteam][0]['submitAt'] = data['submitAt']
+  gameLog[myteam][0]['ranking'] = data['ranking']
+  gameLog[myteam][0]['passRate'] = data['passRate']
+  gameLog.save();
+  
+  return gameLog
 };
 
 
