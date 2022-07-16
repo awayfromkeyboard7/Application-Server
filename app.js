@@ -64,6 +64,21 @@ io.on("connection", (socket) => {
     teamRoom[userInfo.gitId] = { id: teamRoomId, players: [userInfo] };
     // 퍼플
     socket.emit("enterNewUserToTeam", teamRoom[userInfo.gitId].players);
+
+    let timeLimit = new Date();
+    timeLimit.setMinutes(timeLimit.getMinutes() + 3);
+  
+    const interval = setInterval(() => {
+      socket.nsp.to(teamRoom[userInfo.gitId].id).emit("timeLimit", timeLimit - new Date());
+      if(timeLimit < new Date()) {
+        socket.nsp.to(teamRoom[userInfo.gitId].id).emit("timeOut");
+        clearInterval(interval);
+      }
+    }, 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
   });
 
   socket.on("inviteMember", (gitId, friendGitId) => {
@@ -96,7 +111,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on('getUsers', (roomId) => {
-    socket.emit('setUsers', teamRoom[roomId].players);
+    socket.emit('setUsers', teamRoom[roomId]?.players);
   });
 
 
@@ -104,7 +119,7 @@ io.on("connection", (socket) => {
 
  
   socket.on("goToMachingRoom", async (roomId) => {
-    socket.nsp.to(teamRoom[roomId].id).emit("goToMachingRoom", teamRoom[roomId].players[0]['gitId']);
+    socket.nsp.to(teamRoom[roomId]?.id).emit("goToMachingRoom", teamRoom[roomId]?.players[0]['gitId']);
   })
 
   // 팀전 매칭 버튼을 누르면 waiting리스트 확인 후 대기자가 있으면 게임 시작, 없으면 대기리스트에 추가
@@ -139,7 +154,7 @@ io.on("connection", (socket) => {
       console.log(">>>>>> waitingList before EXIT >>>>>>>", waitingList, bangjang);
       console.log(">>>>>> teamRoom before EXIT >>>>>>>", teamRoom, bangjang);
   
-      socket.nsp.to(teamRoom[bangjang].id).emit("exitTeamGame", "너네 다 나가라");
+      socket.nsp.to(teamRoom[bangjang].id).emit("exitTeamGame");
       socket.leave(teamRoom[bangjang].id);
   
       waitingList = arrayRemove(waitingList, bangjang);
@@ -175,6 +190,11 @@ io.on("connection", (socket) => {
     socket.nsp.to(info["roomIdA"]).to(info["roomIdB"]).emit("SubmitCodeTeam", result);
     
   });
+
+  socket.on("getTeamInfo", (roomId) => {
+    console.log('get game info >>>>> ', roomId, teamRoom[roomId]?.players);
+    socket.emit("getTeamInfo", teamRoom[roomId]?.players)
+  })
 
 });
 
