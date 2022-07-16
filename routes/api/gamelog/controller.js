@@ -27,7 +27,7 @@ POST: /api/gamelog
 }
 */
 exports.updateGamelogTeam = async (req, res) => {
-  console.log('updategamelogTeam')
+  console.log('updategamelogTeam', req.body);
   try {
     await GameLog.updateLogTeam(req.body);
 

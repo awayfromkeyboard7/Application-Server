@@ -128,9 +128,9 @@ GameLogSchema.statics.createTeamLog = async function(teamA, teamB, roomIdA, room
 
 GameLogSchema.statics.updateLog = function(data) {
   if (data['submitAt'] === null) {
-    date = Date.now();
+    const date = Date.now();
   } else {
-    date = new Date(data['submitAt'])
+    const date = new Date(data['submitAt'])
   }
   return this.findOneAndUpdate(
     { _id: mongoose.Types.ObjectId(data['gameId']) },
@@ -150,50 +150,53 @@ GameLogSchema.statics.updateLog = function(data) {
   )
 };
 
-GameLogSchema.statics.updateLogTeam = function(data) {
+GameLogSchema.statics.updateLogTeam = async function(data) {
+  let date;
   if (data['submitAt'] === null) {
     date = Date.now();
   } else {
-    date = new Date(data['submitAt'])
+    date = new Date(data['submitAt']);
   }
-
-  Log = this.findById(mongoose.Types.ObjectId(logId))
-  myteam = "teamA"
-  for (let user in Log[teamB]){
-    if (user.gitId===data['gameId']){
+  console.log("updateLogTeam?>>>>>>>>", data);
+  const gameLog = this.findById(mongoose.Types.ObjectId(data["gameId"]));
+  console.log("gamelfiajsdofasd?>>>>>>>>",gameLog);
+  let myteam = "teamA";
+  for (let userInfo of gameLog["teamB"]){
+    if (userInfo.gitId === data["gitId"]){
       myteam = "teamB"
       break
     } 
   }
 
   if (myteam === "teamA"){
-    return this.findOneAndUpdate(
-      { _id: mongoose.Types.ObjectId(data['gameId']) },
+    await this.findByIdAndUpdate(
+      mongoose.Types.ObjectId(data['gameId']),
       { 
         $set: { 
-          'teamA[0].language': data['language'],
-          'teamA[0].code': data['code'],
-          'teamA[0].submitAt': date,
-          'teamA[0].ranking': data['ranking'],
-          'teamA[0].passRate': data['passRate']
+          'teamA.0.language': data['language'],
+          'teamA.0.code': data['code'],
+          'teamA.0.submitAt': date,
+          'teamA.0.ranking': data['ranking'],
+          'teamA.0.passRate': data['passRate']
         }
       },
     )
   }
   else {
-    return this.findOneAndUpdate(
-      { _id: mongoose.Types.ObjectId(data['gameId']) },
+    await this.findByIdAndUpdate(
+      mongoose.Types.ObjectId(data['gameId']),
       { 
         $set: { 
-          'teamB[0].language': data['language'],
-          'teamB[0].code': data['code'],
-          'teamB[0].submitAt': date,
-          'teamB[0].ranking': data['ranking'],
-          'teamB[0].passRate': data['passRate']
+          'teamB.0.language': data['language'],
+          'teamB.0.code': data['code'],
+          'teamB.0.submitAt': date,
+          'teamB.0.ranking': data['ranking'],
+          'teamB.0.passRate': data['passRate']
         }
       },
     )
   };
+  this.save();
 };
 
 

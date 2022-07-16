@@ -162,7 +162,8 @@ io.on("connection", (socket) => {
   socket.on("SubmitCodeTeam", async (gameLogId) => {
     // if (info[mode] === "team" )
     let info = await GameLog.getLog(gameLogId);
-    result = [info["TeamA"],info["TeamB"]]
+    console.log("teamgame log info!!!!!!!", info);
+    result = [info["TeamA"],info["TeamB"]];
     result.sort((a, b) => {
       if (a[0].passRate === b[0].passRate) {
         return a[0].submitAt - b[0].submitAt;
@@ -170,7 +171,9 @@ io.on("connection", (socket) => {
         return b[0].passRate - a[0].passRate;
       }
     });
-    socket.nsp.to(info["roomIdA"]).to(info["roomIdB"]).emit("SubmitcodeTeam", result);
+    console.log(info["roomIdA"], info["roomIdB"])
+    socket.nsp.to(info["roomIdA"]).to(info["roomIdB"]).emit("SubmitCodeTeam", result);
+    
   });
 
 });
