@@ -140,6 +140,17 @@ io.on("connection", (socket) => {
       // TODO2 client에서 teamGameStart 이벤트　on
       socket.nsp.to(teamRoom[waitingList[0]].id).emit("teamGameStart", waitingList[0], gameLogId);
       socket.nsp.to(teamRoom[roomId].id).emit("teamGameStart", roomId, gameLogId);
+      let timeLimit = new Date();
+      timeLimit.setMinutes(timeLimit.getMinutes() + 1);
+      const firstTeamId = teamRoom[waitingList[0]].id;
+      const secondTeamId = teamRoom[roomId].id;
+      const interval = setInterval(() => {
+        socket.nsp.to([firstTeamId, secondTeamId]).emit("timeLimitCode", timeLimit - new Date());
+        if(timeLimit < new Date()) {
+          socket.nsp.to([firstTeamId, secondTeamId]).emit("timeOutCode");
+          clearInterval(interval);
+        }
+      }, 1000);
       waitingList = [];
     } else {
       console.log("teamgame should not be started yet!!!!!!!!");

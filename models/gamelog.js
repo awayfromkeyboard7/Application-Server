@@ -94,14 +94,19 @@ const GameLogSchema = new Schema({
     defualt: []
   },
 
-  roomIdA :{
+  roomIdA: {
     type: String,
     default : false
   },
   
-  roomIdB :{
+  roomIdB: {
     type: String,
     default : false
+  }, 
+
+  totalUsers: {
+    type: Number,
+    default: 0
   }
 
 });
