@@ -36,7 +36,6 @@ let usersSocketId = {};
 let waitingList = [];
 
 function arrayRemove(arr, value) { 
-    
   return arr.filter(function(ele){ 
       return ele != value; 
   });
@@ -68,7 +67,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("inviteMember", (gitId, friendGitId) => {
-    // console.log(`InviteMember >>>>>>>> ${gitId} => ${friendGitId}`)
+    console.log(`InviteMember >>>>>>>> ${gitId} => ${friendGitId}`)
     socket.to(usersSocketId[friendGitId]).emit("comeon", gitId);
   });
 
@@ -101,6 +100,9 @@ io.on("connection", (socket) => {
   });
 
 
+
+
+ 
   socket.on("goToMachingRoom", async (roomId) => {
     socket.nsp.to(teamRoom[roomId].id).emit("goToMachingRoom", teamRoom[roomId].players[0]['gitId']);
   })
@@ -130,6 +132,7 @@ io.on("connection", (socket) => {
 
   socket.on("exitTeamGame", async (bangjang, user) => {
     console.log("WHO CALLED exitTeamGame????????? roomId: ", bangjang, user);
+
     // 만약 메인으로 버튼을 누른 사람이 방장이면 모두다 메인으로
     if (bangjang === user) {
       console.log(">>>>>> socket.rooms before EXIT >>>>>>>", socket.rooms, teamRoom[bangjang].id);
@@ -145,11 +148,9 @@ io.on("connection", (socket) => {
       console.log(">>>>>> waitingList after EXIT >>>>>>>", waitingList);
   
       // BUG: WHY annie1229 is in TEAMROOM???????????????????
+      // 혜진 캐리
       console.log(">>>>>> teamRoom after EXIT >>>>>>>", teamRoom);
     }
-    // 메인으로 버튼을 누른 사람이 팀원이면 그 사람만 메인으로
-
-
 
     // GameRoom.setRoom(GameRoom.room[GameRoom.getIdx()]?.filter((item) => item.gitId !== userName));
     // console.log(GameRoom.room[GameRoom.getIdx()]);
