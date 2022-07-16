@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+require("dotenv").config();
 
 const ExampleSchema = new Schema({
   inputText: {
@@ -46,6 +47,10 @@ ProblemSchema.statics.random = async function () {
 
 ProblemSchema.statics.getProblem = async function (problemId) {
   return await this.findById(problemId).exec();
-}
+};
+
+ProblemSchema.statics.createPr = function (data) {
+  return this.create(data);
+};
 
 module.exports = mongoose.model("Problem", ProblemSchema);

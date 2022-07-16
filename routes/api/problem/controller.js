@@ -33,6 +33,30 @@ exports.getProblem = async (req, res) => {
   }
 };
 
+exports.createProblem = async (req, res) => {
+  try {
+    const postProblem = {
+      title: req.body.title,
+      content: req.body.content,
+      inputText: req.body.inputText,
+      outputText: req.body.outputText,
+      examples: req.body.examples,
+    };
+
+    const cretePr = await Problem.createPr(postProblem);
+
+    res.status(200).json({
+      createPr: cretePr._id,
+      success: true,
+    });
+  } catch (err) {
+    res.status(409).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
 // exports.getProblem = async (req, res) => {
 //   console.log("hello");
 // };
