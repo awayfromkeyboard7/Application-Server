@@ -35,13 +35,20 @@ let usersSocketId = {};
 
 let waitingList = [];
 
+function arrayRemove(arr, value) { 
+  return arr.filter(function(ele){ 
+      return ele != value; 
+  });
+}
+
+
 io.on("connection", (socket) => {
-  console.log(`user connected: ${socket.id}`);
-  socket.onAny(e => console.log(e));
+  // console.log(`user connected: ${socket.id}`);
+  socket.onAny(e => console.log(`SOCKET EVENT::::::${e}`));
 
   socket.on("setGitId", (gitId) => {
     usersSocketId[gitId] = socket.id;
-    console.log("usersSocketId>>>", usersSocketId);
+    // console.log("usersSocketId>>>", usersSocketId);
   });
 
   SocketRoutes.waitGame(socket, SocketRoutes.event.waitGame);
@@ -51,7 +58,7 @@ io.on("connection", (socket) => {
   SocketRoutes.exitWait(socket, SocketRoutes.event.exitWait);
 
   socket.on("createTeam", (userInfo) => {
-    console.log("createTeam........");
+    // console.log("createTeam........");
     const teamRoomId = uuid.v4();
     socket.join(teamRoomId);
     teamRoom[userInfo.gitId] = { id: teamRoomId, players: [userInfo] };
@@ -65,33 +72,47 @@ io.on("connection", (socket) => {
   });
 
   socket.on("acceptInvite", (roomId, userInfo) => {
-    console.log(`acceptInvite >>>>>>>> ${roomId} => ${userInfo.gitId}`)
+    // console.log(`acceptInvite >>>>>>>> ${roomId} => ${userInfo.gitId}`)
 
     teamRoom[roomId].players.push(userInfo);
 
-    console.log('teamRoom[roomId]', teamRoom[roomId])
+    // console.log('teamRoom[roomId]', teamRoom[roomId])
 
-    const temp = new Set()
+    const temp = new Set();
     const unique = teamRoom[roomId].players.filter((item) => {
       const alreadyHas = temp.has(item.gitId);
       temp.add(item.gitId);
       return !alreadyHas;
     });
-    teamRoom[roomId].players = unique
+    teamRoom[roomId].players = unique;
     
     socket.join(teamRoom[roomId].id);
     socket.nsp
       .to(teamRoom[roomId].id)
       .emit("enterNewUserToTeam", teamRoom[roomId].players);
+    
+    console.log(teamRoom);
+
   });
 
   socket.on('getUsers', (roomId) => {
     socket.emit('setUsers', teamRoom[roomId].players);
   });
 
-  // 게임 시작 버튼을 누르면 waiting리스트 확인 후 대기자가 있으면 게임 시작, 없으면 대기리스트에 추가
+
+
+
+ 
+  socket.on("goToMachingRoom", async (roomId) => {
+    socket.nsp.to(teamRoom[roomId].id).emit("goToMachingRoom", teamRoom[roomId].players[0]['gitId']);
+  })
+
+  // 팀전 매칭 버튼을 누르면 waiting리스트 확인 후 대기자가 있으면 게임 시작, 없으면 대기리스트에 추가
   socket.on("startMatching", async (roomId) => {
-    console.log("startMatching", roomId, waitingList);
+    // console.log(teamRoom[roomId]);
+    console.log(waitingList);
+    // 팀전 매칭을 누르면 team room에 있는 인원 모두 매칭룸으로 이동
+    // console.log("startMatching", roomId, waitingList);
     if (waitingList.length === 1) {
 
       // create gamelog for 2 teams.......
@@ -106,8 +127,35 @@ io.on("connection", (socket) => {
       console.log("teamgame should not be started yet!!!!!!!!");
       waitingList.push(roomId);
     }
-    console.log("startMatching", roomId, waitingList);
+    // console.log("startMatching", roomId, waitingList);
+  });
 
+  socket.on("exitTeamGame", async (bangjang, user) => {
+    console.log("WHO CALLED exitTeamGame????????? roomId: ", bangjang, user);
+
+    // 만약 메인으로 버튼을 누른 사람이 방장이면 모두다 메인으로
+    if (bangjang === user) {
+      console.log(">>>>>> socket.rooms before EXIT >>>>>>>", socket.rooms, teamRoom[bangjang].id);
+      console.log(">>>>>> waitingList before EXIT >>>>>>>", waitingList, bangjang);
+      console.log(">>>>>> teamRoom before EXIT >>>>>>>", teamRoom, bangjang);
+  
+      socket.nsp.to(teamRoom[bangjang].id).emit("exitTeamGame", "너네 다 나가라");
+      socket.leave(teamRoom[bangjang].id);
+  
+      waitingList = arrayRemove(waitingList, bangjang);
+      delete teamRoom[bangjang]
+      console.log(">>>>>> socket.rooms before EXIT >>>>>>>", socket.rooms);
+      console.log(">>>>>> waitingList after EXIT >>>>>>>", waitingList);
+  
+      // BUG: WHY annie1229 is in TEAMROOM???????????????????
+      // 혜진 캐리
+      console.log(">>>>>> teamRoom after EXIT >>>>>>>", teamRoom);
+    }
+
+    // GameRoom.setRoom(GameRoom.room[GameRoom.getIdx()]?.filter((item) => item.gitId !== userName));
+    // console.log(GameRoom.room[GameRoom.getIdx()]);
+    // socket.leave(myRealRoom);
+    // socket.to(myRealRoom).emit("exitWait", GameRoom.room[GameRoom.getIdx()]);
   });
 
   //팀전에서 게임 제출
