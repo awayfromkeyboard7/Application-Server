@@ -64,6 +64,21 @@ io.on("connection", (socket) => {
     teamRoom[userInfo.gitId] = { id: teamRoomId, players: [userInfo] };
     // 퍼플
     socket.emit("enterNewUserToTeam", teamRoom[userInfo.gitId].players);
+
+    let timeLimit = new Date();
+    timeLimit.setMinutes(timeLimit.getMinutes() + 3);
+  
+    const interval = setInterval(() => {
+      socket.nsp.to(teamRoom[userInfo.gitId].id).emit("timeLimit", timeLimit - new Date());
+      if(timeLimit < new Date()) {
+        socket.nsp.to(teamRoom[userInfo.gitId].id).emit("timeOut");
+        clearInterval(interval);
+      }
+    }, 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
   });
 
   socket.on("inviteMember", (gitId, friendGitId) => {
@@ -96,13 +111,13 @@ io.on("connection", (socket) => {
   });
 
   socket.on('getUsers', (roomId) => {
-    socket.emit('setUsers', teamRoom[roomId].players);
+    socket.emit('setUsers', teamRoom[roomId]?.players);
   });
 
 
 
 
- 
+
   socket.on("goToMachingRoom", async (userId) => {
     // userId가 방장인 경우만 emit
     if (userId in teamRoom) {
@@ -142,7 +157,7 @@ io.on("connection", (socket) => {
       console.log(">>>>>> waitingList before EXIT >>>>>>>", waitingList, bangjang);
       console.log(">>>>>> teamRoom before EXIT >>>>>>>", teamRoom, bangjang);
   
-      socket.nsp.to(teamRoom[bangjang].id).emit("exitTeamGame", "너네 다 나가라");
+      socket.nsp.to(teamRoom[bangjang].id).emit("exitTeamGame");
       socket.leave(teamRoom[bangjang].id);
   
       waitingList = arrayRemove(waitingList, bangjang);
@@ -182,11 +197,15 @@ io.on("connection", (socket) => {
     socket.nsp.to(teamRoom[bangjang].id).emit("TeamGameOver");
   });
 
+  socket.on("getTeamInfo", (roomId) => {
+    console.log('get game info >>>>> ', roomId, teamRoom[roomId]?.players);
+    socket.emit("getTeamInfo", teamRoom[roomId]?.players)
+  })
+  
   socket.on("shareJudgedCode", (data, bangjang) => {
     console.log(data, bangjang)
     socket.to(teamRoom[bangjang].id).emit("shareJudgedCode", data);
   })
-
 });
 
 server.listen(PORTNUM, () => {

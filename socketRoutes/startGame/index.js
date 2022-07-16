@@ -9,6 +9,17 @@ module.exports = (socket, event) => {
     for (let i of rooms) {
       if (i !== socket.id) {
         socket.nsp.to(i).emit(event, gameLogId);
+
+        let timeLimit = new Date();
+        timeLimit.setMinutes(timeLimit.getMinutes() + 1);
+    
+        const interval = setInterval(() => {
+          socket.nsp.to(i).emit("timeLimitCode", timeLimit - new Date());
+          if(timeLimit < new Date()) {
+            socket.nsp.to(i).emit("timeOutCode");
+            clearInterval(interval);
+          }
+        }, 1000);
         // io.in(i).emit(event, gameLogId);
       }
     }
