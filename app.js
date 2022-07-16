@@ -43,7 +43,7 @@ function arrayRemove(arr, value) {
 
 
 io.on("connection", (socket) => {
-  // console.log(`user connected: ${socket.id}`);
+  console.log(`user connected: ${socket.id}`, teamRoom);
   socket.onAny(e => console.log(`SOCKET EVENT::::::${e}`));
 
   socket.on("setGitId", (gitId) => {
@@ -69,7 +69,7 @@ io.on("connection", (socket) => {
     timeLimit.setMinutes(timeLimit.getMinutes() + 3);
   
     const interval = setInterval(() => {
-      socket.nsp.to(teamRoom[userInfo.gitId].id).emit("timeLimit", timeLimit - new Date());
+      socket.nsp.to(teamRoom[userInfo.gitId]?.id).emit("timeLimit", timeLimit - new Date());
       if(timeLimit < new Date()) {
         socket.nsp.to(teamRoom[userInfo.gitId].id).emit("timeOut");
         clearInterval(interval);
@@ -120,6 +120,7 @@ io.on("connection", (socket) => {
 
   socket.on("goToMachingRoom", async (userId) => {
     // userId가 방장인 경우만 emit
+    console.log("goToMachingRoom>>>>>!>!!>!>!>!>!!", userId, teamRoom)
     if (userId in teamRoom) {
       socket.nsp.to(teamRoom[userId].id).emit("goToMachingRoom", teamRoom[userId].players[0]['gitId']);
     }
