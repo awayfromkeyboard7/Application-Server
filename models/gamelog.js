@@ -142,7 +142,7 @@ GameLogSchema.statics.updateLog = function(data) {
       arrayFilters: [{ 'element.gitId': data['gitId'] }],
       new: true
     }
-  )
+  ).exec();
 };
 
 GameLogSchema.statics.updateLogTeam = async function(data) {
@@ -155,7 +155,6 @@ GameLogSchema.statics.updateLogTeam = async function(data) {
       break
     } 
   }
-
   gameLog[myteam][0]['language'] = data['language']
   gameLog[myteam][0]['code'] = data['code']
   gameLog[myteam][0]['submitAt'] = data['submitAt']

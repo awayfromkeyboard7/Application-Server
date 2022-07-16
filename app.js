@@ -103,8 +103,11 @@ io.on("connection", (socket) => {
 
 
  
-  socket.on("goToMachingRoom", async (roomId) => {
-    socket.nsp.to(teamRoom[roomId].id).emit("goToMachingRoom", teamRoom[roomId].players[0]['gitId']);
+  socket.on("goToMachingRoom", async (userId) => {
+    // userId가 방장인 경우만 emit
+    if (userId in teamRoom) {
+      socket.nsp.to(teamRoom[userId].id).emit("goToMachingRoom", teamRoom[userId].players[0]['gitId']);
+    }
   })
 
   // 팀전 매칭 버튼을 누르면 waiting리스트 확인 후 대기자가 있으면 게임 시작, 없으면 대기리스트에 추가
@@ -120,8 +123,8 @@ io.on("connection", (socket) => {
       const gameLogId = await gamelog.createTeamLog(teamRoom[waitingList[0]].players, teamRoom[roomId].players, teamRoom[waitingList[0]].id, teamRoom[roomId].id);
 
       // TODO2 client에서 teamGameStart 이벤트　on
-      socket.nsp.to(teamRoom[waitingList[0]].id).emit("teamGameStart", teamRoom[waitingList[0]].id, gameLogId);
-      socket.nsp.to(teamRoom[roomId].id).emit("teamGameStart", teamRoom[roomId].id, gameLogId);
+      socket.nsp.to(teamRoom[waitingList[0]].id).emit("teamGameStart", waitingList[0], gameLogId);
+      socket.nsp.to(teamRoom[roomId].id).emit("teamGameStart", roomId, gameLogId);
       waitingList = [];
     } else {
       console.log("teamgame should not be started yet!!!!!!!!");
@@ -159,11 +162,13 @@ io.on("connection", (socket) => {
   });
 
   //팀전에서 게임 제출
-  socket.on("SubmitCodeTeam", async (gameLogId) => {
-    // if (info[mode] === "team" )
-    let info = await GameLog.getLog(gameLogId);
-    console.log("teamgame log info!!!!!!!", info);
-    result = [info["TeamA"],info["TeamB"]];
+  socket.on("SubmitCodeTeam", async (gameLogId, bangjang) => {
+    console.log("SubmitCodeTeam", bangjang, gameLogId);
+
+    let gameLog = await GameLog.getLog(gameLogId);
+    // console.log("teamgame log info!!!!!!!", info);
+    result = [gameLog["teamA"],gameLog["teamB"]];
+    console.log(result)
     result.sort((a, b) => {
       if (a[0].passRate === b[0].passRate) {
         return a[0].submitAt - b[0].submitAt;
@@ -171,10 +176,16 @@ io.on("connection", (socket) => {
         return b[0].passRate - a[0].passRate;
       }
     });
-    console.log(info["roomIdA"], info["roomIdB"])
-    socket.nsp.to(info["roomIdA"]).to(info["roomIdB"]).emit("SubmitCodeTeam", result);
-    
+    // console.log(gameLog["roomIdA"], gameLog["roomIdB"]);
+    socket.nsp.to(teamRoom[bangjang].id).to(teamRoom[bangjang].id).emit("SubmitCodeTeam", result);
+    console.log(gameLog["roomIdA"], teamRoom[bangjang].id);
+    socket.nsp.to(teamRoom[bangjang].id).emit("TeamGameOver");
   });
+
+  socket.on("shareJudgedCode", (data, bangjang) => {
+    console.log(data, bangjang)
+    socket.to(teamRoom[bangjang].id).emit("shareJudgedCode", data);
+  })
 
 });
 
