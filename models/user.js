@@ -35,9 +35,9 @@ const UserSchema = new Schema({
     }],
     default: []
   },
-  ranking: {
+  ranking:{
     type: Number,
-    default: 999999
+    default: 9999999999 
   }
 });
 
@@ -89,4 +89,38 @@ UserSchema.statics.getUserImage = async function (gitId) {
   return user['imgUrl'];
 }
 
+UserSchema.statics.totalRankUpdate = async function (){
+  console.log("passhere?!?!@#!@#!$!@#!!hello");
+  const result = await this.aggregate([
+    {
+      $setWindowFields: {
+        partitionBy: "$state",
+        sortBy: { 
+          totalScore: -1,
+          nodeId: -1
+        },
+        output: {
+           ranking: {
+              $rank: {}
+            }
+        }
+      }  
+    }
+  ]);
+
+  for (let i =0; i< result.length ; i++ ){
+    let gitId = result[i]["gitId"]  
+    // console.log("hoxyprint????????????????",logId)
+    await this.findOneAndUpdate(
+      {gitId : gitId},
+      {
+        $set: {
+          "ranking": result[i]["ranking"]
+        }
+      },
+      { new: true }
+    );
+  }
+  return result
+}
 module.exports = mongoose.model('User', UserSchema);

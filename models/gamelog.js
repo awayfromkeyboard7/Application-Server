@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Problem = require('./problem');
-const user = require('./user');
+const User = require('./user');
 const Schema = mongoose.Schema;
 
 /* userHistory: Array of attributes updated after game closed */
@@ -162,6 +162,7 @@ GameLogSchema.statics.isFinish = async function(data){
       }
     });
 
+    // User.updateUserInfo(gitId,data);
     for (let i = 0; i < gameLog["userHistory"].length; i++){
       gameLog["userHistory"][i]["ranking"] = i + 1;
       userScores[gameLog["userHistory"][i]["gitId"]] = gameLog["userHistory"].length - i - 1;
