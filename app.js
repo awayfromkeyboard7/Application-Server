@@ -86,7 +86,7 @@ io.on("connection", (socket) => {
     else {
       socket.join(teamRoom[userInfo.gitId].id);
     }
-    console.log(userInfo.gitId, socket.rooms);
+    // console.log(userInfo.gitId, socket.rooms);
   });
 
   socket.on("inviteMember", (gitId, friendGitId) => {
@@ -119,15 +119,15 @@ io.on("connection", (socket) => {
   });
 
   socket.on('getUsers', (roomId) => {
-    console.log(teamRoom[roomId], socket.rooms);
+    // console.log(teamRoom[roomId], socket.rooms);
     socket.join(teamRoom[roomId].id);
     socket.emit('setUsers', teamRoom[roomId]?.players);
   });
 
   socket.on("goToMachingRoom", async (userId) => {
     // userId가 방장인 경우만 emit
-    console.log("goToMachingRoom>>>>>!>!!>!>!>!>!!", userId, teamRoom)
-    console.log(userId, teamRoom, socket.rooms);
+    // console.log("goToMachingRoom>>>>>!>!!>!>!>!>!!", userId, teamRoom)
+    // console.log(userId, teamRoom, socket.rooms);
     if (userId in teamRoom) {
       socket.nsp.to(teamRoom[userId].id).emit("goToMachingRoom", teamRoom[userId].players[0]['gitId']);
     }
@@ -136,9 +136,9 @@ io.on("connection", (socket) => {
   // 팀전 매칭 버튼을 누르면 waiting리스트 확인 후 대기자가 있으면 게임 시작, 없으면 대기리스트에 추가
   socket.on("startMatching", async (roomId) => {
     // console.log(teamRoom[roomId]);
-    console.log(waitingList);
+    // console.log(waitingList);
     socket.join(teamRoom[roomId].id);
-    console.log(socket.rooms);
+    // console.log(socket.rooms);
     // 팀전 매칭을 누르면 team room에 있는 인원 모두 매칭룸으로 이동
     // console.log("startMatching", roomId, waitingList);
     if (waitingList.length === 1) {
@@ -202,12 +202,12 @@ io.on("connection", (socket) => {
 
   //팀전에서 게임 제출
   socket.on("submitCodeTeam", async (gameLogId, bangjang) => {
-    console.log("submitCodeTeam", bangjang, gameLogId);
+    // console.log("submitCodeTeam", bangjang, gameLogId);
 
     let gameLog = await GameLog.getLog(gameLogId);
     // console.log("teamgame log info!!!!!!!", info);
     result = [gameLog["teamA"],gameLog["teamB"]];
-    console.log(result)
+    // console.log(result)
     result.sort((a, b) => {
       if (a[0].passRate === b[0].passRate) {
         return a[0].submitAt - b[0].submitAt;
@@ -222,12 +222,12 @@ io.on("connection", (socket) => {
 
   // 팀전 결과 화면 랭킹
   socket.on("getTeamRanking", async (gameLogId) => {
-    console.log("getTeamRanking", gameLogId);
+    // console.log("getTeamRanking", gameLogId);
 
     let gameLog = await GameLog.getLog(gameLogId);
     // console.log("teamgame log info!!!!!!!", info);
     result = [gameLog["teamA"],gameLog["teamB"]];
-    console.log(result)
+    // console.log(result)
     result.sort((a, b) => {
       if (a[0].passRate === b[0].passRate) {
         return a[0].submitAt - b[0].submitAt;
@@ -250,11 +250,11 @@ io.on("connection", (socket) => {
   });
 
   socket.on("getTeamRanking", async (gameLogId) => {
-    console.log("getTeamRanking", gameLogId);
+    // console.log("getTeamRanking", gameLogId);
 
     let gameLog = await GameLog.getLog(gameLogId);
     result = [gameLog["teamA"],gameLog["teamB"]];
-    console.log("teamgame log info!!!!!!!", result);
+    // console.log("teamgame log info!!!!!!!", result);
     result.sort((a, b) => {
       if (a[0].passRate === b[0].passRate) {
         return a[0].submitAt - b[0].submitAt;

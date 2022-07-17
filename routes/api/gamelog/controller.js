@@ -27,14 +27,16 @@ POST: /api/gamelog
 }
 */
 exports.updateGamelogTeam = async (req, res) => {
-  console.log('updategamelogTeam');
+  // console.log('updategamelogTeam', req.body);
   try {
     await GameLog.updateLogTeam(req.body);
-    if(await GameLog.isFinishTeam(req.body)){
-      User.totalRankUpdate();
-      const userId = req.body['gitId'];
-      User.updateUserRank(userId, 8);
+    const userScores = await GameLog.isFinishTeam(req.body);
+    console.log('updategamelogTeam:::::::', userScores);
+    if (userScores) {
+      console.log(Object.entries(userScores));
+      await Object.entries(userScores).forEach(([gitId, score]) => User.updateUserScore(gitId, score));
     }
+
     res.status(200).json({
       success: true
     });
@@ -47,16 +49,13 @@ exports.updateGamelogTeam = async (req, res) => {
 };
 
 exports.updateGamelog = async (req, res) => {
-  console.log('updategamelog')
   try {
     await GameLog.updateLog(req.body);
-    if(await GameLog.isFinish(req.body)){
-      User.totalRankUpdate();
-      const userId = req.body['gitId']
-      User.updateUserRank(userId, 8)
+    const userScores = await GameLog.isFinish(req.body);
+    if (userScores) {
+      Object.entries(userScores).forEach(([gitId, score]) => User.updateUserScore(gitId, score));
     }
     res.status(200).json({
-
       success: true
     });
   } catch(err) {
