@@ -162,8 +162,8 @@ io.on("connection", (socket) => {
   socket.on("SubmitCodeTeam", async (gameLogId) => {
     // if (info[mode] === "team" )
     let info = await GameLog.getLog(gameLogId);
-    console.log("teamgame log info!!!!!!!", info);
-    result = [info["TeamA"],info["TeamB"]];
+    // console.log("teamgame log info!!!!!!!", info);
+    result = [info["teamA"],info["teamB"]];
     result.sort((a, b) => {
       if (a[0].passRate === b[0].passRate) {
         return a[0].submitAt - b[0].submitAt;
@@ -171,10 +171,15 @@ io.on("connection", (socket) => {
         return b[0].passRate - a[0].passRate;
       }
     });
-    console.log(info["roomIdA"], info["roomIdB"])
+    // console.log(info["roomIdA"], info["roomIdB"])
     socket.nsp.to(info["roomIdA"]).to(info["roomIdB"]).emit("SubmitCodeTeam", result);
     
   });
+
+  //혜진 요청 teaminfo 가져오기
+  socket.on("GetTeamInfo", async(roomId) => {
+    socket.emit("GetTeamInfo", teamRoom[roomId].players)
+  })
 
 });
 

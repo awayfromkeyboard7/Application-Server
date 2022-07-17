@@ -27,12 +27,13 @@ POST: /api/gamelog
 }
 */
 exports.updateGamelogTeam = async (req, res) => {
-  console.log('updategamelogTeam', req.body);
+  console.log('updategamelogTeam');
   try {
     await GameLog.updateLogTeam(req.body);
-
-    const userId = req.body['gitId']
-    User.updateUserRank(userId, 8)
+    if(await GameLog.isFinishTeam(req.body)){
+      const userId = req.body['gitId']
+      User.updateUserRank(userId, 8)
+    }
     res.status(200).json({
       success: true
     });
@@ -48,10 +49,12 @@ exports.updateGamelog = async (req, res) => {
   console.log('updategamelog')
   try {
     await GameLog.updateLog(req.body);
-
-    const userId = req.body['gitId']
-    User.updateUserRank(userId, 8)
+    if(await GameLog.isFinish(req.body)){
+      const userId = req.body['gitId']
+      User.updateUserRank(userId, 8)
+    }
     res.status(200).json({
+
       success: true
     });
   } catch(err) {
@@ -66,8 +69,10 @@ exports.createGamelog = async (req, res) => {
   try {
     const info = {
       problemId : await Problem.random(),
-      userHistory: req.body.players
+      userHistory: req.body.players,
+      totalUsers: req.body.totalUsers
     }
+    // console.log("@@@@@@@@@@@@@@@@@@@@@@",length(req.body.players));
     const gameLog = await GameLog.createLog(info);
     info.userHistory.forEach(item => console.log(item.gitId))
 
