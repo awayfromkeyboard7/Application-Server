@@ -1,5 +1,5 @@
-const GameRoom = require("../../models/gameroom");
-const GameLog = require("../../models/gamelog");
+const GameRoom = require("../../../models/gameroom");
+const GameLog = require("../../../models/gamelog");
 
 module.exports = (socket, event) => {
   socket.on(event, async (gameLogId) => {

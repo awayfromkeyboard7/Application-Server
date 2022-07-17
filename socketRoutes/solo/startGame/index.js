@@ -1,4 +1,4 @@
-const GameRoom = require("../../models/gameroom");
+const GameRoom = require("../../../models/gameroom");
 
 module.exports = (socket, event) => {
   socket.on(event, (gameLogId) => {
