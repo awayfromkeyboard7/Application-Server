@@ -189,8 +189,8 @@ io.on("connection", (socket) => {
   });
 
   //팀전에서 게임 제출
-  socket.on("SubmitCodeTeam", async (gameLogId, bangjang) => {
-    console.log("SubmitCodeTeam", bangjang, gameLogId);
+  socket.on("submitCodeTeam", async (gameLogId, bangjang) => {
+    console.log("submitCodeTeam", bangjang, gameLogId);
 
     let gameLog = await GameLog.getLog(gameLogId);
     // console.log("teamgame log info!!!!!!!", info);
@@ -204,20 +204,36 @@ io.on("connection", (socket) => {
       }
     });
     // console.log(gameLog["roomIdA"], gameLog["roomIdB"]);
-    socket.nsp.to(teamRoom[bangjang].id).to(teamRoom[bangjang].id).emit("SubmitCodeTeam", result);
+    socket.nsp.to(gameLog["roomIdA"]).to(gameLog["roomIdB"]).emit("submitCodeTeam", result);
     console.log(gameLog["roomIdA"], teamRoom[bangjang].id);
-    socket.nsp.to(teamRoom[bangjang].id).emit("TeamGameOver");
+    socket.nsp.to(teamRoom[bangjang].id).emit("teamGameOver");
   });
 
   socket.on("getTeamInfo", (roomId) => {
     console.log('get game info >>>>> ', roomId, teamRoom[roomId]?.players);
     socket.emit("getTeamInfo", teamRoom[roomId]?.players)
-  })
+  });
   
   socket.on("shareJudgedCode", (data, bangjang) => {
     console.log(data, bangjang)
     socket.to(teamRoom[bangjang].id).emit("shareJudgedCode", data);
-  })
+  });
+
+  socket.on("getTeamRanking", async (gameLogId) => {
+    console.log("getTeamRanking", gameLogId);
+
+    let gameLog = await GameLog.getLog(gameLogId);
+    result = [gameLog["teamA"],gameLog["teamB"]];
+    console.log("teamgame log info!!!!!!!", result);
+    result.sort((a, b) => {
+      if (a[0].passRate === b[0].passRate) {
+        return a[0].submitAt - b[0].submitAt;
+      } else {
+        return b[0].passRate - a[0].passRate;
+      }
+    });
+    socket.nsp.to(gameLog["roomIdA"]).to(gameLog["roomIdB"]).emit("getTeamRanking", result, gameLog["startAt"]);
+  });
 });
 
 server.listen(PORTNUM, () => {

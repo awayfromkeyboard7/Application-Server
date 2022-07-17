@@ -11,7 +11,7 @@ module.exports = (socket, event) => {
         socket.nsp.to(i).emit(event, gameLogId);
 
         let timeLimit = new Date();
-        timeLimit.setMinutes(timeLimit.getMinutes() + 1);
+        timeLimit.setMinutes(timeLimit.getMinutes() + 15);
     
         const interval = setInterval(() => {
           socket.nsp.to(i).emit("timeLimitCode", timeLimit - new Date());
