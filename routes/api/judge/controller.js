@@ -12,7 +12,7 @@ exports.sendCode = async function(req, res) {
   const lang = req.body['language'];
   const code = req.body['code'];
   
-  console.log("Send request to Container");
+  console.log("Send request to Container", req.body);
   request
     .post(`${process.env.JUDGE_SERVER_URL}/judge`)
     .set('Accept', 'application/json')

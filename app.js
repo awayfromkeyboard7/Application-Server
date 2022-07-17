@@ -235,7 +235,7 @@ io.on("connection", (socket) => {
         return b[0].passRate - a[0].passRate;
       }
     });
-    socket.nsp.to(gameLog["roomIdA"]).to(gameLog["roomIdB"]).emit("getTeamRanking", result);
+    socket.nsp.to(gameLog["roomIdA"]).to(gameLog["roomIdB"]).emit("getTeamRanking", result, gameLog["startAt"]);
   });
 
   socket.on("getTeamInfo", (roomId) => {
