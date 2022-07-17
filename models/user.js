@@ -22,12 +22,22 @@ const UserSchema = new Schema({
     default: 0
   },
   problemHistory: {
-    type: Array,
+    type: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref:'problems'
+    }],
     default: []
   },
-  gameHistory: {
-    type: Array,
+  gameLogHistory: {
+    type: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref:'gamelogs'
+    }],
     default: []
+  },
+  ranking: {
+    type: Number,
+    default: 999999
   }
 });
 
@@ -47,27 +57,27 @@ UserSchema.statics.createUser = function (info) {
 	return this.create(info);
 }
 
-UserSchema.statics.updateUserRank = async function (gitId, rank) {
-  const user = await this.findOne({gitId: gitId});
+UserSchema.statics.updateUserScore = async function (gitId, score) {
+  console.log(gitId, score);
   return await this.findOneAndUpdate(
     {gitId: gitId},
     {
-      totalScore: user.totalScore + rank,
+      $inc: {
+        totalScore: score,
+      }
     },
     {new: true}
   )
 }
 
 // 게임 끝난 후 업데이트
-// user = await User.updateUserInfo(user.nodeId, {score: 4, problemId: 8, gameId: 8})
 UserSchema.statics.updateUserInfo = async function (gitId, info) {
-  const user = await this.findOne({gitId: gitId});
   return await this.findOneAndUpdate(
     {gitId: gitId},
     {
       $push: {
-        problemHistory: info['problemId'],
-        gameHistory: info['gameLogId']
+        problemHistory: mongoose.Types.ObjectId(info['problemId']),
+        gameLogHistory: mongoose.Types.ObjectId(info['gameLogId'])
       }
     },
     {new: true}
@@ -75,9 +85,7 @@ UserSchema.statics.updateUserInfo = async function (gitId, info) {
 }
 
 UserSchema.statics.getUserImage = async function (gitId) {
-  console.log('gitId:', gitId)
   const user = await this.findOne({gitId: gitId});
-  console.log(user['imgUrl']);
   return user['imgUrl'];
 }
 
