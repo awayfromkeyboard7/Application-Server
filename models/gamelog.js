@@ -68,19 +68,19 @@ const GameLogSchema = new Schema({
     defualt: []
   },
 
-  roomIdA :{
+  roomIdA: {
     type: String,
     default : false
   },
   
-  roomIdB :{
+  roomIdB: {
     type: String,
     default : false
   },
 
   totalUsers :{
     type: Number,
-    default : 0,
+    default : 0
   }
 
 });
@@ -122,7 +122,7 @@ GameLogSchema.statics.updateLog = function(data) {
       arrayFilters: [{ 'element.gitId': data['gitId'] }],
       new: true
     }
-  )
+  ).exec();
 };
 
 GameLogSchema.statics.updateLogTeam = async function(data) {
