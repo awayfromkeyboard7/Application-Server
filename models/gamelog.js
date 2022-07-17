@@ -41,12 +41,10 @@ const GameLogSchema = new Schema({
     default : Date.now,
     required: true
   },
-
   gameMode: {
     type: String,
     default : 'personal'
   },
-
   problemId: {
     type: Schema.Types.ObjectId,
     required: true,
@@ -56,27 +54,22 @@ const GameLogSchema = new Schema({
     type: [UserHistorySchema],
     defualt: []
   },
-
   teamA: {
     type: [UserHistorySchema],
     default: []
   },
-
   teamB: {
     type: [UserHistorySchema],
     defualt: []
   },
-
   roomIdA: {
     type: String,
     default : false
   },
-  
   roomIdB: {
     type: String,
     default : false
   },
-
   totalUsers :{
     type: Number,
     default : 0
@@ -96,7 +89,7 @@ GameLogSchema.statics.createTeamLog = async function(teamA, teamB, roomIdA, room
     gameMode: 'team',
     roomIdA,
     roomIdB,
-    totalUsers : 2
+    totalUsers: 2
   }
   const newLog = await this.create(data);
   console.log('newLog>>>>', newLog._id)
@@ -172,7 +165,7 @@ GameLogSchema.statics.isFinish = async function(data){
     gameLog.save()
     return userScores;
   };
-  
+
   gameLog.save();
 }
 

@@ -33,6 +33,7 @@ exports.updateGamelogTeam = async (req, res) => {
     const userScores = await GameLog.isFinishTeam(req.body);
     console.log('updategamelogTeam:::::::', userScores);
     if (userScores) {
+      User.totalRankUpdate();
       console.log(Object.entries(userScores));
       await Object.entries(userScores).forEach(([gitId, score]) => User.updateUserScore(gitId, score));
     }
@@ -53,6 +54,7 @@ exports.updateGamelog = async (req, res) => {
     await GameLog.updateLog(req.body);
     const userScores = await GameLog.isFinish(req.body);
     if (userScores) {
+      User.totalRankUpdate();
       Object.entries(userScores).forEach(([gitId, score]) => User.updateUserScore(gitId, score));
     }
     res.status(200).json({
