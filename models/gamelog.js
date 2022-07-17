@@ -140,9 +140,8 @@ GameLogSchema.statics.updateLogTeam = async function(data) {
   gameLog[myteam][0]['submitAt'] = data['submitAt']
   gameLog[myteam][0]['ranking'] = data['ranking']
   gameLog[myteam][0]['passRate'] = data['passRate']
-  gameLog.save();
-  
-  return gameLog
+  await gameLog.save();
+  return 
 };
 
 
@@ -180,10 +179,10 @@ GameLogSchema.statics.isFinish = async function(data){
 GameLogSchema.statics.isFinishTeam = async function(data){
   const gameLog = await this.findById(mongoose.Types.ObjectId(data["gameId"]));
   gameLog["totalUsers"] -= 1;
-  console.log("passhere???!?!?!?!?!")
+
   if (gameLog["totalUsers"] === 0){
-    result = [gameLog["teamA"],gameLog["teamB"]];
-    
+    let result = [gameLog["teamA"],gameLog["teamB"]];
+    // console.log("befor1111111212121212",result)
     result.sort((a, b) => {
       if (a[0].passRate === b[0].passRate) {
         return a[0].submitAt - b[0].submitAt;
@@ -191,7 +190,7 @@ GameLogSchema.statics.isFinishTeam = async function(data){
         return b[0].passRate - a[0].passRate;
       }
     });
-
+    // console.log("after??????????????",result)
     // console.log("passhere???!?!?!?!?!",result);
     for (let i=0; i < 2; i++){
       result[i][0]["ranking"] = i+1;

@@ -222,7 +222,7 @@ io.on("connection", (socket) => {
 
   // 팀전 결과 화면 랭킹
   socket.on("getTeamRanking", async (gameLogId) => {
-    console.log("getTeamRanking", gameLogId);
+    // console.log("getTeamRanking", gameLogId);
 
     let gameLog = await GameLog.getLog(gameLogId);
     // console.log("teamgame log info!!!!!!!", info);
@@ -250,11 +250,11 @@ io.on("connection", (socket) => {
   });
 
   socket.on("getTeamRanking", async (gameLogId) => {
-    console.log("getTeamRanking", gameLogId);
+    // console.log("getTeamRanking", gameLogId);
 
     let gameLog = await GameLog.getLog(gameLogId);
     result = [gameLog["teamA"],gameLog["teamB"]];
-    console.log("teamgame log info!!!!!!!", result);
+    // console.log("teamgame log info!!!!!!!", result);
     result.sort((a, b) => {
       if (a[0].passRate === b[0].passRate) {
         return a[0].submitAt - b[0].submitAt;
