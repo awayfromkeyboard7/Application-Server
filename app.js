@@ -48,6 +48,8 @@ io.on("connection", (socket) => {
 
   socket.on("setGitId", (gitId) => {
     usersSocketId[gitId] = socket.id;
+    console.log(gitId, usersSocketId);
+    console.log('');
     // console.log("usersSocketId>>>", usersSocketId);
   });
 
@@ -59,26 +61,32 @@ io.on("connection", (socket) => {
 
   socket.on("createTeam", (userInfo) => {
     // console.log("createTeam........");
-    const teamRoomId = uuid.v4();
-    socket.join(teamRoomId);
-    teamRoom[userInfo.gitId] = { id: teamRoomId, players: [userInfo] };
-    // 퍼플
-    socket.emit("enterNewUserToTeam", teamRoom[userInfo.gitId].players);
-
-    let timeLimit = new Date();
-    timeLimit.setMinutes(timeLimit.getMinutes() + 3);
+    if (!(userInfo.gitId in teamRoom)) {
+      const teamRoomId = uuid.v4();
+      socket.join(teamRoomId);
+      teamRoom[userInfo.gitId] = { id: teamRoomId, players: [userInfo] };
+      // 퍼플
+      socket.emit("enterNewUserToTeam", teamRoom[userInfo.gitId].players);
   
-    const interval = setInterval(() => {
-      socket.nsp.to(teamRoom[userInfo.gitId]?.id).emit("timeLimit", timeLimit - new Date());
-      if(timeLimit < new Date()) {
-        socket.nsp.to(teamRoom[userInfo.gitId].id).emit("timeOut");
+      let timeLimit = new Date();
+      timeLimit.setMinutes(timeLimit.getMinutes() + 3);
+    
+      const interval = setInterval(() => {
+        socket.nsp.to(teamRoom[userInfo.gitId]?.id).emit("timeLimit", timeLimit - new Date());
+        if(timeLimit < new Date()) {
+          socket.nsp.to(teamRoom[userInfo.gitId].id).emit("timeOut");
+          clearInterval(interval);
+        }
+      }, 1000);
+  
+      return () => {
         clearInterval(interval);
-      }
-    }, 1000);
-
-    return () => {
-      clearInterval(interval);
-    };
+      };
+    }
+    else {
+      socket.join(teamRoom[userInfo.gitId].id);
+    }
+    console.log(userInfo.gitId, socket.rooms);
   });
 
   socket.on("inviteMember", (gitId, friendGitId) => {
@@ -111,16 +119,15 @@ io.on("connection", (socket) => {
   });
 
   socket.on('getUsers', (roomId) => {
+    console.log(teamRoom[roomId], socket.rooms);
+    socket.join(teamRoom[roomId].id);
     socket.emit('setUsers', teamRoom[roomId]?.players);
   });
-
-
-
-
 
   socket.on("goToMachingRoom", async (userId) => {
     // userId가 방장인 경우만 emit
     console.log("goToMachingRoom>>>>>!>!!>!>!>!>!!", userId, teamRoom)
+    console.log(userId, teamRoom, socket.rooms);
     if (userId in teamRoom) {
       socket.nsp.to(teamRoom[userId].id).emit("goToMachingRoom", teamRoom[userId].players[0]['gitId']);
     }
@@ -130,30 +137,35 @@ io.on("connection", (socket) => {
   socket.on("startMatching", async (roomId) => {
     // console.log(teamRoom[roomId]);
     console.log(waitingList);
+    socket.join(teamRoom[roomId].id);
+    console.log(socket.rooms);
     // 팀전 매칭을 누르면 team room에 있는 인원 모두 매칭룸으로 이동
     // console.log("startMatching", roomId, waitingList);
     if (waitingList.length === 1) {
+      // 새로고침하면 이미 내가 대기리스트에 있는 상태.
+      console.log('startMatching>>>>>>>>>>>>>>', roomId, waitingList);
+      if (!(waitingList.includes(roomId))) {
+        // create gamelog for 2 teams.......
+        // TODO1 양 팀의 유저들로 새 게임로그 생성
+        const gameLogId = await gamelog.createTeamLog(teamRoom[waitingList[0]].players, teamRoom[roomId].players, teamRoom[waitingList[0]].id, teamRoom[roomId].id);
 
-      // create gamelog for 2 teams.......
-      // TODO1 양 팀의 유저들로 새 게임로그 생성
-      const gameLogId = await gamelog.createTeamLog(teamRoom[waitingList[0]].players, teamRoom[roomId].players, teamRoom[waitingList[0]].id, teamRoom[roomId].id);
-
-      // TODO2 client에서 teamGameStart 이벤트　on
-      socket.nsp.to(teamRoom[waitingList[0]].id).emit("teamGameStart", waitingList[0], gameLogId);
-      socket.nsp.to(teamRoom[roomId].id).emit("teamGameStart", roomId, gameLogId);
-      let timeLimit = new Date();
-      timeLimit.setMinutes(timeLimit.getMinutes() + 15);
-      const firstTeamId = teamRoom[waitingList[0]].id;
-      const secondTeamId = teamRoom[roomId].id;
-      const interval = setInterval(() => {
-        socket.nsp.to([firstTeamId, secondTeamId]).emit("timeLimitCode", timeLimit - new Date());
-        if(timeLimit < new Date()) {
-          socket.nsp.to([firstTeamId, secondTeamId]).emit("timeOutCode");
-          clearInterval(interval);
-        }
-      }, 1000);
-      waitingList = [];
-    } else {
+        // TODO2 client에서 teamGameStart 이벤트　on
+        socket.nsp.to(teamRoom[waitingList[0]].id).emit("teamGameStart", waitingList[0], gameLogId);
+        socket.nsp.to(teamRoom[roomId].id).emit("teamGameStart", roomId, gameLogId);
+        let timeLimit = new Date();
+        timeLimit.setMinutes(timeLimit.getMinutes() + 1);
+        const firstTeamId = teamRoom[waitingList[0]].id;
+        const secondTeamId = teamRoom[roomId].id;
+        const interval = setInterval(() => {
+          socket.nsp.to([firstTeamId, secondTeamId]).emit("timeLimitCode", timeLimit - new Date());
+          if(timeLimit < new Date()) {
+            socket.nsp.to([firstTeamId, secondTeamId]).emit("timeOutCode");
+            clearInterval(interval);
+          }
+        }, 1000);
+        waitingList = [];
+      }
+     } else {
       console.log("teamgame should not be started yet!!!!!!!!");
       waitingList.push(roomId);
     }
@@ -174,7 +186,7 @@ io.on("connection", (socket) => {
   
       waitingList = arrayRemove(waitingList, bangjang);
       delete teamRoom[bangjang]
-      console.log(">>>>>> socket.rooms before EXIT >>>>>>>", socket.rooms);
+      console.log(">>>>>> socket.rooms after EXIT >>>>>>>", socket.rooms);
       console.log(">>>>>> waitingList after EXIT >>>>>>>", waitingList);
   
       // BUG: WHY annie1229 is in TEAMROOM???????????????????
@@ -203,14 +215,32 @@ io.on("connection", (socket) => {
         return b[0].passRate - a[0].passRate;
       }
     });
-    // console.log(gameLog["roomIdA"], gameLog["roomIdB"]);
     socket.nsp.to(gameLog["roomIdA"]).to(gameLog["roomIdB"]).emit("submitCodeTeam", result);
     console.log(gameLog["roomIdA"], teamRoom[bangjang].id);
     socket.nsp.to(teamRoom[bangjang].id).emit("teamGameOver");
   });
 
+  // 팀전 결과 화면 랭킹
+  socket.on("getTeamRanking", async (gameLogId) => {
+    console.log("getTeamRanking", gameLogId);
+
+    let gameLog = await GameLog.getLog(gameLogId);
+    // console.log("teamgame log info!!!!!!!", info);
+    result = [gameLog["teamA"],gameLog["teamB"]];
+    console.log(result)
+    result.sort((a, b) => {
+      if (a[0].passRate === b[0].passRate) {
+        return a[0].submitAt - b[0].submitAt;
+      } else {
+        return b[0].passRate - a[0].passRate;
+      }
+    });
+    socket.nsp.to(gameLog["roomIdA"]).to(gameLog["roomIdB"]).emit("getTeamRanking", result);
+  });
+
   socket.on("getTeamInfo", (roomId) => {
     console.log('get game info >>>>> ', roomId, teamRoom[roomId]?.players);
+    socket.join(teamRoom[roomId].id);
     socket.emit("getTeamInfo", teamRoom[roomId]?.players)
   });
   
