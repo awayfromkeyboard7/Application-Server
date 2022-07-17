@@ -153,7 +153,7 @@ io.on("connection", (socket) => {
         socket.nsp.to(teamRoom[waitingList[0]].id).emit("teamGameStart", waitingList[0], gameLogId);
         socket.nsp.to(teamRoom[roomId].id).emit("teamGameStart", roomId, gameLogId);
         let timeLimit = new Date();
-        timeLimit.setMinutes(timeLimit.getMinutes() + 1);
+        timeLimit.setMinutes(timeLimit.getMinutes() + 15);
         const firstTeamId = teamRoom[waitingList[0]].id;
         const secondTeamId = teamRoom[roomId].id;
         const interval = setInterval(() => {
@@ -264,6 +264,11 @@ io.on("connection", (socket) => {
     });
     socket.nsp.to(gameLog["roomIdA"]).to(gameLog["roomIdB"]).emit("getTeamRanking", result, gameLog["startAt"]);
   });
+
+  socket.on("setPeerId", (roomId, id) => {
+    console.log('get peer id ', id);
+    socket.broadcast.to(teamRoom[roomId].id).emit("getPeerId", id);
+  })
 });
 
 server.listen(PORTNUM, () => {
