@@ -31,8 +31,9 @@ exports.updateGamelogTeam = async (req, res) => {
   try {
     await GameLog.updateLogTeam(req.body);
     if(await GameLog.isFinishTeam(req.body)){
-      const userId = req.body['gitId']
-      User.updateUserRank(userId, 8)
+      User.totalRankUpdate();
+      const userId = req.body['gitId'];
+      User.updateUserRank(userId, 8);
     }
     res.status(200).json({
       success: true
@@ -50,6 +51,7 @@ exports.updateGamelog = async (req, res) => {
   try {
     await GameLog.updateLog(req.body);
     if(await GameLog.isFinish(req.body)){
+      User.totalRankUpdate();
       const userId = req.body['gitId']
       User.updateUserRank(userId, 8)
     }
