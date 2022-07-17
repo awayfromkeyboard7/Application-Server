@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const Problem = require('./problem');
+const user = require('./user');
+const User = require('./user');
 const Schema = mongoose.Schema;
 
 /* userHistory: Array of attributes updated after game closed */
@@ -33,34 +35,6 @@ const UserHistorySchema = new Schema({
     default: -1
   }
 });
-
-// const TeamInfo = new Schema({
-//   player: {
-//     type: [UserHistorySchema],
-//     default: []
-//   },
-//   language: {
-//     type: String,
-//     default : ''
-//   },
-//   code: {
-//     type: String,
-//     default: ''
-//   },
-//   submitAt: {
-//     type: Date,
-//     default: Date.now
-//   },
-//   ranking: {
-//     type: Number,
-//     default: 0
-//   },
-//   passRate: {
-//     type: Number,
-//     default: -1
-//   }
-
-// });
 
 const GameLogSchema = new Schema({
   startAt: {
@@ -102,11 +76,11 @@ const GameLogSchema = new Schema({
   roomIdB: {
     type: String,
     default : false
-  }, 
+  },
 
-  totalUsers: {
+  totalUsers :{
     type: Number,
-    default: 0
+    default : 0
   }
 
 });
@@ -124,7 +98,8 @@ GameLogSchema.statics.createTeamLog = async function(teamA, teamB, roomIdA, room
     teamB : teamB,
     gameMode : 'team',
     roomIdA : roomIdA,
-    roomIdB : roomIdB
+    roomIdB : roomIdB,
+    totalUsers : 2
   }
   const newLog = await this.create(data);
   console.log('newLog>>>>', newLog._id)
@@ -151,7 +126,7 @@ GameLogSchema.statics.updateLog = function(data) {
 };
 
 GameLogSchema.statics.updateLogTeam = async function(data) {
-  console.log("updateLogTeam?>>>>>>>>", data);
+  // console.log("updateLogTeam?>>>>>>>>", data);
   const gameLog = await this.findById(mongoose.Types.ObjectId(data["gameId"]));
   let myteam = "teamA";
   for (let userInfo of gameLog["teamB"]){
@@ -172,8 +147,59 @@ GameLogSchema.statics.updateLogTeam = async function(data) {
 
 
 GameLogSchema.statics.getLog = function(logId) {
-  console.log('getLog::>>>>:>?>?>DFSDF', logId);
+  // console.log('getLog::>>>>:>?>?>DFSDF', logId);
   return this.findById(mongoose.Types.ObjectId(logId));
 }
 
+
+//도현 추가
+GameLogSchema.statics.isFinish = async function(data){
+  // console.log("peterhere@!@!@!@!@!@!@!")
+  const gameLog = await this.findById(mongoose.Types.ObjectId(data["gameId"]));
+  gameLog["totalUsers"] -= 1;
+
+  if (gameLog["totalUsers"] === 0){
+    gameLog["userHistory"].sort((a, b) => {
+      if (a.passRate === b.passRate) {
+        return a.submitAt - b.submitAt;
+      } else {
+        return b.passRate - a.passRate;
+      }
+    });
+
+    for (let i=0; i < gameLog["userHistory"].length; i++){
+      gameLog["userHistory"][i]["ranking"] = i+1;
+    } 
+    gameLog.save()
+    return true
+  };
+  gameLog.save();
+  return false
+}
+
+GameLogSchema.statics.isFinishTeam = async function(data){
+  const gameLog = await this.findById(mongoose.Types.ObjectId(data["gameId"]));
+  gameLog["totalUsers"] -= 1;
+  console.log("passhere???!?!?!?!?!")
+  if (gameLog["totalUsers"] === 0){
+    result = [gameLog["teamA"],gameLog["teamB"]];
+    
+    result.sort((a, b) => {
+      if (a[0].passRate === b[0].passRate) {
+        return a[0].submitAt - b[0].submitAt;
+      } else {
+        return b[0].passRate - a[0].passRate;
+      }
+    });
+
+    // console.log("passhere???!?!?!?!?!",result);
+    for (let i=0; i < 2; i++){
+      result[i][0]["ranking"] = i+1;
+    } 
+    gameLog.save()
+    return true
+  };
+  gameLog.save();
+  return false
+}
 module.exports = mongoose.model('GameLog', GameLogSchema);
