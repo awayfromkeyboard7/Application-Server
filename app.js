@@ -41,6 +41,39 @@ function arrayRemove(arr, value) {
   });
 }
 
+function getPlayers(arr) {
+  const temp = [];
+  for (const info of arr.players) {
+    temp.push(info.userInfo);
+  }
+  return temp;
+} 
+
+function maygetPlayers(arr) {
+  const temp = [];
+  for (const info of arr?.players) {
+    temp.push(info.userInfo);
+  }
+  return temp;
+} 
+
+function getPeerId(arr) {
+  const temp = {};
+  for (const info of arr.players) {
+    temp[info.userInfo.gitId] = info.peerId;
+  }
+  return temp;
+}
+
+function setPeerId(arr, gitId, peerId) {
+  for (const info of arr.players) {
+    if (info.userInfo.gitId === gitId) {
+      info.peerId = peerId;
+      return
+    }
+  }
+} 
+
 
 io.on("connection", (socket) => {
   console.log(`user connected: ${socket.id}`, teamRoom);
@@ -48,8 +81,8 @@ io.on("connection", (socket) => {
 
   socket.on("setGitId", (gitId) => {
     usersSocketId[gitId] = socket.id;
-    console.log(gitId, usersSocketId);
-    console.log('');
+    // console.log(gitId, usersSocketId);
+    // console.log('');
     // console.log("usersSocketId>>>", usersSocketId);
   });
 
@@ -64,9 +97,11 @@ io.on("connection", (socket) => {
     if (!(userInfo.gitId in teamRoom)) {
       const teamRoomId = uuid.v4();
       socket.join(teamRoomId);
-      teamRoom[userInfo.gitId] = { id: teamRoomId, players: [userInfo] };
+      // teamRoom[userInfo.gitId] = { id: teamRoomId, players: [userInfo] };
+      teamRoom[userInfo.gitId] = { id: teamRoomId, players: [{userInfo, peerId:''}] };
       // 퍼플
-      socket.emit("enterNewUserToTeam", teamRoom[userInfo.gitId].players);
+      // socket.emit("enterNewUserToTeam", teamRoom[userInfo.gitId].players);
+      socket.emit("enterNewUserToTeam", getPlayers(teamRoom[userInfo.gitId]));
   
       let timeLimit = new Date();
       timeLimit.setMinutes(timeLimit.getMinutes() + 3);
@@ -99,22 +134,34 @@ io.on("connection", (socket) => {
   socket.on("acceptInvite", (roomId, userInfo) => {
     // console.log(`acceptInvite >>>>>>>> ${roomId} => ${userInfo.gitId}`)
 
-    teamRoom[roomId].players.push(userInfo);
+    // teamRoom[roomId].players.push(userInfo);
+    teamRoom[roomId].players.push({userInfo, peerId:''});
 
     // console.log('teamRoom[roomId]', teamRoom[roomId])
 
+    // const temp = new Set();
+    // const unique = teamRoom[roomId].players.filter((item) => {
+    //   const alreadyHas = temp.has(item.gitId);
+    //   temp.add(item.gitId);
+    //   return !alreadyHas;
+    // });
+    // teamRoom[roomId].players = unique;
+    
     const temp = new Set();
     const unique = teamRoom[roomId].players.filter((item) => {
-      const alreadyHas = temp.has(item.gitId);
-      temp.add(item.gitId);
+      const alreadyHas = temp.has(item.userInfo.gitId);
+      temp.add(item.userInfo.gitId);
       return !alreadyHas;
     });
-    teamRoom[roomId].players = unique;
     
+    teamRoom[roomId].players = unique;
+
+
     socket.join(teamRoom[roomId].id);
     socket.nsp
       .to(teamRoom[roomId].id)
-      .emit("enterNewUserToTeam", teamRoom[roomId].players);
+      .emit("enterNewUserToTeam", getPlayers(teamRoom[roomId]));
+      // .emit("enterNewUserToTeam", teamRoom[roomId].players);
     
     console.log(teamRoom);
 
@@ -123,7 +170,8 @@ io.on("connection", (socket) => {
   socket.on('getUsers', (roomId) => {
     // console.log(teamRoom[roomId], socket.rooms);
     socket.join(teamRoom[roomId].id);
-    socket.emit('setUsers', teamRoom[roomId]?.players);
+    socket.emit('setUsers', maygetPlayers(teamRoom[roomId]));
+    // socket.emit('setUsers', teamRoom[roomId]?.players);
   });
 
   socket.on("goToMachingRoom", async (userId) => {
@@ -131,7 +179,8 @@ io.on("connection", (socket) => {
     // console.log("goToMachingRoom>>>>>!>!!>!>!>!>!!", userId, teamRoom)
     // console.log(userId, teamRoom, socket.rooms);
     if (userId in teamRoom) {
-      socket.nsp.to(teamRoom[userId].id).emit("goToMachingRoom", teamRoom[userId].players[0]['gitId']);
+      // socket.nsp.to(teamRoom[userId].id).emit("goToMachingRoom", teamRoom[userId].players[0].userInfo.gitId);
+      socket.nsp.to(teamRoom[userId].id).emit("goToMachingRoom", userId);
     }
   })
 
@@ -145,12 +194,15 @@ io.on("connection", (socket) => {
     // console.log("startMatching", roomId, waitingList);
     if (waitingList.length === 1) {
       // 새로고침하면 이미 내가 대기리스트에 있는 상태.
-      console.log('startMatching>>>>>>>>>>>>>>', roomId, waitingList);
+      // console.log('startMatching>>>>>>>>>>>>>>', roomId, waitingList);
       if (!(waitingList.includes(roomId))) {
         // create gamelog for 2 teams.......
+        
         // TODO1 양 팀의 유저들로 새 게임로그 생성
-        const gameLogId = await gamelog.createTeamLog(teamRoom[waitingList[0]].players, teamRoom[roomId].players, teamRoom[waitingList[0]].id, teamRoom[roomId].id);
+        // const gameLogId = await gamelog.createTeamLog(teamRoom[waitingList[0]].players, teamRoom[roomId].players, teamRoom[waitingList[0]].id, teamRoom[roomId].id);
+        const gameLogId = await gamelog.createTeamLog(getPlayers(teamRoom[waitingList[0]]), getPlayers(teamRoom[roomId]), teamRoom[waitingList[0]].id, teamRoom[roomId].id);
         User.addGameLog(await GameLog.getLog(gameLogId));
+        
         // TODO2 client에서 teamGameStart 이벤트　on
         socket.nsp.to(teamRoom[waitingList[0]].id).emit("teamGameStart", waitingList[0], gameLogId);
         socket.nsp.to(teamRoom[roomId].id).emit("teamGameStart", roomId, gameLogId);
@@ -241,9 +293,9 @@ io.on("connection", (socket) => {
   });
 
   socket.on("getTeamInfo", (roomId) => {
-    console.log('get game info >>>>> ', roomId, teamRoom[roomId]?.players);
+    console.log('get game info >>>>> ', roomId, maygetPlayers(teamRoom[roomId]));
     socket.join(teamRoom[roomId].id);
-    socket.emit("getTeamInfo", teamRoom[roomId]?.players)
+    socket.emit("getTeamInfo", maygetPlayers(teamRoom[roomId]));
   });
   
   socket.on("shareJudgedCode", (data, bangjang) => {
@@ -251,10 +303,27 @@ io.on("connection", (socket) => {
     socket.to(teamRoom[bangjang].id).emit("shareJudgedCode", data);
   });
 
-  socket.on("setPeerId", (roomId, id) => {
-    console.log('get peer id ', id);
-    socket.broadcast.to(teamRoom[roomId].id).emit("getPeerId", id);
-  })
+  socket.on("getTeamRanking", async (gameLogId) => {
+    console.log("getTeamRanking", gameLogId);
+
+    let gameLog = await GameLog.getLog(gameLogId);
+    result = [gameLog["teamA"],gameLog["teamB"]];
+    console.log("teamgame log info!!!!!!!", result);
+    result.sort((a, b) => {
+      if (a[0].passRate === b[0].passRate) {
+        return a[0].submitAt - b[0].submitAt;
+      } else {
+        return b[0].passRate - a[0].passRate;
+      }
+    });
+    socket.nsp.to(gameLog["roomIdA"]).to(gameLog["roomIdB"]).emit("getTeamRanking", result, gameLog["startAt"]);
+  });
+
+  socket.on("setPeerId", (userId, peerId, roomId) => {
+    setPeerId(teamRoom[roomId], userId, peerId);
+    console.log(teamRoom[roomId]);
+    socket.broadcast.to(teamRoom[roomId].id).emit("getPeerId", userId, getPeerId(teamRoom[roomId]));
+  });
 });
 
 server.listen(PORTNUM, () => {
