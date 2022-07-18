@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+// const Problem = require('./problem');
+// const GameLog = require('./gamelog');
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
@@ -24,7 +26,7 @@ const UserSchema = new Schema({
   problemHistory: {
     type: [
       {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Object,
         ref: "Problem",
       },
     ],
@@ -33,7 +35,7 @@ const UserSchema = new Schema({
   gameLogHistory: {
     type: [
       {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Object,
         ref: "Gamelog",
       },
     ],
@@ -105,7 +107,7 @@ UserSchema.statics.totalRankUpdate = async function () {
         partitionBy: "$state",
         sortBy: {
           totalScore: -1,
-          nodeId: -1,
+          // nodeId: -1,
         },
         output: {
           ranking: {
@@ -130,5 +132,65 @@ UserSchema.statics.totalRankUpdate = async function () {
   }
   return result;
 };
+
+UserSchema.statics.addGameLog = async function (gameLog){
+  console.log("gamelog???????!?!@?",gameLog)
+  const problemId = gameLog.problemId["_id"]
+  const gameLogId = gameLog._id
+
+  for (let i = 0 ; i<gameLog.userHistory.length; i++){
+    let userLog = await this.find({ gitId : gameLog.userHistory[i].gitId })    
+    let gameLogHistory = userLog[0]["gameLogHistory"]
+    let problemHistory = userLog[0]["problemHistory"]
+    gameLogHistory.push(gameLogId)
+    problemHistory.push(problemId)
+    await this.findOneAndUpdate(
+      {gitId : gameLog.userHistory[i].gitId},
+      {
+        $set: {
+          problemHistory : problemHistory,
+          gameLogHistory : gameLogHistory
+        }
+      },
+      { new: true}
+    )
+  }
+
+  for (let i = 0 ; i<gameLog.teamA.length; i++){
+    let userLog = await this.find({ gitId : gameLog.teamA[i].gitId })    
+    let gameLogHistory = userLog[0]["gameLogHistory"]
+    let problemHistory = userLog[0]["problemHistory"]
+    gameLogHistory.push(gameLogId)
+    problemHistory.push(problemId)
+    await this.findOneAndUpdate(
+      {gitId : gameLog.teamA[i].gitId},
+      {
+        $set: {
+          problemHistory : problemHistory,
+          gameLogHistory : gameLogHistory
+        }
+      },
+      { new: true}
+    )
+  }
+
+  for (let i = 0 ; i<gameLog.teamB.length; i++){
+    let userLog = await this.find({ gitId : gameLog.teamB[i].gitId })    
+    let gameLogHistory = userLog[0]["gameLogHistory"]
+    let problemHistory = userLog[0]["problemHistory"]
+    gameLogHistory.push(gameLogId)
+    problemHistory.push(problemId)
+    await this.findOneAndUpdate(
+      {gitId : gameLog.teamB[i].gitId},
+      {
+        $set: {
+          problemHistory : problemHistory,
+          gameLogHistory : gameLogHistory
+        }
+      },
+      { new: true}
+    )
+  }
+}
 
 module.exports = mongoose.model("User", UserSchema);

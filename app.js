@@ -148,7 +148,7 @@ io.on("connection", (socket) => {
         // create gamelog for 2 teams.......
         // TODO1 양 팀의 유저들로 새 게임로그 생성
         const gameLogId = await gamelog.createTeamLog(teamRoom[waitingList[0]].players, teamRoom[roomId].players, teamRoom[waitingList[0]].id, teamRoom[roomId].id);
-
+        User.addGameLog(await GameLog.getLog(gameLogId));
         // TODO2 client에서 teamGameStart 이벤트　on
         socket.nsp.to(teamRoom[waitingList[0]].id).emit("teamGameStart", waitingList[0], gameLogId);
         socket.nsp.to(teamRoom[roomId].id).emit("teamGameStart", roomId, gameLogId);
