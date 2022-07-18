@@ -102,6 +102,13 @@ UserSchema.statics.getUserImage = async function (gitId) {
   return user["imgUrl"];
 };
 
+//유저 전체정보 반환
+UserSchema.statics.getUserInfo = async function (gitId) {
+  const user = await this.findOne({ gitId: gitId });
+  return user;
+};
+
+//전체 랭킹 업데이트
 UserSchema.statics.totalRankUpdate = async function () {
   // console.log("passhere?!?!@#!@#!$!@#!!hello");
   const result = await this.aggregate([
