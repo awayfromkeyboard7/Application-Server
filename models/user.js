@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
-// const Problem = require('./problem');
-// const GameLog = require('./gamelog');
+const crypto = require('../models/keycrypto');
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
@@ -16,7 +15,7 @@ const UserSchema = new Schema({
     type: Number,
     required: true,
   },
-  imgUrl: {
+  avatarUrl: {
     type: String,
   },
   totalScore: {
@@ -45,6 +44,10 @@ const UserSchema = new Schema({
     type: Number,
     default: 9999999999,
   },
+  following: {
+    type: Array,
+    default: []
+  }
 });
 
 // 모든 유저 목록
@@ -158,6 +161,37 @@ UserSchema.statics.addGameLog = async function (gameLog){
       )
     }
   }
+}
+
+UserSchema.statics.following = async function (myNodeId, targetGitId) {
+  const nodeId = parseInt(crypto.decrypt(myNodeId))
+  console.log('decrypt nodeId >>>>>>>>>>> ', nodeId)
+  
+  const targetUser = await this.findOne({ gitId: targetGitId });
+
+  if (targetUser["nodeId"] !== nodeId) {
+    return await this.findOneAndUpdate(
+      { nodeId: nodeId },
+      {
+        $addToSet: {
+          following: targetUser["nodeId"]
+        },
+      },
+      { new: true }
+    );
+  }
+}
+
+UserSchema.statics.getFollowingUser = async function (myNodeId) {
+  const nodeId = parseInt(crypto.decrypt(myNodeId));
+  const user = await this.findOne({ nodeId: nodeId });
+  const followingList = user['following'].map(friendNodeId => {
+    const friend = this.findOne({ nodeId: friendNodeId })
+    return {
+      gitId: friend.gitId,
+      avatarUrl: friend.avatarUrl
+    }
+  })
 }
 
 module.exports = mongoose.model("User", UserSchema);

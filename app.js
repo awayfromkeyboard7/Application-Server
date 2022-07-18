@@ -324,6 +324,15 @@ io.on("connection", (socket) => {
     console.log(teamRoom[roomId]);
     socket.broadcast.to(teamRoom[roomId].id).emit("getPeerId", userId, getPeerId(teamRoom[roomId]));
   });
+
+  socket.on("followMember", (myNodeId, targetGitId) => {
+    try {
+      console.log(`followMember >>>>>>>>>>>>>>>>> ${myNodeId} =====> ${targetGitId}`);
+      User.following(myNodeId, targetGitId);
+    } catch (e) {
+      console.log(e);
+    }
+  });
 });
 
 server.listen(PORTNUM, () => {
