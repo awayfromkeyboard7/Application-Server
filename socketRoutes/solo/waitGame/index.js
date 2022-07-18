@@ -1,4 +1,4 @@
-const GameRoom = require("../../models/gameroom");
+const GameRoom = require("../../../models/gameroom");
 
 module.exports = (socket, event) => {
   socket.on(event, (userInfo) => {
@@ -8,7 +8,18 @@ module.exports = (socket, event) => {
     const idx = GameRoom.getIdx();
     if (GameRoom.room.length === 0) {
       GameRoom.createRoom(userInfo);
-      socket.join(`room${idx}`)
+      socket.join(`room${idx}`);
+
+      let timeLimit = new Date();
+      timeLimit.setMinutes(timeLimit.getMinutes() + 3);
+  
+      const interval = setInterval(() => {
+        socket.nsp.to(`room${idx}`).emit("timeLimit", timeLimit - new Date());
+        if(timeLimit < new Date()) {
+          socket.nsp.to(`room${idx}`).emit("timeOut");
+          clearInterval(interval);
+        }
+      }, 1000);
     } else if (GameRoom.room[idx].length < 8) {
       GameRoom.joinRoom(userInfo)
       const temp = new Set()
@@ -25,6 +36,17 @@ module.exports = (socket, event) => {
       GameRoom.increaseIdx();
       GameRoom.createRoom(userInfo);
       socket.join(`room${idx}`);
+
+      let timeLimit = new Date();
+      timeLimit.setMinutes(timeLimit.getMinutes() + 3);
+  
+      const interval = setInterval(() => {
+        socket.nsp.to(`room${idx}`).emit("timeLimit", timeLimit - new Date());
+        if(timeLimit < new Date()) {
+          socket.nsp.to(`room${idx}`).emit("timeOut");
+          clearInterval(interval);
+        }
+      }, 1000);
     }
     socket.nsp.to(`room${idx}`).emit('enterNewUser', GameRoom.room[idx]);
     // io.in(`room${idx}`).emit('enterNewUser', room[idx])

@@ -26,14 +26,37 @@ POST: /api/gamelog
   }
 }
 */
+exports.updateGamelogTeam = async (req, res) => {
+  // console.log('updategamelogTeam', req.body);
+  try {
+    await GameLog.updateLogTeam(req.body);
+    const userScores = await GameLog.isFinishTeam(req.body);
+    console.log('updategamelogTeam:::::::', userScores);
+    if (userScores) {
+      User.totalRankUpdate();
+      console.log(Object.entries(userScores));
+      await Object.entries(userScores).forEach(([gitId, score]) => User.updateUserScore(gitId, score));
+    }
+
+    res.status(200).json({
+      success: true
+    });
+  } catch(err) {
+    res.status(409).json({
+      success: false,
+      message: err.message
+    })
+  }
+};
 
 exports.updateGamelog = async (req, res) => {
-  console.log('updategamelog')
   try {
     await GameLog.updateLog(req.body);
-
-    const userId = req.body['gitId']
-    User.updateUserRank(userId, 8)
+    const userScores = await GameLog.isFinish(req.body);
+    if (userScores) {
+      User.totalRankUpdate();
+      Object.entries(userScores).forEach(([gitId, score]) => User.updateUserScore(gitId, score));
+    }
     res.status(200).json({
       success: true
     });
@@ -46,27 +69,16 @@ exports.updateGamelog = async (req, res) => {
 };
 
 exports.createGamelog = async (req, res) => {
-  // req.body = {
-  // players :[{gitId, profileImg}, {gitId, profileImg}, ...]
-  // }
   try {
-    // const moderater = {
-    //   gitId : req.body['gitId'],
-    // }
-
     const info = {
       problemId : await Problem.random(),
-      userHistory: req.body.players
+      userHistory: req.body.players,
+      totalUsers: req.body.totalUsers
     }
-
+    // console.log("@@@@@@@@@@@@@@@@@@@@@@",length(req.body.players));
     const gameLog = await GameLog.createLog(info);
-
+    User.addGameLog(gameLog);
     info.userHistory.forEach(item => console.log(item.gitId))
-
-    // info.userHistory.forEach(item => {
-    //   User.updateUserInfo(item.gitId, { problemId: info.problemId, gameLogId: gameLogId})
-    // })
-
     res.status(200).json({
       gameLogId : gameLog._id,
       success: true
