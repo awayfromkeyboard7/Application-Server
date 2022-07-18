@@ -9,29 +9,11 @@ const redirect_url = process.env.CLIENT_REDIRECT_URL;
 
 const cookieConfigWithKey = {
   maxAge: 60000000,
-  signed: true 
+  signed: true,
 }
 
 const cookieConfigWithOutKey = {
-  maxAge: 60000000
-}
-
-async function getAccessToken (code) {
-  const res = await fetch("https://github.com/login/oauth/access_token", {
-    method: 'POST',
-    headers: {
-        "Content-Type": "application/json"
-    }, 
-    body: JSON.stringify({
-      client_id,
-      client_secret,
-      code
-    })
-  })
-  const data = await res.text();
-  const params = new URLSearchParams(data);
-  console.log(params);
-  return params.get('access_token');
+  maxAge: 60000000,
 }
 
 async function getGithubUser (access_token) {
@@ -44,12 +26,12 @@ async function getGithubUser (access_token) {
   return data
 }
 
-exports.githubCallBack = async (req, res) => {
-  const code = req.query.code
-  const token = await getAccessToken(code);
+exports.getGitInfo = async(req, res) => {
+  const token = req.body['accessToken']
   const githubData = await getGithubUser(token);
 
   if (githubData) {
+
     const info = {
       token,
       gitId: githubData['login'],
@@ -66,12 +48,11 @@ exports.githubCallBack = async (req, res) => {
       res.cookie('uimg', githubData['avatar_url'], cookieConfigWithOutKey);
       res.cookie('uname', githubData['login'], cookieConfigWithOutKey);
       res.cookie('uid', githubData['id'], cookieConfigWithKey);
-      res.redirect(302, redirect_url);
+      res.status(200).json({ success: true });
+      
     } catch(err) {
-      console.log(err);
       res.status(409).json({
         success: false,
-        message: err.message
       });
     }
   } else {
