@@ -138,58 +138,26 @@ UserSchema.statics.addGameLog = async function (gameLog){
   const problemId = gameLog.problemId["_id"]
   const gameLogId = gameLog._id
 
-  for (let i = 0 ; i<gameLog.userHistory.length; i++){
-    let userLog = await this.find({ gitId : gameLog.userHistory[i].gitId })    
-    let gameLogHistory = userLog[0]["gameLogHistory"]
-    let problemHistory = userLog[0]["problemHistory"]
-    gameLogHistory.push(gameLogId)
-    problemHistory.push(problemId)
-    await this.findOneAndUpdate(
-      {gitId : gameLog.userHistory[i].gitId},
-      {
-        $set: {
-          problemHistory : problemHistory,
-          gameLogHistory : gameLogHistory
-        }
-      },
-      { new: true}
-    )
-  }
+  allUser = [gameLog.userHistory, gameLog.teamA, gameLog.teamB]
 
-  for (let i = 0 ; i<gameLog.teamA.length; i++){
-    let userLog = await this.find({ gitId : gameLog.teamA[i].gitId })    
-    let gameLogHistory = userLog[0]["gameLogHistory"]
-    let problemHistory = userLog[0]["problemHistory"]
-    gameLogHistory.push(gameLogId)
-    problemHistory.push(problemId)
-    await this.findOneAndUpdate(
-      {gitId : gameLog.teamA[i].gitId},
-      {
-        $set: {
-          problemHistory : problemHistory,
-          gameLogHistory : gameLogHistory
-        }
-      },
-      { new: true}
-    )
-  }
-
-  for (let i = 0 ; i<gameLog.teamB.length; i++){
-    let userLog = await this.find({ gitId : gameLog.teamB[i].gitId })    
-    let gameLogHistory = userLog[0]["gameLogHistory"]
-    let problemHistory = userLog[0]["problemHistory"]
-    gameLogHistory.push(gameLogId)
-    problemHistory.push(problemId)
-    await this.findOneAndUpdate(
-      {gitId : gameLog.teamB[i].gitId},
-      {
-        $set: {
-          problemHistory : problemHistory,
-          gameLogHistory : gameLogHistory
-        }
-      },
-      { new: true}
-    )
+  for (let j = 0 ; j<3 ; j++){
+    for (let i = 0 ; i<allUser[j].length; i++){
+      let userLog = await this.find({ gitId : allUser[j][i].gitId })    
+      let gameLogHistory = userLog[0]["gameLogHistory"]
+      let problemHistory = userLog[0]["problemHistory"]
+      gameLogHistory.push(gameLogId)
+      problemHistory.push(problemId)
+      await this.findOneAndUpdate(
+        {gitId : allUser[j][i].gitId},
+        {
+          $set: {
+            problemHistory : problemHistory,
+            gameLogHistory : gameLogHistory
+          }
+        },
+        { new: true}
+      )
+    }
   }
 }
 
