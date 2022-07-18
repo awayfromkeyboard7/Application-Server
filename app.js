@@ -86,11 +86,11 @@ io.on("connection", (socket) => {
     // console.log("usersSocketId>>>", usersSocketId);
   });
 
-  SocketRoutes.waitGame(socket, SocketRoutes.event.waitGame);
-  SocketRoutes.startGame(socket, SocketRoutes.event.startGame);
-  SocketRoutes.submitCode(socket, SocketRoutes.event.submitCode);
-  SocketRoutes.getRanking(socket, SocketRoutes.event.getRanking);
-  SocketRoutes.exitWait(socket, SocketRoutes.event.exitWait);
+  SocketRoutes.solo.waitGame(socket, SocketRoutes.solo.event.waitGame);
+  SocketRoutes.solo.startGame(socket, SocketRoutes.solo.event.startGame);
+  SocketRoutes.solo.submitCode(socket, SocketRoutes.solo.event.submitCode);
+  SocketRoutes.solo.getRanking(socket, SocketRoutes.solo.event.getRanking);
+  SocketRoutes.solo.exitWait(socket, SocketRoutes.solo.event.exitWait);
 
   socket.on("createTeam", (userInfo) => {
     // console.log("createTeam........");
@@ -110,6 +110,8 @@ io.on("connection", (socket) => {
         socket.nsp.to(teamRoom[userInfo.gitId]?.id).emit("timeLimit", timeLimit - new Date());
         if(timeLimit < new Date()) {
           socket.nsp.to(teamRoom[userInfo.gitId].id).emit("timeOut");
+          // socket.leave(teamRoom[userInfo.gitId].id);
+          socket.leaveAll();
           clearInterval(interval);
         }
       }, 1000);
@@ -121,7 +123,7 @@ io.on("connection", (socket) => {
     else {
       socket.join(teamRoom[userInfo.gitId].id);
     }
-    console.log(userInfo.gitId, socket.rooms);
+    // console.log(userInfo.gitId, socket.rooms);
   });
 
   socket.on("inviteMember", (gitId, friendGitId) => {
@@ -166,7 +168,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on('getUsers', (roomId) => {
-    console.log(teamRoom[roomId], socket.rooms);
+    // console.log(teamRoom[roomId], socket.rooms);
     socket.join(teamRoom[roomId].id);
     socket.emit('setUsers', maygetPlayers(teamRoom[roomId]));
     // socket.emit('setUsers', teamRoom[roomId]?.players);
@@ -174,8 +176,8 @@ io.on("connection", (socket) => {
 
   socket.on("goToMachingRoom", async (userId) => {
     // userId가 방장인 경우만 emit
-    console.log("goToMachingRoom>>>>>!>!!>!>!>!>!!", userId, teamRoom)
-    console.log(userId, teamRoom, socket.rooms);
+    // console.log("goToMachingRoom>>>>>!>!!>!>!>!>!!", userId, teamRoom)
+    // console.log(userId, teamRoom, socket.rooms);
     if (userId in teamRoom) {
       // socket.nsp.to(teamRoom[userId].id).emit("goToMachingRoom", teamRoom[userId].players[0].userInfo.gitId);
       socket.nsp.to(teamRoom[userId].id).emit("goToMachingRoom", userId);
@@ -187,7 +189,7 @@ io.on("connection", (socket) => {
     // console.log(teamRoom[roomId]);
     // console.log(waitingList);
     socket.join(teamRoom[roomId].id);
-    console.log(socket.rooms);
+    // console.log(socket.rooms);
     // 팀전 매칭을 누르면 team room에 있는 인원 모두 매칭룸으로 이동
     // console.log("startMatching", roomId, waitingList);
     if (waitingList.length === 1) {
@@ -195,10 +197,12 @@ io.on("connection", (socket) => {
       // console.log('startMatching>>>>>>>>>>>>>>', roomId, waitingList);
       if (!(waitingList.includes(roomId))) {
         // create gamelog for 2 teams.......
+        
         // TODO1 양 팀의 유저들로 새 게임로그 생성
         // const gameLogId = await gamelog.createTeamLog(teamRoom[waitingList[0]].players, teamRoom[roomId].players, teamRoom[waitingList[0]].id, teamRoom[roomId].id);
         const gameLogId = await gamelog.createTeamLog(getPlayers(teamRoom[waitingList[0]]), getPlayers(teamRoom[roomId]), teamRoom[waitingList[0]].id, teamRoom[roomId].id);
-
+        User.addGameLog(await GameLog.getLog(gameLogId));
+        
         // TODO2 client에서 teamGameStart 이벤트　on
         socket.nsp.to(teamRoom[waitingList[0]].id).emit("teamGameStart", waitingList[0], gameLogId);
         socket.nsp.to(teamRoom[roomId].id).emit("teamGameStart", roomId, gameLogId);
@@ -232,7 +236,8 @@ io.on("connection", (socket) => {
       console.log(">>>>>> teamRoom before EXIT >>>>>>>", teamRoom, bangjang);
   
       socket.nsp.to(teamRoom[bangjang].id).emit("exitTeamGame");
-      socket.leave(teamRoom[bangjang].id);
+      // socket.leave(teamRoom[bangjang].id);
+      socket.leaveAll();
   
       waitingList = arrayRemove(waitingList, bangjang);
       delete teamRoom[bangjang]
@@ -243,16 +248,11 @@ io.on("connection", (socket) => {
       // 혜진 캐리
       console.log(">>>>>> teamRoom after EXIT >>>>>>>", teamRoom);
     }
-
-    // GameRoom.setRoom(GameRoom.room[GameRoom.getIdx()]?.filter((item) => item.gitId !== userName));
-    // console.log(GameRoom.room[GameRoom.getIdx()]);
-    // socket.leave(myRealRoom);
-    // socket.to(myRealRoom).emit("exitWait", GameRoom.room[GameRoom.getIdx()]);
   });
 
   //팀전에서 게임 제출
   socket.on("submitCodeTeam", async (gameLogId, bangjang) => {
-    console.log("submitCodeTeam", bangjang, gameLogId);
+    // console.log("submitCodeTeam", bangjang, gameLogId);
 
     let gameLog = await GameLog.getLog(gameLogId);
     // console.log("teamgame log info!!!!!!!", info);
@@ -272,12 +272,11 @@ io.on("connection", (socket) => {
 
   // 팀전 결과 화면 랭킹
   socket.on("getTeamRanking", async (gameLogId) => {
-    console.log("getTeamRanking", gameLogId);
 
     let gameLog = await GameLog.getLog(gameLogId);
     // console.log("teamgame log info!!!!!!!", info);
     result = [gameLog["teamA"],gameLog["teamB"]];
-    console.log(result)
+    // console.log(result)
     result.sort((a, b) => {
       if (a[0].passRate === b[0].passRate) {
         return a[0].submitAt - b[0].submitAt;
@@ -286,6 +285,11 @@ io.on("connection", (socket) => {
       }
     });
     socket.nsp.to(gameLog["roomIdA"]).to(gameLog["roomIdB"]).emit("getTeamRanking", result, gameLog["startAt"]);
+    // 팀 랭킹 확인 후 자동으로 룸에서 나가야 함
+    console.log("userLeft", gameLog["totalUsers"]);
+    if (gameLog["totalUsers"] === -1) {
+      socket.leaveAll();
+    }
   });
 
   socket.on("getTeamInfo", (roomId) => {

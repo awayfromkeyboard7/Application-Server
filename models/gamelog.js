@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const Problem = require('./problem');
-const user = require('./user');
 const User = require('./user');
 const Schema = mongoose.Schema;
 
@@ -42,12 +41,10 @@ const GameLogSchema = new Schema({
     default : Date.now,
     required: true
   },
-
   gameMode: {
     type: String,
     default : 'personal'
   },
-
   problemId: {
     type: Schema.Types.ObjectId,
     required: true,
@@ -57,27 +54,22 @@ const GameLogSchema = new Schema({
     type: [UserHistorySchema],
     defualt: []
   },
-
   teamA: {
     type: [UserHistorySchema],
     default: []
   },
-
   teamB: {
     type: [UserHistorySchema],
     defualt: []
   },
-
   roomIdA: {
     type: String,
     default : false
   },
-  
   roomIdB: {
     type: String,
     default : false
   },
-
   totalUsers :{
     type: Number,
     default : 0
@@ -86,20 +78,18 @@ const GameLogSchema = new Schema({
 });
 
 GameLogSchema.statics.createLog = function(data) {
-  
   return this.create(data);
 }
 
 GameLogSchema.statics.createTeamLog = async function(teamA, teamB, roomIdA, roomIdB) {
-
-  const data ={
-    problemId : await Problem.random(),
-    teamA : teamA,
-    teamB : teamB,
-    gameMode : 'team',
-    roomIdA : roomIdA,
-    roomIdB : roomIdB,
-    totalUsers : 2
+  const data = {
+    problemId: await Problem.random(),
+    teamA,
+    teamB,
+    gameMode: 'team',
+    roomIdA,
+    roomIdB,
+    totalUsers: 2
   }
   const newLog = await this.create(data);
   console.log('newLog>>>>', newLog._id)
@@ -140,9 +130,8 @@ GameLogSchema.statics.updateLogTeam = async function(data) {
   gameLog[myteam][0]['submitAt'] = data['submitAt']
   gameLog[myteam][0]['ranking'] = data['ranking']
   gameLog[myteam][0]['passRate'] = data['passRate']
-  gameLog.save();
-  
-  return gameLog
+  await gameLog.save();
+  return 
 };
 
 
@@ -151,14 +140,13 @@ GameLogSchema.statics.getLog = function(logId) {
   return this.findById(mongoose.Types.ObjectId(logId));
 }
 
-
 //도현 추가
 GameLogSchema.statics.isFinish = async function(data){
-  // console.log("peterhere@!@!@!@!@!@!@!")
   const gameLog = await this.findById(mongoose.Types.ObjectId(data["gameId"]));
   gameLog["totalUsers"] -= 1;
-
+  
   if (gameLog["totalUsers"] === 0){
+    const userScores = {};
     gameLog["userHistory"].sort((a, b) => {
       if (a.passRate === b.passRate) {
         return a.submitAt - b.submitAt;
@@ -167,23 +155,27 @@ GameLogSchema.statics.isFinish = async function(data){
       }
     });
 
-    for (let i=0; i < gameLog["userHistory"].length; i++){
-      gameLog["userHistory"][i]["ranking"] = i+1;
+    // User.updateUserInfo(gitId,data);
+    for (let i = 0; i < gameLog["userHistory"].length; i++){
+      gameLog["userHistory"][i]["ranking"] = i + 1;
+      userScores[gameLog["userHistory"][i]["gitId"]] = gameLog["userHistory"].length - i - 1;
     } 
+
+    // console.log("gameLog after last submission::::::::", userScores);
     gameLog.save()
-    return true
+    return userScores;
   };
+
   gameLog.save();
-  return false
 }
 
 GameLogSchema.statics.isFinishTeam = async function(data){
   const gameLog = await this.findById(mongoose.Types.ObjectId(data["gameId"]));
   gameLog["totalUsers"] -= 1;
-  console.log("passhere???!?!?!?!?!")
+
   if (gameLog["totalUsers"] === 0){
-    result = [gameLog["teamA"],gameLog["teamB"]];
-    
+    let result = [gameLog["teamA"], gameLog["teamB"]];
+    const userScores = {};
     result.sort((a, b) => {
       if (a[0].passRate === b[0].passRate) {
         return a[0].submitAt - b[0].submitAt;
@@ -192,14 +184,21 @@ GameLogSchema.statics.isFinishTeam = async function(data){
       }
     });
 
-    // console.log("passhere???!?!?!?!?!",result);
-    for (let i=0; i < 2; i++){
-      result[i][0]["ranking"] = i+1;
+    const winnerScore = result[1].length;
+    for (let team = 0; team < 2; team++){
+      for (let member = 0; member < result[team].length; member++) {
+        result[team][member]["ranking"] = team + 1;
+      }
     } 
-    gameLog.save()
-    return true
+    for (let winner = 0; winner < result[0].length; winner++) {
+      userScores[result[0][winner]["gitId"]] = winnerScore;
+    }
+
+    gameLog.save();
+    return userScores;
   };
+
   gameLog.save();
-  return false
 }
+
 module.exports = mongoose.model('GameLog', GameLogSchema);
