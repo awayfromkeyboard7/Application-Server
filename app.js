@@ -196,11 +196,6 @@ io.on("connection", (socket) => {
       // 혜진 캐리
       console.log(">>>>>> teamRoom after EXIT >>>>>>>", teamRoom);
     }
-
-    // GameRoom.setRoom(GameRoom.room[GameRoom.getIdx()]?.filter((item) => item.gitId !== userName));
-    // console.log(GameRoom.room[GameRoom.getIdx()]);
-    // socket.leave(myRealRoom);
-    // socket.to(myRealRoom).emit("exitWait", GameRoom.room[GameRoom.getIdx()]);
   });
 
   //팀전에서 게임 제출
@@ -245,22 +240,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  // socket.on("getTeamRanking", async (gameLogId) => {
-  //   // console.log("getTeamRanking", gameLogId);
-
-  //   let gameLog = await GameLog.getLog(gameLogId);
-  //   result = [gameLog["teamA"],gameLog["teamB"]];
-  //   // console.log("teamgame log info!!!!!!!", result);
-  //   result.sort((a, b) => {
-  //     if (a[0].passRate === b[0].passRate) {
-  //       return a[0].submitAt - b[0].submitAt;
-  //     } else {
-  //       return b[0].passRate - a[0].passRate;
-  //     }
-  //   });
-  //   socket.nsp.to(gameLog["roomIdA"]).to(gameLog["roomIdB"]).emit("getTeamRanking", result, gameLog["startAt"]);
-  // });
-
   socket.on("getTeamInfo", (roomId) => {
     console.log('get game info >>>>> ', roomId, teamRoom[roomId]?.players);
     socket.join(teamRoom[roomId].id);
@@ -271,8 +250,6 @@ io.on("connection", (socket) => {
     console.log(data, bangjang)
     socket.to(teamRoom[bangjang].id).emit("shareJudgedCode", data);
   });
-
- 
 
   socket.on("setPeerId", (roomId, id) => {
     console.log('get peer id ', id);
