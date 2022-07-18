@@ -107,7 +107,6 @@ UserSchema.statics.totalRankUpdate = async function () {
         partitionBy: "$state",
         sortBy: {
           totalScore: -1,
-          // nodeId: -1,
         },
         output: {
           ranking: {
