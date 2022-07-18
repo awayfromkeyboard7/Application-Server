@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
-// const Problem = require('./problem');
-// const GameLog = require('./gamelog');
+const crypto = require('../models/keycrypto');
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
@@ -16,7 +15,7 @@ const UserSchema = new Schema({
     type: Number,
     required: true,
   },
-  imgUrl: {
+  avatarUrl: {
     type: String,
   },
   totalScore: {
@@ -45,6 +44,10 @@ const UserSchema = new Schema({
     type: Number,
     default: 9999999999,
   },
+  following: {
+    type: Array,
+    default: []
+  }
 });
 
 // 모든 유저 목록
@@ -158,6 +161,56 @@ UserSchema.statics.addGameLog = async function (gameLog){
       )
     }
   }
+}
+
+UserSchema.statics.following = async function (myNodeId, targetGitId) {
+  const nodeId = parseInt(crypto.decrypt(myNodeId))
+  console.log('decrypt nodeId >>>>>>>>>>> ', nodeId)
+  
+  const targetUser = await this.findOne({ gitId: targetGitId });
+
+  if (targetUser["nodeId"] !== nodeId) {
+    return await this.findOneAndUpdate(
+      { nodeId: nodeId },
+      {
+        $addToSet: {
+          following: targetUser["nodeId"]
+        },
+      },
+      { new: true }
+    );
+  }
+}
+
+UserSchema.statics.getFollowingUser = async function (myNodeId) {
+  const nodeId = parseInt(crypto.decrypt(myNodeId));
+  const user = await this.findOne({ nodeId: nodeId });
+  // Promise.all을 사용한 이유 https://joyful-development.tistory.com/20
+  const followingList = await Promise.all (user['following'].map( async (friendNodeId) => {
+    const friend = await this.findOne({ nodeId: friendNodeId })
+    return {
+      gitId: friend.gitId,
+      avatarUrl: friend.avatarUrl
+    }
+  }))
+  return followingList;
+}
+
+UserSchema.statics.getFollowingUserWithGitId = async function (myGitId) {
+  const user = await this.findOne({ gitId: myGitId });
+  // Promise.all을 사용한 이유 https://joyful-development.tistory.com/20
+  if (user !== null) {
+    const followingList = await Promise.all (user['following'].map( async (friendNodeId) => {
+      const friend = await this.findOne({ nodeId: friendNodeId })
+      return friend.gitId
+    }))
+    return followingList;
+  }
+}
+
+UserSchema.statics.getUserInfoWithNodeId = async function (myNodeId) {
+  const nodeId = parseInt(crypto.decrypt(myNodeId));
+  const user = await this.findOne({ nodeId: nodeId });
 }
 
 module.exports = mongoose.model("User", UserSchema);
