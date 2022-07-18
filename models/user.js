@@ -185,13 +185,20 @@ UserSchema.statics.following = async function (myNodeId, targetGitId) {
 UserSchema.statics.getFollowingUser = async function (myNodeId) {
   const nodeId = parseInt(crypto.decrypt(myNodeId));
   const user = await this.findOne({ nodeId: nodeId });
-  const followingList = user['following'].map(friendNodeId => {
-    const friend = this.findOne({ nodeId: friendNodeId })
+  // * https://joyful-development.tistory.com/20
+  const followingList = await Promise.all (user['following'].map( async (friendNodeId) => {
+    const friend = await this.findOne({ nodeId: friendNodeId })
     return {
       gitId: friend.gitId,
       avatarUrl: friend.avatarUrl
     }
-  })
+  }))
+  return followingList;
+}
+
+UserSchema.statics.getUserInfoWithNodeId = async function (myNodeId) {
+  const nodeId = parseInt(crypto.decrypt(myNodeId));
+  const user = await this.findOne({ nodeId: nodeId });
 }
 
 module.exports = mongoose.model("User", UserSchema);

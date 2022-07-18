@@ -325,10 +325,13 @@ io.on("connection", (socket) => {
     socket.broadcast.to(teamRoom[roomId].id).emit("getPeerId", userId, getPeerId(teamRoom[roomId]));
   });
 
-  socket.on("followMember", (myNodeId, targetGitId) => {
+  socket.on("followMember", async (myNodeId, targetGitId) => {
     try {
       console.log(`followMember >>>>>>>>>>>>>>>>> ${myNodeId} =====> ${targetGitId}`);
-      User.following(myNodeId, targetGitId);
+      await User.following(myNodeId, targetGitId);
+      const followList = await User.getFollowingUser(myNodeId)
+      // Promise.all 사용하기 전 출력값: [ Promis { <pending> }, ... ]
+      console.log('followingList >>>>>>>> ', followList);
     } catch (e) {
       console.log(e);
     }
