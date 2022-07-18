@@ -335,7 +335,7 @@ io.on("connection", (socket) => {
       console.log(`followMember >>>>>>>>>>>>>>>>> ${myNodeId} =====> ${targetGitId}`);
       await User.following(myNodeId, targetGitId);
       let followList = await User.getFollowingUser(myNodeId)
-      // Promise.all 사용하기 전 출력값: [ Promis { <pending> }, ... ]
+      // Promise.all 사용하기 전 출력값: [ Promise { <pending> }, ... ]
       console.log('followingList >>>>>>>> ', followList);
       followList =  await Promise.all (followList.filter((friend) => {
         if (friend.gitId in usersSocketId) {
