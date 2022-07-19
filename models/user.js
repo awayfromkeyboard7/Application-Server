@@ -47,6 +47,10 @@ const UserSchema = new Schema({
   following: {
     type: Array,
     default: []
+  },
+  follower: {
+    type: Array,
+    default: []
   }
 });
 
@@ -175,8 +179,9 @@ UserSchema.statics.following = async function (myNodeId, targetGitId) {
   
   const targetUser = await this.findOne({ gitId: targetGitId });
 
+  // 나 자신을 팔로우 예외처리
   if (targetUser["nodeId"] !== nodeId) {
-    return await this.findOneAndUpdate(
+    await this.findOneAndUpdate(
       { nodeId: nodeId },
       {
         $addToSet: {
@@ -185,10 +190,32 @@ UserSchema.statics.following = async function (myNodeId, targetGitId) {
       },
       { new: true }
     );
+
+    await this.findOneAndUpdate(
+      { nodeId: targetUser["nodeId"] },
+      {
+        $addToSet: {
+          follower: nodeId
+        },
+      }
+    );
   }
 }
 
-UserSchema.statics.getFollowingUser = async function (myNodeId) {
+UserSchema.statics.getFollowerListWithGitId = async function (myGitId) {
+  const user = await this.findOne({ gitId: myGitId });
+  // Promise.all을 사용한 이유 https://joyful-development.tistory.com/20
+  if (user !== null) {
+    const followerList = await Promise.all (user['follower'].map( async (friendNodeId) => {
+      const friend = await this.findOne({ nodeId: friendNodeId })
+      return friend.gitId
+    }))
+    return followerList;
+  }
+}
+
+
+UserSchema.statics.getFollowingList = async function (myNodeId) {
   const nodeId = parseInt(crypto.decrypt(myNodeId));
   const user = await this.findOne({ nodeId: nodeId });
   // Promise.all을 사용한 이유 https://joyful-development.tistory.com/20

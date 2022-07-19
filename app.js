@@ -36,6 +36,8 @@ let usersSocketId = {};
 
 let waitingList = [];
 
+let chatLogs = {};
+
 function arrayRemove(arr, value) { 
   return arr.filter(function(ele){ 
       return ele != value; 
@@ -77,18 +79,30 @@ function setPeerId(arr, gitId, peerId) {
 
 io.on("connection", (socket) => {
   console.log(`user connected: ${socket.id}`, teamRoom);
+
   socket.onAny(e => console.log(`SOCKET EVENT::::::${e}`));
 
-  socket.on("setGitId", (gitId) => {
+  socket.on("setGitId", async (gitId) => {
     if (gitId !== null) {
       console.log("setGitId >>>>>>>> gitId: ", gitId);
       usersSocketId[gitId] = socket.id;
       socket.gitId = gitId;
       console.log("setGitId >>>>>>>> userSocketId: ", usersSocketId);
+
+      const followerList = await User.getFollowerListWithGitId(socket.gitId);
+      await Promise.all (followerList.filter(friend => {
+        if (friend in usersSocketId) {
+          socket.to(usersSocketId[friend]).emit("followingUserConnect", socket.gitId);
+        }
+      }))
     }
     // console.log(gitId, usersSocketId);
     // console.log('');
-    // console.log("usersSocketId>>>", usersSocketId);
+    if (!(gitId in chatLogs)) {
+      chatLogs[gitId] = {};
+    }
+    console.log("usersSocketId>>>", usersSocketId);
+    console.log("users initial chatLogs", gitId, chatLogs);
   });
 
   SocketRoutes.solo.waitGame(socket, SocketRoutes.solo.event.waitGame);
@@ -111,16 +125,6 @@ io.on("connection", (socket) => {
       // 팀생성 인터벌 도현 주석
       // let timeLimit = new Date();
       // timeLimit.setMinutes(timeLimit.getMinutes() + 3);
-    
-      // const interval = setInterval(() => {
-      //   socket.nsp.to(teamRoom[userInfo.gitId]?.id).emit("timeLimit", timeLimit - new Date());
-      //   if(timeLimit < new Date()) {
-      //     socket.nsp.to(teamRoom[userInfo.gitId].id).emit("timeOut");
-      //     // socket.leave(teamRoom[userInfo.gitId].id);
-      //     socket.leaveAll();
-      //     clearInterval(interval);
-      //   }
-      // }, 1000);
   
       return () => {
         clearInterval(interval);
@@ -246,6 +250,7 @@ io.on("connection", (socket) => {
       socket.nsp.to(teamRoom[bangjang].id).emit("exitTeamGame");
       // socket.leave(teamRoom[bangjang].id);
       socket.leaveAll();
+      socket.join(socket.id);
   
       waitingList = arrayRemove(waitingList, bangjang);
       delete teamRoom[bangjang]
@@ -297,6 +302,7 @@ io.on("connection", (socket) => {
     console.log("userLeft", gameLog["totalUsers"]);
     if (gameLog["totalUsers"] === -1) {
       socket.leaveAll();
+      socket.join(socket.id)
     }
   });
 
@@ -333,19 +339,40 @@ io.on("connection", (socket) => {
     socket.broadcast.to(teamRoom[roomId].id).emit("getPeerId", userId, getPeerId(teamRoom[roomId]));
   });
 
+  socket.on('sendChatMessage', (sender, receiver, message) => {
+    console.log('send-message', message, usersSocketId[receiver]);
+
+    if (chatLogs[sender][receiver] === undefined) {
+      chatLogs[sender][receiver] = [message];
+    } else {
+      chatLogs[sender][receiver].push(message);
+      if (chatLogs[sender][receiver].length > 30) {
+        chatLogs[sender][receiver].shift();
+      }
+    }
+    console.log(chatLogs[sender]);
+    socket.to(usersSocketId[receiver]).emit('sendChatMessage', message);
+  });
+
+  socket.on("getChatMessage", (sender, receiver) => {
+    try {
+      const senderToReceiver = chatLogs[sender][receiver] !== undefined ? chatLogs[sender][receiver] : [];
+      const receverToSender = chatLogs[receiver][sender] !== undefined ? chatLogs[receiver][sender] : [];
+  
+      const myChatLogs = senderToReceiver.concat(receverToSender);
+      myChatLogs.sort((a, b) => a.sendAt - b.sendAt);
+      console.log('myChatLogs::::::::::');
+      socket.emit("receiveChatMessage", myChatLogs);
+    } catch(e) {
+      console.log("getChatMessage ERROR >>>>>>> ", sender, receiver);
+      console.log("getChatMessage ERROR >>>>>>> ", e);
+    }
+  });
+
   socket.on("followMember", async (myNodeId, targetGitId) => {
     try {
       console.log(`followMember >>>>>>>>>>>>>>>>> ${myNodeId} =====> ${targetGitId}`);
       await User.following(myNodeId, targetGitId);
-      let followList = await User.getFollowingUser(myNodeId)
-      // Promise.all 사용하기 전 출력값: [ Promise { <pending> }, ... ]
-      console.log('followingList >>>>>>>> ', followList);
-      followList =  await Promise.all (followList.filter((friend) => {
-        if (friend.gitId in usersSocketId) {
-          return friend;
-        }
-      }))
-      socket.emit("updateFollowingUser", followList)
     } catch (e) {
       console.log(e);
     }
@@ -354,17 +381,14 @@ io.on("connection", (socket) => {
   socket.on("disconnecting", async () => {
     try {
       console.log("disconnecting usersSocketId >>>>>>>>>>>> ", usersSocketId)
-      const followList = await User.getFollowingUserWithGitId(socket.gitId);
+      const followerList = await User.getFollowerListWithGitId(socket.gitId);
       console.log("disconnecting socket.gitId >>>>>>>> ", socket.gitId);
       delete usersSocketId[socket.gitId]
-      await Promise.all (followList.filter(friend => {
+      await Promise.all (followerList?.filter(friend => {
         if (friend in usersSocketId) {
-          socket.to(usersSocketId[friend]).emit("updateFollowingUser", socket.gitId);
-        } else {
-          console.log(friend)
+          socket.to(usersSocketId[friend]).emit("followingUserDisconnect", socket.gitId);
         }
       }))
-      console.log('disconnecting >>>>>>>>>>>> followingList', followList);
     } catch (e) {
       console.log(e)
     }
@@ -379,6 +403,15 @@ io.on("connection", (socket) => {
     }
   })
 
+  socket.on("getFollowingList", async (nodeId) => {
+    const followingList = await User.getFollowingList(nodeId);
+    const result = await Promise.all (followingList.filter(friend => {
+      if (friend.gitId in usersSocketId) {
+        return friend
+      }
+    }))
+    socket.emit("getFollowingList", result);
+  })
 });
 
 

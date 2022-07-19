@@ -7,7 +7,10 @@ module.exports = (socket, event) => {
     console.log(">>>>>> EXIT >>>>>>>", userName);
     GameRoom.setRoom(GameRoom.room[GameRoom.getIdx()]?.filter((item) => item.gitId !== userName));
     console.log(GameRoom.room[GameRoom.getIdx()]);
-    socket.leave(myRealRoom);
+    console.log("socket.rooms >>>>>>>>>>>>>>> before ", socket.rooms);
+    socket.leaveAll();
+    socket.join(socket.id);
+    console.log("socket.rooms >>>>>>>>>>>>>>> ", socket.rooms);
     socket.to(myRealRoom).emit("exitWait", GameRoom.room[GameRoom.getIdx()]);
   });
 }
