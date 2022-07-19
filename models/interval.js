@@ -1,4 +1,4 @@
-intervalList ={}
+let intervalList ={}
 
 function makeInterval(socket, roomId, timeLimit, mode) {
     // console.log("howmany???!#?!@#?")
@@ -43,6 +43,10 @@ function deleteInterval(roomId, mode) {
     // console.log(is,key);
     // console.log("clear interval value!@!@!@#!@#!#",intervalList[key])
     clearInterval(intervalList[`${roomId}${mode}`])
+    // console.log("before showme interval list!@!@!@!#!@#!@#1",intervalList)
+    delete intervalList[`${roomId}${mode}`]
+    // console.log("after showme interval list!@!@!@!#!@#!@#1",intervalList)
+
     // intervalList.remove(key);
     }
 
