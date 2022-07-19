@@ -353,7 +353,7 @@ io.on("connection", (socket) => {
 
     const myChatLogs = senderToReceiver.concat(receverToSender);
     myChatLogs.sort((a, b) => a.sendAt - b.sendAt);
-    console.log('myChatLogs', myChatLogs);
+    console.log('myChatLogs::::::::::');
     socket.emit("receiveChatMessage", myChatLogs);      
   })
 });
