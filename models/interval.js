@@ -12,8 +12,11 @@ function makeInterval(socket, roomId, timeLimit, mode) {
     // console.log("isit same!#!@#!#!#!@#",key);
     const interval = setInterval(() => {
         // console.log("why crash?!?#!?#?!#?!",roomId, mode);
-
-        socket.nsp.to(roomId).emit("timeLimitCode", timeLimit - new Date());
+        if(mode === "wait") {
+            socket.nsp.to(roomId).emit("timeLimit", timeLimit - new Date());
+        } else {
+            socket.nsp.to(roomId).emit("timeLimitCode", timeLimit - new Date());
+        }
         console.log("@@@@@@@@room id & mode@@@@@@", roomId, mode )
         // console.log(intervalList)
         if(timeLimit < new Date()) {

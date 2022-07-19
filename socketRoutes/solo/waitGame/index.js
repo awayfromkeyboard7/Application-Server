@@ -49,7 +49,7 @@ module.exports = (socket, event) => {
       let timeLimit = new Date();
       timeLimit.setMinutes(timeLimit.getMinutes() + 3);
       
-      Interval.makeInterval(socket, `room${idx}}`, timeLimit, "solo");
+      Interval.makeInterval(socket, `room${idx}}`, timeLimit, "wait");
     }
     socket.nsp.to(`room${idx}`).emit('enterNewUser', GameRoom.room[idx]);
     // io.in(`room${idx}`).emit('enterNewUser', room[idx])
