@@ -48,3 +48,19 @@ exports.getGitInfo = async(req, res) => {
     res.send("Error happend")
   }
 }
+
+exports.getUser = async(req, res) => {
+  try {
+    const UserInfo = await User.getUserInfo(req.body.gitId);
+    console.log('user info controller ', UserInfo);
+    res.status(200).json({
+      UserInfo,
+      success: UserInfo ? true : false
+    });
+  } catch(err) {
+    res.status(409).json({
+      success: false,
+      message: err.message
+    });
+  }
+}
