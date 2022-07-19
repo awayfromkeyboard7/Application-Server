@@ -52,7 +52,6 @@ exports.getGitInfo = async(req, res) => {
 exports.getUser = async(req, res) => {
   try {
     const UserInfo = await User.getUserInfo(req.body.gitId);
-    console.log('user info controller ', UserInfo);
     res.status(200).json({
       UserInfo,
       success: UserInfo ? true : false
