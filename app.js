@@ -74,7 +74,6 @@ function setPeerId(arr, gitId, peerId) {
   }
 } 
 
-
 io.on("connection", (socket) => {
   console.log(`user connected: ${socket.id}`, teamRoom);
   socket.onAny(e => console.log(`SOCKET EVENT::::::${e}`));
@@ -107,19 +106,20 @@ io.on("connection", (socket) => {
       // 퍼플
       // socket.emit("enterNewUserToTeam", teamRoom[userInfo.gitId].players);
       socket.emit("enterNewUserToTeam", getPlayers(teamRoom[userInfo.gitId]));
-  
-      let timeLimit = new Date();
-      timeLimit.setMinutes(timeLimit.getMinutes() + 3);
+
+      // 팀생성 인터벌 도현 주석
+      // let timeLimit = new Date();
+      // timeLimit.setMinutes(timeLimit.getMinutes() + 3);
     
-      const interval = setInterval(() => {
-        socket.nsp.to(teamRoom[userInfo.gitId]?.id).emit("timeLimit", timeLimit - new Date());
-        if(timeLimit < new Date()) {
-          socket.nsp.to(teamRoom[userInfo.gitId].id).emit("timeOut");
-          // socket.leave(teamRoom[userInfo.gitId].id);
-          socket.leaveAll();
-          clearInterval(interval);
-        }
-      }, 1000);
+      // const interval = setInterval(() => {
+      //   socket.nsp.to(teamRoom[userInfo.gitId]?.id).emit("timeLimit", timeLimit - new Date());
+      //   if(timeLimit < new Date()) {
+      //     socket.nsp.to(teamRoom[userInfo.gitId].id).emit("timeOut");
+      //     // socket.leave(teamRoom[userInfo.gitId].id);
+      //     socket.leaveAll();
+      //     clearInterval(interval);
+      //   }
+      // }, 1000);
   
       return () => {
         clearInterval(interval);
@@ -366,7 +366,18 @@ io.on("connection", (socket) => {
       console.log(e)
     }
   })
+
+  socket.on("getRoomId", async () => {
+    try {
+      const myRoom = GameRoom.getRoom(socket);
+      socket.emit('getRoomId', myRoom);
+    } catch (e) {
+      console.log(e)
+    }
+  })
+
 });
+
 
 server.listen(PORTNUM, () => {
   console.log(`Server is running... port: ${PORTNUM}`);

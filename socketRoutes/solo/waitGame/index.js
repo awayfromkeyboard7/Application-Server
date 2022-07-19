@@ -1,4 +1,5 @@
 const GameRoom = require("../../../models/gameroom");
+const Interval = require("../../../models/interval");
 
 module.exports = (socket, event) => {
   socket.on(event, (userInfo) => {
@@ -12,15 +13,20 @@ module.exports = (socket, event) => {
 
       let timeLimit = new Date();
       timeLimit.setMinutes(timeLimit.getMinutes() + 3);
-  
-      const interval = setInterval(() => {
-        socket.nsp.to(`room${idx}`).emit("timeLimit", timeLimit - new Date());
-        if(timeLimit < new Date()) {
-          socket.nsp.to(`room${idx}`).emit("timeOut");
-          clearInterval(interval);
-        }
-      }, 1000);
+      
+      Interval.makeInterval(socket, `room${idx}`, timeLimit)
+      // const interval = setInterval(() => {
+      //   socket.nsp.to(`room${idx}`).emit("timeLimit", timeLimit - new Date());
+      //   if(timeLimit < new Date()) {
+      //     socket.nsp.to(`room${idx}`).emit("timeOut");
+      //     clearInterval(interval);
+      //   }
+      // }, 1000);
     } else if (GameRoom.room[idx].length < 8) {
+      if (GameRoom.room[idx].length == 0 ){
+        Interval.deleteInterval(`room${idx}`)
+      }
+
       GameRoom.joinRoom(userInfo)
       const temp = new Set()
       console.log(idx)
@@ -35,6 +41,7 @@ module.exports = (socket, event) => {
       console.log("HERERERERERER????????");
       GameRoom.increaseIdx();
       GameRoom.createRoom(userInfo);
+      Interval.deleteInterval(`room${idx-1}`)
       socket.join(`room${idx}`);
 
       let timeLimit = new Date();
