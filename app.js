@@ -35,6 +35,8 @@ let usersSocketId = {};
 
 let waitingList = [];
 
+let chatLogs = {};
+
 function arrayRemove(arr, value) { 
   return arr.filter(function(ele){ 
       return ele != value; 
@@ -77,6 +79,7 @@ function setPeerId(arr, gitId, peerId) {
 
 io.on("connection", (socket) => {
   console.log(`user connected: ${socket.id}`, teamRoom);
+
   socket.onAny(e => console.log(`SOCKET EVENT::::::${e}`));
 
   socket.on("setGitId", async (gitId) => {
@@ -93,6 +96,13 @@ io.on("connection", (socket) => {
         }
       }))
     }
+    // console.log(gitId, usersSocketId);
+    // console.log('');
+    if (!(gitId in chatLogs)) {
+      chatLogs[gitId] = {};
+    }
+    console.log("usersSocketId>>>", usersSocketId);
+    console.log("users initial chatLogs", gitId, chatLogs);
   });
 
   SocketRoutes.solo.waitGame(socket, SocketRoutes.solo.event.waitGame);
@@ -332,6 +342,31 @@ io.on("connection", (socket) => {
     setPeerId(teamRoom[roomId], userId, peerId);
     console.log(teamRoom[roomId]);
     socket.broadcast.to(teamRoom[roomId].id).emit("getPeerId", userId, getPeerId(teamRoom[roomId]));
+  });
+
+  socket.on('sendChatMessage', (sender, receiver, message) => {
+    console.log('send-message', message, usersSocketId[receiver]);
+
+    if (chatLogs[sender][receiver] === undefined) {
+      chatLogs[sender][receiver] = [message];
+    } else {
+      chatLogs[sender][receiver].push(message);
+      if (chatLogs[sender][receiver].length > 30) {
+        chatLogs[sender][receiver].shift();
+      }
+    }
+    console.log(chatLogs[sender]);
+    socket.to(usersSocketId[receiver]).emit('sendChatMessage', message);
+  });
+
+  socket.on("getChatMessage", (sender, receiver) => {
+    const senderToReceiver = chatLogs[sender][receiver] !== undefined ? chatLogs[sender][receiver] : [];
+    const receverToSender = chatLogs[receiver][sender] !== undefined ? chatLogs[receiver][sender] : [];
+
+    const myChatLogs = senderToReceiver.concat(receverToSender);
+    myChatLogs.sort((a, b) => a.sendAt - b.sendAt);
+    console.log('myChatLogs::::::::::');
+    socket.emit("receiveChatMessage", myChatLogs);
   });
 
   socket.on("followMember", async (myNodeId, targetGitId) => {
