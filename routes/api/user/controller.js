@@ -15,6 +15,22 @@ async function getGithubUser (access_token) {
   return data
 }
 
+
+exports.getUser = async(req, res) => {
+  try {
+    const UserInfo = await User.getUserInfo(req.body.gitId);
+    res.status(200).json({
+      UserInfo : UserInfo,
+      success: true
+    });
+  } catch(err) {
+    res.status(409).json({
+      success: false,
+      message: err.message
+    });
+  }
+}
+
 exports.getGitInfo = async(req, res) => {
   const token = req.body['accessToken']
   const githubData = await getGithubUser(token);

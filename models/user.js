@@ -112,6 +112,7 @@ UserSchema.statics.getUserInfo = async function (gitId) {
   return user;
 };
 
+//전체 랭킹 업데이트
 UserSchema.statics.totalRankUpdate = async function () {
   // console.log("passhere?!?!@#!@#!$!@#!!hello");
   const result = await this.aggregate([
