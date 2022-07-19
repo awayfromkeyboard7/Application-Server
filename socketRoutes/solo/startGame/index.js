@@ -15,9 +15,9 @@ module.exports = (socket, event) => {
 
         let timeLimit = new Date();
         timeLimit.setMinutes(timeLimit.getMinutes() + 15);
-    
         // console.log("passhere/??!?@!?@?!@?!@?!@?!@?",socket, i, timeLimit);
-        Interval.makeInterval(socket, i,timeLimit);
+        Interval.deleteInterval(i, "wait"); 
+        Interval.makeInterval(socket, i, timeLimit, "solo");
 
         // const interval = setInterval(() => {
         //   socket.nsp.to(i).emit("timeLimitCode", timeLimit - new Date());

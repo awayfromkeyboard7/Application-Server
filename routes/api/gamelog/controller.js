@@ -34,8 +34,10 @@ exports.updateGamelogTeam = async (req, res) => {
     const userScores = await GameLog.isFinishTeam(req.body);
     console.log('updategamelogTeam:::::::', userScores);
     if (userScores) {
-      console.log("@!#@#!@#!@#!req.body@#!@#!@#!@#!",req.body);
-
+      const gameLog = await GameLog.getLog(req.body["gameId"])
+      // console.log("gamelog???!?@!@!!!#!@#!@#!@#@!#!@#",gameLog)
+      // Interval.deleteInterval("hoxy??",'team')
+      Interval.deleteInterval([gameLog["roomIdA"],gameLog["roomIdB"]],'team');
       User.totalRankUpdate();
       console.log(Object.entries(userScores));
       await Object.entries(userScores).forEach(([gitId, score]) => User.updateUserScore(gitId, score));
@@ -58,8 +60,10 @@ exports.updateGamelog = async (req, res) => {
     const userScores = await GameLog.isFinish(req.body);
     // console.log("@#@#@#@##@#@#showme reqbody!@!@@#@#@#@#@#@#@#!@!",userScores)
     if (userScores) {
-      const roomId = GameLog.getLog(req.body.GameLog)["roomId"]
-      Interval.deleteInterval(roomId)
+      const gameLog = await GameLog.getLog(req.body.gameId);
+
+      // console.log("@!#!@#!@#!gamelog isit???????",gameLog["roomId"])
+      Interval.deleteInterval(gameLog["roomId"],'solo')
       User.totalRankUpdate();
       Object.entries(userScores).forEach(([gitId, score]) => User.updateUserScore(gitId, score));
     }
@@ -82,6 +86,7 @@ exports.createGamelog = async (req, res) => {
       problemId : await Problem.random(),
       userHistory: req.body.players,
       totalUsers: req.body.totalUsers,
+      roomId : req.body.roomId
     }
     // console.log("@@@@@@@@@@@@@@@@@@@@@@",length(req.body.players));
     const gameLog = await GameLog.createLog(info);

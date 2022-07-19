@@ -143,7 +143,6 @@ UserSchema.statics.totalRankUpdate = async function () {
 };
 
 UserSchema.statics.addGameLog = async function (gameLog){
-  console.log("gamelog???????!?!@?",gameLog)
   const problemId = gameLog.problemId["_id"]
   const gameLogId = gameLog._id
 

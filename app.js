@@ -7,6 +7,7 @@ const app = express();
 const User = require("./models/user");
 const GameLog = require("./models/gamelog");
 const GameRoom = require("./models/gameroom");
+const Interval = require("./models/interval");
 const uuid = require("uuid");
 
 const SocketIO = require("socket.io");
@@ -215,13 +216,15 @@ io.on("connection", (socket) => {
         timeLimit.setMinutes(timeLimit.getMinutes() + 15);
         const firstTeamId = teamRoom[waitingList[0]].id;
         const secondTeamId = teamRoom[roomId].id;
-        const interval = setInterval(() => {
-          socket.nsp.to([firstTeamId, secondTeamId]).emit("timeLimitCode", timeLimit - new Date());
-          if(timeLimit < new Date()) {
-            socket.nsp.to([firstTeamId, secondTeamId]).emit("timeOutCode");
-            clearInterval(interval);
-          }
-        }, 1000);
+        Interval.makeInterval(socket, [firstTeamId,secondTeamId], timeLimit, "team")
+        console.log("is it same???!@#!@#!@#!@#",[firstTeamId,secondTeamId])
+        // const interval = setInterval(() => {
+        //   socket.nsp.to([firstTeamId, secondTeamId]).emit("timeLimitCode", timeLimit - new Date());
+        //   if(timeLimit < new Date()) {
+        //     socket.nsp.to([firstTeamId, secondTeamId]).emit("timeOutCode");
+        //     clearInterval(interval);
+        //   }
+        // }, 1000);
         waitingList = [];
       }
      } else {
@@ -298,7 +301,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("getTeamInfo", (roomId) => {
-    console.log('get game info >>>>> ', roomId, maygetPlayers(teamRoom[roomId]));
+    // console.log('get game info >>>>> ', roomId, maygetPlayers(teamRoom[roomId]));
     socket.join(teamRoom[roomId].id);
     socket.emit("getTeamInfo", maygetPlayers(teamRoom[roomId]));
   });

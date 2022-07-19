@@ -14,7 +14,7 @@ module.exports = (socket, event) => {
       let timeLimit = new Date();
       timeLimit.setMinutes(timeLimit.getMinutes() + 3);
       
-      Interval.makeInterval(socket, `room${idx}`, timeLimit)
+      Interval.makeInterval(socket, `room${idx}`, timeLimit, "wait")
       // const interval = setInterval(() => {
       //   socket.nsp.to(`room${idx}`).emit("timeLimit", timeLimit - new Date());
       //   if(timeLimit < new Date()) {
@@ -24,7 +24,10 @@ module.exports = (socket, event) => {
       // }, 1000);
     } else if (GameRoom.room[idx].length < 8) {
       if (GameRoom.room[idx].length == 0 ){
-        Interval.deleteInterval(`room${idx}`)
+        Interval.deleteInterval(`room${idx}`,'wait')
+        let timeLimit = new Date();
+        timeLimit.setMinutes(timeLimit.getMinutes() + 3);
+        Interval.makeInterval(socket,`room${idx}`,timeLimit,"wait")
       }
 
       GameRoom.joinRoom(userInfo)
@@ -41,19 +44,12 @@ module.exports = (socket, event) => {
       console.log("HERERERERERER????????");
       GameRoom.increaseIdx();
       GameRoom.createRoom(userInfo);
-      Interval.deleteInterval(`room${idx-1}`)
       socket.join(`room${idx}`);
 
       let timeLimit = new Date();
       timeLimit.setMinutes(timeLimit.getMinutes() + 3);
-  
-      const interval = setInterval(() => {
-        socket.nsp.to(`room${idx}`).emit("timeLimit", timeLimit - new Date());
-        if(timeLimit < new Date()) {
-          socket.nsp.to(`room${idx}`).emit("timeOut");
-          clearInterval(interval);
-        }
-      }, 1000);
+      
+      Interval.makeInterval(socket, `room${idx}}`, timeLimit, "solo");
     }
     socket.nsp.to(`room${idx}`).emit('enterNewUser', GameRoom.room[idx]);
     // io.in(`room${idx}`).emit('enterNewUser', room[idx])
