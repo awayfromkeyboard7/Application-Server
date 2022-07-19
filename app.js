@@ -83,7 +83,12 @@ io.on("connection", (socket) => {
   socket.onAny(e => console.log(`SOCKET EVENT::::::${e}`));
 
   socket.on("setGitId", (gitId) => {
-    usersSocketId[gitId] = socket.id;
+    if (gitId !== null) {
+      console.log("setGitId >>>>>>>> gitId: ", gitId);
+      usersSocketId[gitId] = socket.id;
+      socket.gitId = gitId;
+      console.log("setGitId >>>>>>>> userSocketId: ", usersSocketId);
+    }
     // console.log(gitId, usersSocketId);
     // console.log('');
     if (!(gitId in chatLogs)) {
@@ -345,7 +350,7 @@ io.on("connection", (socket) => {
     }
     console.log(chatLogs[sender]);
     socket.to(usersSocketId[receiver]).emit('sendChatMessage', message);
-  })
+  });
 
   socket.on("getChatMessage", (sender, receiver) => {
     const senderToReceiver = chatLogs[sender][receiver] !== undefined ? chatLogs[sender][receiver] : [];
@@ -354,8 +359,45 @@ io.on("connection", (socket) => {
     const myChatLogs = senderToReceiver.concat(receverToSender);
     myChatLogs.sort((a, b) => a.sendAt - b.sendAt);
     console.log('myChatLogs::::::::::');
-    socket.emit("receiveChatMessage", myChatLogs);      
-  })
+    socket.emit("receiveChatMessage", myChatLogs);
+  });
+
+  socket.on("followMember", async (myNodeId, targetGitId) => {
+    try {
+      console.log(`followMember >>>>>>>>>>>>>>>>> ${myNodeId} =====> ${targetGitId}`);
+      await User.following(myNodeId, targetGitId);
+      let followList = await User.getFollowingUser(myNodeId)
+      // Promise.all 사용하기 전 출력값: [ Promise { <pending> }, ... ]
+      console.log('followingList >>>>>>>> ', followList);
+      followList =  await Promise.all (followList.filter((friend) => {
+        if (friend.gitId in usersSocketId) {
+          return friend;
+        }
+      }))
+      socket.emit("updateFollowingUser", followList)
+    } catch (e) {
+      console.log(e);
+    }
+  });
+
+  socket.on("disconnecting", async () => {
+    try {
+      console.log("disconnecting usersSocketId >>>>>>>>>>>> ", usersSocketId)
+      const followList = await User.getFollowingUserWithGitId(socket.gitId);
+      console.log("disconnecting socket.gitId >>>>>>>> ", socket.gitId);
+      delete usersSocketId[socket.gitId]
+      await Promise.all (followList.filter(friend => {
+        if (friend in usersSocketId) {
+          socket.to(usersSocketId[friend]).emit("updateFollowingUser", socket.gitId);
+        } else {
+          console.log(friend)
+        }
+      }));
+      console.log('disconnecting >>>>>>>>>>>> followingList', followList);
+    } catch (e) {
+      console.log(e)
+    };
+  });
 });
 
 server.listen(PORTNUM, () => {
