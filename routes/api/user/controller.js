@@ -3,6 +3,8 @@ const fetch = require('node-fetch');
 const User = require('../../../models/user');
 const crypto = require('../../../models/keycrypto');
 
+const cookieConfig = { maxAge: 60000000 }
+
 async function getGithubUser (access_token) {
   const req = await fetch('https://api.github.com/user', {
     headers: {
@@ -31,9 +33,9 @@ exports.getGitInfo = async(req, res) => {
         user = await User.createUser(info);
       }
 
-      res.cookie('avatarUrl', githubData['avatar_url'], { maxAge: 60000000 });
-      res.cookie('gitId', githubData['login'], { maxAge: 60000000 });
-      res.cookie('nodeId', crypto.encrypt(githubData['id'].toString()), { maxAge: 60000000 });
+      res.cookie('avatarUrl', githubData['avatar_url'], cookieConfig);
+      res.cookie('gitId', githubData['login'], cookieConfig);
+      res.cookie('nodeId', crypto.encrypt(githubData['id'].toString()), cookieConfig);
       res.status(200).json({ success: true });
     } catch(err) {
       console.log(err);
