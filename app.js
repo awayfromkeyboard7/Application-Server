@@ -7,6 +7,7 @@ const app = express();
 const User = require("./models/user");
 const GameLog = require("./models/gamelog");
 const GameRoom = require("./models/gameroom");
+const Interval = require("./models/interval");
 const uuid = require("uuid");
 
 const SocketIO = require("socket.io");
@@ -76,7 +77,6 @@ function setPeerId(arr, gitId, peerId) {
   }
 } 
 
-
 io.on("connection", (socket) => {
   console.log(`user connected: ${socket.id}`, teamRoom);
 
@@ -121,20 +121,10 @@ io.on("connection", (socket) => {
       // 퍼플
       // socket.emit("enterNewUserToTeam", teamRoom[userInfo.gitId].players);
       socket.emit("enterNewUserToTeam", getPlayers(teamRoom[userInfo.gitId]));
-  
-      let timeLimit = new Date();
-      timeLimit.setMinutes(timeLimit.getMinutes() + 3);
-    
-      const interval = setInterval(() => {
-        socket.nsp.to(teamRoom[userInfo.gitId]?.id).emit("timeLimit", timeLimit - new Date());
-        if(timeLimit < new Date()) {
-          socket.nsp.to(teamRoom[userInfo.gitId].id).emit("timeOut");
-          // socket.leave(teamRoom[userInfo.gitId].id);
-          socket.leaveAll();
-          socket.join(socket.id);
-          clearInterval(interval);
-        }
-      }, 1000);
+
+      // 팀생성 인터벌 도현 주석
+      // let timeLimit = new Date();
+      // timeLimit.setMinutes(timeLimit.getMinutes() + 3);
   
       return () => {
         clearInterval(interval);
@@ -230,13 +220,15 @@ io.on("connection", (socket) => {
         timeLimit.setMinutes(timeLimit.getMinutes() + 15);
         const firstTeamId = teamRoom[waitingList[0]].id;
         const secondTeamId = teamRoom[roomId].id;
-        const interval = setInterval(() => {
-          socket.nsp.to([firstTeamId, secondTeamId]).emit("timeLimitCode", timeLimit - new Date());
-          if(timeLimit < new Date()) {
-            socket.nsp.to([firstTeamId, secondTeamId]).emit("timeOutCode");
-            clearInterval(interval);
-          }
-        }, 1000);
+        Interval.makeInterval(socket, [firstTeamId,secondTeamId], timeLimit, "team")
+        console.log("is it same???!@#!@#!@#!@#",[firstTeamId,secondTeamId])
+        // const interval = setInterval(() => {
+        //   socket.nsp.to([firstTeamId, secondTeamId]).emit("timeLimitCode", timeLimit - new Date());
+        //   if(timeLimit < new Date()) {
+        //     socket.nsp.to([firstTeamId, secondTeamId]).emit("timeOutCode");
+        //     clearInterval(interval);
+        //   }
+        // }, 1000);
         waitingList = [];
       }
      } else {
@@ -315,7 +307,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("getTeamInfo", (roomId) => {
-    console.log('get game info >>>>> ', roomId, maygetPlayers(teamRoom[roomId]));
+    // console.log('get game info >>>>> ', roomId, maygetPlayers(teamRoom[roomId]));
     socket.join(teamRoom[roomId].id);
     socket.emit("getTeamInfo", maygetPlayers(teamRoom[roomId]));
   });
@@ -402,6 +394,15 @@ io.on("connection", (socket) => {
     }
   })
 
+  socket.on("getRoomId", async () => {
+    try {
+      const myRoom = GameRoom.getRoom(socket);
+      socket.emit('getRoomId', myRoom);
+    } catch (e) {
+      console.log(e)
+    }
+  })
+
   socket.on("getFollowingList", async (nodeId) => {
     const followingList = await User.getFollowingList(nodeId);
     const result = await Promise.all (followingList.filter(friend => {
@@ -412,6 +413,7 @@ io.on("connection", (socket) => {
     socket.emit("getFollowingList", result);
   })
 });
+
 
 server.listen(PORTNUM, () => {
   console.log(`Server is running... port: ${PORTNUM}`);

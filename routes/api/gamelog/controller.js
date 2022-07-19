@@ -1,6 +1,7 @@
 const request = require('superagent');
 const mongoose = require('mongoose');
 const GameLog = require('../../../models/gamelog');
+const Interval = require('../../../models/interval');
 const Problem = require('../../../models/problem');
 const User = require('../../../models/user');
 
@@ -33,6 +34,10 @@ exports.updateGamelogTeam = async (req, res) => {
     const userScores = await GameLog.isFinishTeam(req.body);
     console.log('updategamelogTeam:::::::', userScores);
     if (userScores) {
+      const gameLog = await GameLog.getLog(req.body["gameId"])
+      // console.log("gamelog???!?@!@!!!#!@#!@#!@#@!#!@#",gameLog)
+      // Interval.deleteInterval("hoxy??",'team')
+      Interval.deleteInterval([gameLog["roomIdA"],gameLog["roomIdB"]],'team');
       User.totalRankUpdate();
       console.log(Object.entries(userScores));
       await Object.entries(userScores).forEach(([gitId, score]) => User.updateUserScore(gitId, score));
@@ -53,7 +58,12 @@ exports.updateGamelog = async (req, res) => {
   try {
     await GameLog.updateLog(req.body);
     const userScores = await GameLog.isFinish(req.body);
+    // console.log("@#@#@#@##@#@#showme reqbody!@!@@#@#@#@#@#@#@#!@!",userScores)
     if (userScores) {
+      const gameLog = await GameLog.getLog(req.body.gameId);
+
+      // console.log("@!#!@#!@#!gamelog isit???????",gameLog["roomId"])
+      Interval.deleteInterval(gameLog["roomId"],'solo')
       User.totalRankUpdate();
       Object.entries(userScores).forEach(([gitId, score]) => User.updateUserScore(gitId, score));
     }
@@ -70,10 +80,13 @@ exports.updateGamelog = async (req, res) => {
 
 exports.createGamelog = async (req, res) => {
   try {
+    // roomId = 연어
+
     const info = {
       problemId : await Problem.random(),
       userHistory: req.body.players,
-      totalUsers: req.body.totalUsers
+      totalUsers: req.body.totalUsers,
+      roomId : req.body.roomId
     }
     // console.log("@@@@@@@@@@@@@@@@@@@@@@",length(req.body.players));
     const gameLog = await GameLog.createLog(info);

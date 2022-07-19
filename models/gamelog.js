@@ -62,6 +62,10 @@ const GameLogSchema = new Schema({
     type: [UserHistorySchema],
     defualt: []
   },
+  roomId: {
+    type: String,
+    default : false
+  },
   roomIdA: {
     type: String,
     default : false
@@ -144,7 +148,8 @@ GameLogSchema.statics.getLog = function(logId) {
 GameLogSchema.statics.isFinish = async function(data){
   const gameLog = await this.findById(mongoose.Types.ObjectId(data["gameId"]));
   gameLog["totalUsers"] -= 1;
-  
+
+
   if (gameLog["totalUsers"] === 0){
     const userScores = {};
     gameLog["userHistory"].sort((a, b) => {
