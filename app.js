@@ -92,9 +92,6 @@ io.on("connection", (socket) => {
           socket.to(usersSocketId[friend]).emit("followingUserConnect", socket.gitId);
         }
       }))
-      console.log("setGidId >>>>>>>>> ", socket.gitId, gitId)
-      io.emit("followingUserConnect", gitId);
-      socket.broadcast.emit("followingUserConnect", gitId);
     }
   });
 
@@ -341,42 +338,34 @@ io.on("connection", (socket) => {
     try {
       console.log(`followMember >>>>>>>>>>>>>>>>> ${myNodeId} =====> ${targetGitId}`);
       await User.following(myNodeId, targetGitId);
-      let followList = await User.getFollowingList(myNodeId)
+      // let followList = await User.getFollowingList(myNodeId)
       // Promise.all 사용하기 전 출력값: [ Promise { <pending> }, ... ]
-      console.log('followingList >>>>>>>> ', followList);
-      followList =  await Promise.all (followList.filter((friend) => {
-        if (friend.gitId in usersSocketId) {
-          return friend;
-        }
-      }))
-      socket.emit("updateFollowingUser", followList)
+      // console.log('followingList >>>>>>>> ', followList);
+      // followList =  await Promise.all (followList.filter((friend) => {
+      //   if (friend.gitId in usersSocketId) {
+      //     return friend;
+      //   }
+      // }))
+      // socket.emit("updateFollowingUser", followList)
     } catch (e) {
       console.log(e);
     }
   });
 
   socket.on("disconnecting", async () => {
-    // try {
-    //   console.log("disconnecting usersSocketId >>>>>>>>>>>> ", usersSocketId)
-    //   const followerList = await User.getFollowerListWithGitId(socket.gitId);
-    //   console.log("disconnecting socket.gitId >>>>>>>> ", socket.gitId);
-    //   delete usersSocketId[socket.gitId]
-    //   await Promise.all (followerList?.filter(friend => {
-    //     if (friend in usersSocketId) {
-    //       io.emit("followingUserDisconnect", socket.gitId);
-    //       // socket.to(usersSocketId[friend]).emit("followingUserDisconnect", socket.gitId);
-    //     }
-    //   }))
-    // } catch (e) {
-    //   console.log(e)
-    // }
-    console.log("disconnecting >>>>>>>>>> ", socket.gitId);
-    for(let [key, value] of Object.entries(usersSocketId)) {
-      console.log("disconnecting >>>>> value: ", key, value);
-      await socket.to(value).emit("followingUserDisconnect", socket.gitId);
+    try {
+      console.log("disconnecting usersSocketId >>>>>>>>>>>> ", usersSocketId)
+      const followerList = await User.getFollowerListWithGitId(socket.gitId);
+      console.log("disconnecting socket.gitId >>>>>>>> ", socket.gitId);
+      delete usersSocketId[socket.gitId]
+      await Promise.all (followerList?.filter(friend => {
+        if (friend in usersSocketId) {
+          socket.to(usersSocketId[friend]).emit("followingUserDisconnect", socket.gitId);
+        }
+      }))
+    } catch (e) {
+      console.log(e)
     }
-    io.emit("followingUserDisconnect", socket.gitId);
-    socket.broadcast.emit("followingUserDisconnect", socket.gitId);
   })
 
   socket.on("getFollowingList", async (nodeId) => {

@@ -179,8 +179,9 @@ UserSchema.statics.following = async function (myNodeId, targetGitId) {
   
   const targetUser = await this.findOne({ gitId: targetGitId });
 
+  // 나 자신을 팔로우 예외처리
   if (targetUser["nodeId"] !== nodeId) {
-    return await this.findOneAndUpdate(
+    await this.findOneAndUpdate(
       { nodeId: nodeId },
       {
         $addToSet: {
@@ -188,6 +189,15 @@ UserSchema.statics.following = async function (myNodeId, targetGitId) {
         },
       },
       { new: true }
+    );
+
+    await this.findOneAndUpdate(
+      { nodeId: targetUser["nodeId"] },
+      {
+        $addToSet: {
+          follower: nodeId
+        },
+      }
     );
   }
 }
