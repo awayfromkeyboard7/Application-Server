@@ -70,11 +70,10 @@ exports.findAll = async (req, res) => {
 
 exports.getSearch = async (req, res) => {
   try {
-
-    // const searchUser = await User.getUser(userGitId);
     const searchUser = await User.getUser(req.body.gitId);
+
     res.status(200).json({
-      searchUser: searchUser,
+      searchUser,
       success: true,
     });
   } catch (err) {

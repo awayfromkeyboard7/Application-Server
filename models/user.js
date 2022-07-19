@@ -16,7 +16,7 @@ const UserSchema = new Schema({
     type: Number,
     required: true,
   },
-  imgUrl: {
+  avatarUrl: {
     type: String,
   },
   totalScore: {
@@ -54,21 +54,31 @@ UserSchema.statics.findAll = function () {
 
 // 모든 유저의 gitId 를 가져옴 -> 모든 유저의 gitId 를 대문자로 변경 -> 입력값 대문자로 변경 -> 둘이 비교 후 일치하는 gitId 출력
 UserSchema.statics.getUser = async function (gitId) {
-  const userGitId = await this.findOne({ gitId: gitId });
   const allUserGitId = await this.find();
 
   for (let i = 0; i < allUserGitId.length; i++) {
     let userList = allUserGitId[i]["gitId"];
+    let userImage = allUserGitId[i]["avatarUrl"];
+    let userKing = allUserGitId[i]["ranking"];
+    let data = { gitId: userList, avatarUrl: userImage, ranking: userKing };
 
     if (userList.toUpperCase() === gitId.toUpperCase()) {
-      return userList;
+      console.log(data);
+      return data;
     }
   }
 };
 
 UserSchema.statics.getUserImage = async function (gitId) {
-  const user = await this.findOne({ gitId: gitId });
-  return user["imgUrl"];
+  const userImgSearch = await this.find();
+
+  for (let i = 0; i < userImgSearch.length; i++) {
+    let userList = userImgSearch[i]["gitId"];
+
+    if (userList.toUpperCase() === gitId.toUpperCase()) {
+      return userList;
+    }
+  }
 };
 
 //  const result = await this.aggregate([
