@@ -52,6 +52,55 @@ UserSchema.statics.findAll = function () {
   return this.find();
 };
 
+// 모든 유저의 gitId 를 가져옴 -> 모든 유저의 gitId 를 대문자로 변경 -> 입력값 대문자로 변경 -> 둘이 비교 후 일치하는 gitId 출력
+UserSchema.statics.getUser = async function (gitId) {
+  const userGitId = await this.findOne({ gitId: gitId });
+  const allUserGitId = await this.find();
+
+  for (let i = 0; i < allUserGitId.length; i++) {
+    let userList = allUserGitId[i]["gitId"];
+
+    if (userList.toUpperCase() === gitId.toUpperCase()) {
+      return userList;
+    }
+  }
+};
+
+UserSchema.statics.getUserImage = async function (gitId) {
+  const user = await this.findOne({ gitId: gitId });
+  return user["imgUrl"];
+};
+
+//  const result = await this.aggregate([
+//    {
+//      $setWindowFields: {
+//        partitionBy: "$state",
+//        sortBy: {
+//          totalScore: -1,
+//        },
+//        output: {
+//          ranking: {
+//            $rank: {},
+//          },
+//        },
+//      },
+//    },
+//  ]);
+
+//  for (let i = 0; i < result.length; i++) {
+//    let gitId = result[i]["gitId"];
+//    await this.findOneAndUpdate(
+//      { gitId: gitId },
+//      {
+//        $set: {
+//          ranking: result[i]["ranking"],
+//        },
+//      },
+//      { new: true }
+//    );
+//  }
+//  return result;
+
 // 기존 유저 토큰 업데이트
 UserSchema.statics.isExist = function (nodeId, token) {
   console.log("nodeId:", nodeId);
@@ -94,10 +143,10 @@ UserSchema.statics.updateUserInfo = async function (gitId, info) {
   );
 };
 
-UserSchema.statics.getUserImage = async function (gitId) {
-  const user = await this.findOne({ gitId: gitId });
-  return user["imgUrl"];
-};
+// UserSchema.statics.getUserImage = async function (gitId) {
+//   const user = await this.findOne({ gitId: gitId });
+//   return user["imgUrl"];
+// };
 
 UserSchema.statics.totalRankUpdate = async function () {
   // console.log("passhere?!?!@#!@#!$!@#!!hello");
@@ -132,32 +181,32 @@ UserSchema.statics.totalRankUpdate = async function () {
   return result;
 };
 
-UserSchema.statics.addGameLog = async function (gameLog){
-  console.log("gamelog???????!?!@?",gameLog)
-  const problemId = gameLog.problemId["_id"]
-  const gameLogId = gameLog._id
+UserSchema.statics.addGameLog = async function (gameLog) {
+  console.log("gamelog???????!?!@?", gameLog);
+  const problemId = gameLog.problemId["_id"];
+  const gameLogId = gameLog._id;
 
-  allUser = [gameLog.userHistory, gameLog.teamA, gameLog.teamB]
+  allUser = [gameLog.userHistory, gameLog.teamA, gameLog.teamB];
 
-  for (let j = 0 ; j<3 ; j++){
-    for (let i = 0 ; i<allUser[j].length; i++){
-      let userLog = await this.find({ gitId : allUser[j][i].gitId })    
-      let gameLogHistory = userLog[0]["gameLogHistory"]
-      let problemHistory = userLog[0]["problemHistory"]
-      gameLogHistory.push(gameLogId)
-      problemHistory.push(problemId)
+  for (let j = 0; j < 3; j++) {
+    for (let i = 0; i < allUser[j].length; i++) {
+      let userLog = await this.find({ gitId: allUser[j][i].gitId });
+      let gameLogHistory = userLog[0]["gameLogHistory"];
+      let problemHistory = userLog[0]["problemHistory"];
+      gameLogHistory.push(gameLogId);
+      problemHistory.push(problemId);
       await this.findOneAndUpdate(
-        {gitId : allUser[j][i].gitId},
+        { gitId: allUser[j][i].gitId },
         {
           $set: {
-            problemHistory : problemHistory,
-            gameLogHistory : gameLogHistory
-          }
+            problemHistory: problemHistory,
+            gameLogHistory: gameLogHistory,
+          },
         },
-        { new: true}
-      )
+        { new: true }
+      );
     }
   }
-}
+};
 
 module.exports = mongoose.model("User", UserSchema);
