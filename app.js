@@ -368,6 +368,16 @@ io.on("connection", (socket) => {
       console.log(e)
     }
   })
+
+  socket.on("getFollowingList", async (nodeId) => {
+    const followingList = await User.getFollowingList(nodeId);
+    const result = await Promise.all (followingList.filter(friend => {
+      if (friend.gitId in usersSocketId) {
+        return friend
+      }
+    }))
+    socket.emit("getFollowingList", result);
+  })
 });
 
 server.listen(PORTNUM, () => {
