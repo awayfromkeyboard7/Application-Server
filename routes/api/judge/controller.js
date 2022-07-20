@@ -5,7 +5,6 @@ require("dotenv").config();
 exports.sendCode = async function(req, res) {
   // judge 도커에 채점 요청
   console.log("Some request accepted");
-  
 
   const gitId = req.body['gitId'];
   const problemId = req.body['problemId'];

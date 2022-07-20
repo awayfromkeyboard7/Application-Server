@@ -338,6 +338,15 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("unFollowMember", async (myNodeId, targetGitId) => {
+    try {
+      console.log(`unFollowMember >>>>>>>>>>>>>>>>> ${myNodeId} =====> ${targetGitId}`);
+      await User.unfollow(myNodeId, targetGitId);
+    } catch (e) {
+      console.log(e);
+    }
+  });
+
   socket.on("followMember", async (myNodeId, targetGitId) => {
     try {
       console.log(`followMember >>>>>>>>>>>>>>>>> ${myNodeId} =====> ${targetGitId}`);
@@ -352,7 +361,7 @@ io.on("connection", (socket) => {
       console.log("disconnecting usersSocketId >>>>>>>>>>>> ", UserSocket.getSocketArray())
       const followerList = await User.getFollowerListWithGitId(socket.gitId);
       console.log("disconnecting socket.gitId >>>>>>>> ", socket.gitId);
-      deleteSocketId(socket.gitId)
+      UserSocket.deleteSocketId(socket.gitId)
       await Promise.all (followerList?.filter(friend => {
         if (UserSocket.isExist(friend)) {
           socket.to(UserSocket.getSocketId(friend)).emit("followingUserConnect", socket.gitId);

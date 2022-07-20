@@ -243,7 +243,31 @@ UserSchema.statics.getFollowingUserWithGitId = async function (myGitId) {
 
 UserSchema.statics.getUserInfoWithNodeId = async function (myNodeId) {
   const nodeId = parseInt(crypto.decrypt(myNodeId));
-  const user = await this.findOne({ nodeId: nodeId });
+  return await this.findOne({ nodeId: nodeId });
 }
+
+UserSchema.statics.unfollow = async function (myNodeId, friendGitId) {
+  const user = await this.getUserInfoWithNodeId(myNodeId);
+  const friend = await this.findOne({ gitId: friendGitId });
+  
+  await this.findOneAndUpdate(
+    { nodeId: user["nodeId"] },
+    {
+      $pull: {
+        following: friend["nodeId"]
+      },
+    }
+  );
+
+  await this.findOneAndUpdate(
+    { nodeId: friend["nodeId"] },
+    {
+      $pull: {
+        follower: user["nodeId"]
+      }
+    }
+  )
+}
+
 
 module.exports = mongoose.model("User", UserSchema);

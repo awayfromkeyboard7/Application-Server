@@ -17,7 +17,6 @@ function makeInterval(socket, roomId, timeLimit, mode) {
         } else {
             socket.nsp.to(roomId).emit("timeLimitCode", timeLimit - new Date());
         }
-        console.log("@@@@@@@@room id & mode@@@@@@", roomId, mode )
         // console.log(intervalList)
         if(timeLimit < new Date()) {
             socket.nsp.to(roomId).emit("timeOutCode");
