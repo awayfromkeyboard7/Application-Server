@@ -209,22 +209,32 @@ io.on("connection", (socket) => {
     if (waitingList.length === 1) {
       // 새로고침하면 이미 내가 대기리스트에 있는 상태.
       if (!(waitingList.includes(roomId))) {
-        // create gamelog for 2 teams.......
         
-        // TODO1 양 팀의 유저들로 새 게임로그 생성
-        const gameLogId = await gamelog.createTeamLog(getPlayers(teamRoom[waitingList[0]]), getPlayers(teamRoom[roomId]), teamRoom[waitingList[0]].id, teamRoom[roomId].id);
-        User.addGameLog(await GameLog.getLog(gameLogId));
-        
-        // TODO2 client에서 teamGameStart 이벤트　on
-        socket.nsp.to(teamRoom[waitingList[0]].id).emit("teamGameStart", waitingList[0], gameLogId);
-        socket.nsp.to(teamRoom[roomId].id).emit("teamGameStart", roomId, gameLogId);
         let timeLimit = new Date();
-        timeLimit.setMinutes(timeLimit.getMinutes() + 15);
-        const firstTeamId = teamRoom[waitingList[0]].id;
-        const secondTeamId = teamRoom[roomId].id;
-        Interval.makeInterval(socket, [firstTeamId,secondTeamId], timeLimit, "team")
-        console.log("is it same???!@#!@#!@#!@#",[firstTeamId,secondTeamId])
-        waitingList = [];
+        timeLimit.setSeconds(timeLimit.getSeconds() + 5);
+        
+        const interval = setInterval(() => {
+          socket.nsp.to(i).emit("timeLimitCode", timeLimit - new Date());
+        }, 1000);
+
+        setTimeout(() => {
+          timeLimit = new Date();
+          timeLimit.setMinutes(timeLimit.getMinutes() + 15);
+
+          // create gamelog for 2 teams.......
+          
+          // TODO1 양 팀의 유저들로 새 게임로그 생성
+          // TODO2 client에서 teamGameStart 이벤트　on
+          socket.nsp.to(teamRoom[waitingList[0]].id).emit("teamGameStart", waitingList[0], gameLogId);
+          socket.nsp.to(teamRoom[roomId].id).emit("teamGameStart", roomId, gameLogId);
+          
+          const firstTeamId = teamRoom[waitingList[0]].id;
+          const secondTeamId = teamRoom[roomId].id;
+          Interval.makeInterval(socket, [firstTeamId,secondTeamId], timeLimit, "team")
+          waitingList = [];
+
+        }, 5001);
+          // console.log("is it same???!@#!@#!@#!@#",[firstTeamId,secondTeamId])
       }
      } else {
       console.log("teamgame should not be started yet!!!!!!!!");
