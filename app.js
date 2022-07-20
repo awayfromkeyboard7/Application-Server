@@ -5,6 +5,7 @@ const cookieParser = require("cookie-parser");
 const db = require("./lib/db");
 const app = express();
 const User = require("./models/user");
+const UserSocket = require("./models/usersocket");
 const GameLog = require("./models/gamelog");
 const GameRoom = require("./models/gameroom");
 const Interval = require("./models/interval");
@@ -31,8 +32,6 @@ app.use(express.json());
 app.use("/", require("./routes/"));
 
 let teamRoom = {};
-// user들의 socket Id
-let usersSocketId = {};
 
 let waitingList = [];
 
@@ -85,24 +84,50 @@ io.on("connection", (socket) => {
   socket.on("setGitId", async (gitId) => {
     if (gitId !== null) {
       console.log("setGitId >>>>>>>> gitId: ", gitId);
-      usersSocketId[gitId] = socket.id;
+      // 소켓
+      UserSocket.setSocketId(gitId, socket.id);
       socket.gitId = gitId;
-      console.log("setGitId >>>>>>>> userSocketId: ", usersSocketId);
 
       const followerList = await User.getFollowerListWithGitId(socket.gitId);
       await Promise.all (followerList.filter(friend => {
-        if (friend in usersSocketId) {
-          socket.to(usersSocketId[friend]).emit("followingUserConnect", socket.gitId);
+        if (UserSocket.isExist(friend)) {
+          socket.to(UserSocket.getSocketId(friend)).emit("followingUserConnect", socket.gitId);
         }
       }))
     }
-    // console.log(gitId, usersSocketId);
-    // console.log('');
     if (!(gitId in chatLogs)) {
       chatLogs[gitId] = {};
     }
-    console.log("usersSocketId>>>", usersSocketId);
+    console.log("usersSocketId>>>", UserSocket.getSocketArray());
     console.log("users initial chatLogs", gitId, chatLogs);
+  });
+
+  socket.on("exitWait", async (gitId) => {
+    console.log("exitWait roomId >>>>>>>>>>>>>> ", socket.bangjang);
+    let myRoom = await GameRoom.getRoom(socket);
+    GameRoom.setRoom(GameRoom.room[GameRoom.getIdx()]?.filter((item) => item.gitId !== gitId));
+    try {
+      if (gitId in teamRoom) {
+        socket.nsp.to(teamRoom[gitId].id).emit("exitTeamGame", gitId);
+        delete teamRoom[gitId]
+      } else {
+        if (socket.bangjang !== undefined) {
+          teamRoom[socket.bangjang].players = teamRoom[socket.bangjang].players.filter(player => {
+            return player.userInfo.gitId !== gitId
+          })
+          socket.to(teamRoom[socket.bangjang].id).emit("enterNewUserToTeam", getPlayers(teamRoom[socket.bangjang]))
+          socket.bangjang = undefined
+        } else {
+          socket.to(myRoom).emit("exitWait", GameRoom.room[GameRoom.getIdx()]);
+        }
+      }
+      // 모든방에서 나가진 후 자기 private room 입장
+      socket.leaveAll();
+      socket.join(socket.id);
+    } catch(e) {
+      console.log(`exitWait ERROR ::::::: gitId: ${gitId}`);
+      console.log(`exitWait ERROR ::::::: log: ${e}`);
+    }
   });
 
   SocketRoutes.solo.waitGame(socket, SocketRoutes.solo.event.waitGame);
@@ -138,24 +163,11 @@ io.on("connection", (socket) => {
 
   socket.on("inviteMember", (gitId, friendGitId) => {
     console.log(`InviteMember >>>>>>>> ${gitId} => ${friendGitId}`)
-    socket.to(usersSocketId[friendGitId]).emit("comeon", gitId);
+    socket.to(UserSocket.getSocketId(friendGitId)).emit("comeon", gitId);
   });
 
   socket.on("acceptInvite", (roomId, userInfo) => {
-    // console.log(`acceptInvite >>>>>>>> ${roomId} => ${userInfo.gitId}`)
-
-    // teamRoom[roomId].players.push(userInfo);
     teamRoom[roomId].players.push({userInfo, peerId:''});
-
-    // console.log('teamRoom[roomId]', teamRoom[roomId])
-
-    // const temp = new Set();
-    // const unique = teamRoom[roomId].players.filter((item) => {
-    //   const alreadyHas = temp.has(item.gitId);
-    //   temp.add(item.gitId);
-    //   return !alreadyHas;
-    // });
-    // teamRoom[roomId].players = unique;
     
     const temp = new Set();
     const unique = teamRoom[roomId].players.filter((item) => {
@@ -166,22 +178,18 @@ io.on("connection", (socket) => {
     
     teamRoom[roomId].players = unique;
 
-
     socket.join(teamRoom[roomId].id);
     socket.nsp
       .to(teamRoom[roomId].id)
       .emit("enterNewUserToTeam", getPlayers(teamRoom[roomId]));
-      // .emit("enterNewUserToTeam", teamRoom[roomId].players);
     
+    socket.bangjang = roomId;
     console.log(teamRoom);
-
   });
 
   socket.on('getUsers', (roomId) => {
-    // console.log(teamRoom[roomId], socket.rooms);
     socket.join(teamRoom[roomId].id);
     socket.emit('setUsers', maygetPlayers(teamRoom[roomId]));
-    // socket.emit('setUsers', teamRoom[roomId]?.players);
   });
 
   socket.on("goToMachingRoom", async (userId) => {
@@ -189,27 +197,21 @@ io.on("connection", (socket) => {
     // console.log("goToMachingRoom>>>>>!>!!>!>!>!>!!", userId, teamRoom)
     // console.log(userId, teamRoom, socket.rooms);
     if (userId in teamRoom) {
-      // socket.nsp.to(teamRoom[userId].id).emit("goToMachingRoom", teamRoom[userId].players[0].userInfo.gitId);
       socket.nsp.to(teamRoom[userId].id).emit("goToMachingRoom", userId);
     }
   })
 
   // 팀전 매칭 버튼을 누르면 waiting리스트 확인 후 대기자가 있으면 게임 시작, 없으면 대기리스트에 추가
   socket.on("startMatching", async (roomId) => {
-    // console.log(teamRoom[roomId]);
-    // console.log(waitingList);
     socket.join(teamRoom[roomId].id);
     // console.log(socket.rooms);
     // 팀전 매칭을 누르면 team room에 있는 인원 모두 매칭룸으로 이동
-    // console.log("startMatching", roomId, waitingList);
     if (waitingList.length === 1) {
       // 새로고침하면 이미 내가 대기리스트에 있는 상태.
-      // console.log('startMatching>>>>>>>>>>>>>>', roomId, waitingList);
       if (!(waitingList.includes(roomId))) {
         // create gamelog for 2 teams.......
         
         // TODO1 양 팀의 유저들로 새 게임로그 생성
-        // const gameLogId = await gamelog.createTeamLog(teamRoom[waitingList[0]].players, teamRoom[roomId].players, teamRoom[waitingList[0]].id, teamRoom[roomId].id);
         const gameLogId = await gamelog.createTeamLog(getPlayers(teamRoom[waitingList[0]]), getPlayers(teamRoom[roomId]), teamRoom[waitingList[0]].id, teamRoom[roomId].id);
         User.addGameLog(await GameLog.getLog(gameLogId));
         
@@ -222,44 +224,11 @@ io.on("connection", (socket) => {
         const secondTeamId = teamRoom[roomId].id;
         Interval.makeInterval(socket, [firstTeamId,secondTeamId], timeLimit, "team")
         console.log("is it same???!@#!@#!@#!@#",[firstTeamId,secondTeamId])
-        // const interval = setInterval(() => {
-        //   socket.nsp.to([firstTeamId, secondTeamId]).emit("timeLimitCode", timeLimit - new Date());
-        //   if(timeLimit < new Date()) {
-        //     socket.nsp.to([firstTeamId, secondTeamId]).emit("timeOutCode");
-        //     clearInterval(interval);
-        //   }
-        // }, 1000);
         waitingList = [];
       }
      } else {
       console.log("teamgame should not be started yet!!!!!!!!");
       waitingList.push(roomId);
-    }
-    // console.log("startMatching", roomId, waitingList);
-  });
-
-  socket.on("exitTeamGame", async (bangjang, user) => {
-    console.log("WHO CALLED exitTeamGame????????? roomId: ", bangjang, user);
-
-    // 만약 메인으로 버튼을 누른 사람이 방장이면 모두다 메인으로
-    if (bangjang === user) {
-      console.log(">>>>>> socket.rooms before EXIT >>>>>>>", socket.rooms, teamRoom[bangjang].id);
-      console.log(">>>>>> waitingList before EXIT >>>>>>>", waitingList, bangjang);
-      console.log(">>>>>> teamRoom before EXIT >>>>>>>", teamRoom, bangjang);
-  
-      socket.nsp.to(teamRoom[bangjang].id).emit("exitTeamGame");
-      // socket.leave(teamRoom[bangjang].id);
-      socket.leaveAll();
-      socket.join(socket.id);
-  
-      waitingList = arrayRemove(waitingList, bangjang);
-      delete teamRoom[bangjang]
-      console.log(">>>>>> socket.rooms after EXIT >>>>>>>", socket.rooms);
-      console.log(">>>>>> waitingList after EXIT >>>>>>>", waitingList);
-  
-      // BUG: WHY annie1229 is in TEAMROOM???????????????????
-      // 혜진 캐리
-      console.log(">>>>>> teamRoom after EXIT >>>>>>>", teamRoom);
     }
   });
 
@@ -340,7 +309,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on('sendChatMessage', (sender, receiver, message) => {
-    console.log('send-message', message, usersSocketId[receiver]);
+    console.log('send-message', message, UserSocket.getSocketId(receiver));
 
     if (chatLogs[sender][receiver] === undefined) {
       chatLogs[sender][receiver] = [message];
@@ -351,7 +320,7 @@ io.on("connection", (socket) => {
       }
     }
     console.log(chatLogs[sender]);
-    socket.to(usersSocketId[receiver]).emit('sendChatMessage', message);
+    socket.to(UserSocket.getSocketId(receiver)).emit('sendChatMessage', message);
   });
 
   socket.on("getChatMessage", (sender, receiver) => {
@@ -380,13 +349,13 @@ io.on("connection", (socket) => {
 
   socket.on("disconnecting", async () => {
     try {
-      console.log("disconnecting usersSocketId >>>>>>>>>>>> ", usersSocketId)
+      console.log("disconnecting usersSocketId >>>>>>>>>>>> ", UserSocket.getSocketArray())
       const followerList = await User.getFollowerListWithGitId(socket.gitId);
       console.log("disconnecting socket.gitId >>>>>>>> ", socket.gitId);
-      delete usersSocketId[socket.gitId]
+      deleteSocketId(socket.gitId)
       await Promise.all (followerList?.filter(friend => {
-        if (friend in usersSocketId) {
-          socket.to(usersSocketId[friend]).emit("followingUserDisconnect", socket.gitId);
+        if (UserSocket.isExist(friend)) {
+          socket.to(UserSocket.getSocketId(friend)).emit("followingUserConnect", socket.gitId);
         }
       }))
     } catch (e) {
@@ -406,7 +375,7 @@ io.on("connection", (socket) => {
   socket.on("getFollowingList", async (nodeId) => {
     const followingList = await User.getFollowingList(nodeId);
     const result = await Promise.all (followingList.filter(friend => {
-      if (friend.gitId in usersSocketId) {
+      if (UserSocket.isExist(friend.gitId)) {
         return friend
       }
     }))
