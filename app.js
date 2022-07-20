@@ -79,7 +79,10 @@ function setPeerId(arr, gitId, peerId) {
 io.on("connection", (socket) => {
   console.log(`user connected: ${socket.id}`, teamRoom);
 
-  socket.onAny(e => console.log(`SOCKET EVENT::::::${e}`));
+  socket.onAny(e => {
+    console.log(`SOCKET EVENT::::::${e}`);
+    console.log(socket.handshake);
+  });
 
   socket.on("setGitId", async (gitId) => {
     if (gitId !== null) {
@@ -136,6 +139,12 @@ io.on("connection", (socket) => {
   SocketRoutes.solo.getRanking(socket, SocketRoutes.solo.event.getRanking);
   SocketRoutes.solo.exitWait(socket, SocketRoutes.solo.event.exitWait);
 
+
+  socket.on("getGitIdFromNodeId", async (nodeId) => {
+    console.log(nodeId);
+    const curId = await User.getUserInfoWithNodeId(nodeId);
+    // console.log("gitID????", curId);
+  })
   socket.on("createTeam", (userInfo) => {
     // console.log("createTeam........");
     if (!(userInfo.gitId in teamRoom)) {
@@ -230,6 +239,7 @@ io.on("connection", (socket) => {
       console.log("teamgame should not be started yet!!!!!!!!");
       waitingList.push(roomId);
     }
+    // console.log("startMatching", roomId, waitingList);
   });
 
   //팀전에서 게임 제출
@@ -315,9 +325,9 @@ io.on("connection", (socket) => {
       chatLogs[sender][receiver] = [message];
     } else {
       chatLogs[sender][receiver].push(message);
-      if (chatLogs[sender][receiver].length > 30) {
-        chatLogs[sender][receiver].shift();
-      }
+      // if (chatLogs[sender][receiver].length > 30) {
+      //   chatLogs[sender][receiver].shift();
+      // }
     }
     console.log(chatLogs[sender]);
     socket.to(UserSocket.getSocketId(receiver)).emit('sendChatMessage', message);
@@ -328,9 +338,14 @@ io.on("connection", (socket) => {
       const senderToReceiver = chatLogs[sender][receiver] !== undefined ? chatLogs[sender][receiver] : [];
       const receverToSender = chatLogs[receiver][sender] !== undefined ? chatLogs[receiver][sender] : [];
   
-      const myChatLogs = senderToReceiver.concat(receverToSender);
+      let myChatLogs = senderToReceiver.concat(receverToSender);
       myChatLogs.sort((a, b) => a.sendAt - b.sendAt);
       console.log('myChatLogs::::::::::');
+      if (myChatLogs.length > 60) {
+       myChatLogs = myChatLogs.slice(-60);
+       chatLogs[sender][receiver] =  JSON.parse(JSON.stringify((chatLogs[sender][receiver].filter(message => { return message["senderId"] === sender }))));
+       chatLogs[receiver][sender] =  JSON.parse(JSON.stringify((chatLogs[receiver][sender].filter(message => { return message["senderId"] === receiver }))));
+      }
       socket.emit("receiveChatMessage", myChatLogs);
     } catch(e) {
       console.log("getChatMessage ERROR >>>>>>> ", sender, receiver);
@@ -366,7 +381,7 @@ io.on("connection", (socket) => {
         if (UserSocket.isExist(friend)) {
           socket.to(UserSocket.getSocketId(friend)).emit("followingUserConnect", socket.gitId);
         }
-      }))
+      }));
     } catch (e) {
       console.log(e)
     }
@@ -382,6 +397,22 @@ io.on("connection", (socket) => {
   })
 
   socket.on("getFollowingList", async (nodeId) => {
+
+// if (socket.followerList !== undefined) {
+//   console.log("already has followList!!!!!!!");
+//   socket.emit("getFollowingList", socket.followerList);
+// } else {
+//   console.log("reload followers");
+//   const followingList = await User.getFollowingList(nodeId);
+//   const result = await Promise.all (followingList.filter(friend => {
+//     if (friend.gitId in usersSocketId) {
+//       return friend
+//     }
+//   }))
+//   // console.log("myFollowers:::::::", result);
+//   socket.followerList = result;
+//   socket.emit("getFollowingList", result);
+// }
     const followingList = await User.getFollowingList(nodeId);
     const result = await Promise.all (followingList.filter(friend => {
       if (UserSocket.isExist(friend.gitId)) {
