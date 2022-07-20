@@ -5,14 +5,13 @@ require("dotenv").config();
 exports.sendCode = async function(req, res) {
   // judge 도커에 채점 요청
   console.log("Some request accepted");
-  
 
   const gitId = req.body['gitId'];
   const problemId = req.body['problemId'];
   const lang = req.body['language'];
   const code = req.body['code'];
   
-  console.log("Send request to Container");
+  console.log("Send request to Container", req.body);
   request
     .post(`${process.env.JUDGE_SERVER_URL}/judge`)
     .set('Accept', 'application/json')

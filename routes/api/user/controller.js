@@ -1,38 +1,9 @@
 const { json } = require('express');
 const fetch = require('node-fetch');
 const User = require('../../../models/user');
+const crypto = require('../../../models/keycrypto');
 
-const client_id = process.env.GITHUB_CLIENT_ID;
-const client_secret = process.env.GITHUB_CLIENT_SECRET_KEY;
-const cookie_secret = process.env.COOKIE_SECRET;
-const redirect_url = process.env.CLIENT_REDIRECT_URL;
-
-const cookieConfigWithKey = {
-  maxAge: 60000000,
-  signed: true 
-}
-
-const cookieConfigWithOutKey = {
-  maxAge: 60000000
-}
-
-async function getAccessToken (code) {
-  const res = await fetch("https://github.com/login/oauth/access_token", {
-    method: 'POST',
-    headers: {
-        "Content-Type": "application/json"
-    }, 
-    body: JSON.stringify({
-      client_id,
-      client_secret,
-      code
-    })
-  })
-  const data = await res.text();
-  const params = new URLSearchParams(data);
-  console.log(params);
-  return params.get('access_token');
-}
+const cookieConfig = { maxAge: 60000000 }
 
 async function getGithubUser (access_token) {
   const req = await fetch('https://api.github.com/user', {
@@ -44,9 +15,24 @@ async function getGithubUser (access_token) {
   return data
 }
 
-exports.githubCallBack = async (req, res) => {
-  const code = req.query.code
-  const token = await getAccessToken(code);
+
+exports.getUser = async(req, res) => {
+  try {
+    const UserInfo = await User.getUserInfo(req.body.gitId);
+    res.status(200).json({
+      UserInfo : UserInfo,
+      success: true
+    });
+  } catch(err) {
+    res.status(409).json({
+      success: false,
+      message: err.message
+    });
+  }
+}
+
+exports.getGitInfo = async(req, res) => {
+  const token = req.body['accessToken']
   const githubData = await getGithubUser(token);
 
   if (githubData) {
@@ -54,7 +40,7 @@ exports.githubCallBack = async (req, res) => {
       token,
       gitId: githubData['login'],
       nodeId: githubData['id'],
-      imgUrl: githubData['avatar_url']
+      avatarUrl: githubData['avatar_url']
     }
 
     try {
@@ -63,19 +49,33 @@ exports.githubCallBack = async (req, res) => {
         user = await User.createUser(info);
       }
 
-      res.cookie('uimg', githubData['avatar_url'], cookieConfigWithOutKey);
-      res.cookie('uname', githubData['login'], cookieConfigWithOutKey);
-      res.cookie('uid', githubData['id'], cookieConfigWithKey);
-      res.redirect(302, redirect_url);
+      res.cookie('avatarUrl', githubData['avatar_url'], cookieConfig);
+      res.cookie('gitId', githubData['login'], cookieConfig);
+      res.cookie('nodeId', crypto.encrypt(githubData['id'].toString()), cookieConfig);
+      res.status(200).json({ success: true });
     } catch(err) {
       console.log(err);
       res.status(409).json({
         success: false,
-        message: err.message
       });
     }
   } else {
     console.log('Error')
     res.send("Error happend")
+  }
+}
+
+exports.getUser = async(req, res) => {
+  try {
+    const UserInfo = await User.getUserInfo(req.body.gitId);
+    res.status(200).json({
+      UserInfo,
+      success: UserInfo ? true : false
+    });
+  } catch(err) {
+    res.status(409).json({
+      success: false,
+      message: err.message
+    });
   }
 }

@@ -1,8 +1,10 @@
 const router = require('express').Router();
 const controller = require("./controller");
 
-router.get('/callback', controller.githubCallBack);
+router.post('/get-info', controller.getGitInfo);
+router.post('/getUser', controller.getUser);
 
-// router.get('/get-info', controller.githubCallBack);
+router.post('/get-following', controller.getGitInfo);
 
+router.post('/getUser', controller.getUser);
 module.exports = router;
