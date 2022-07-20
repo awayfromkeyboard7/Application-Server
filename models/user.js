@@ -243,7 +243,8 @@ UserSchema.statics.getFollowingUserWithGitId = async function (myGitId) {
 
 UserSchema.statics.getUserInfoWithNodeId = async function (myNodeId) {
   const nodeId = parseInt(crypto.decrypt(myNodeId));
-  const user = await this.findOne({ nodeId: nodeId });
+  console.log(nodeId);
+  return await this.findOne({ nodeId: nodeId });
 }
 
 module.exports = mongoose.model("User", UserSchema);
