@@ -88,7 +88,6 @@ exports.createGamelog = async (req, res) => {
       totalUsers: req.body.totalUsers,
       roomId : req.body.roomId
     }
-    // console.log("@@@@@@@@@@@@@@@@@@@@@@",length(req.body.players));
     const gameLog = await GameLog.createLog(info);
     User.addGameLog(gameLog);
     info.userHistory.forEach(item => console.log(item.gitId))

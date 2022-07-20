@@ -22,7 +22,6 @@ function makeInterval(socket, roomId, timeLimit, mode) {
             }        
         } else {
             socket.nsp.to(roomId).emit("timeLimitCode", timeLimit - new Date());
-
             if(timeLimit < new Date()) {
                 socket.nsp.to(roomId).emit("timeOutCode");
                 if (interval){
