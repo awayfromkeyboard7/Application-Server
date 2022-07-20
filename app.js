@@ -210,7 +210,7 @@ io.on("connection", (socket) => {
       // 새로고침하면 이미 내가 대기리스트에 있는 상태.
       if (!(waitingList.includes(roomId))) {
         const gameLogId = await gamelog.createTeamLog(getPlayers(teamRoom[waitingList[0]]), getPlayers(teamRoom[roomId]), teamRoom[waitingList[0]].id, teamRoom[roomId].id);
-        User.addgamelog(await GameLog.getLog(gameLogId));
+        User.addGamelog(await GameLog.getLog(gameLogId));
         let timeLimit = new Date();
         timeLimit.setSeconds(timeLimit.getSeconds() + 5);
         const firstTeamId = teamRoom[waitingList[0]].id;
