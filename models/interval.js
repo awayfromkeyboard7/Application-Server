@@ -14,17 +14,25 @@ function makeInterval(socket, roomId, timeLimit, mode) {
         // console.log("why crash?!?#!?#?!#?!",roomId, mode);
         if(mode === "wait") {
             socket.nsp.to(roomId).emit("timeLimit", timeLimit - new Date());
+            if(timeLimit < new Date()) {
+                socket.nsp.to(roomId).emit("timeOut");
+                if (interval){
+                clearInterval(interval);
+                }
+            }        
         } else {
             socket.nsp.to(roomId).emit("timeLimitCode", timeLimit - new Date());
+
+            if(timeLimit < new Date()) {
+                socket.nsp.to(roomId).emit("timeOutCode");
+                if (interval){
+                clearInterval(interval);
+                }
+            }
         }
         // console.log("@@@@@@@@room id & mode@@@@@@", roomId, mode )
         // console.log(intervalList)
-        if(timeLimit < new Date()) {
-            socket.nsp.to(roomId).emit("timeOutCode");
-            if (interval){
-            clearInterval(interval);
-            }
-        }
+
     }, 1000);
     intervalList[`${roomId}${mode}`] = interval;
     // console.log("make interval value @!#!",intervalList[key]);

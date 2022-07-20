@@ -209,12 +209,14 @@ io.on("connection", (socket) => {
     if (waitingList.length === 1) {
       // 새로고침하면 이미 내가 대기리스트에 있는 상태.
       if (!(waitingList.includes(roomId))) {
-        
+        const gameLogId = await gamelog.createTeamLog(getPlayers(teamRoom[waitingList[0]]), getPlayers(teamRoom[roomId]), teamRoom[waitingList[0]].id, teamRoom[roomId].id);
         let timeLimit = new Date();
         timeLimit.setSeconds(timeLimit.getSeconds() + 5);
-        
+        const firstTeamId = teamRoom[waitingList[0]].id;
+        const secondTeamId = teamRoom[roomId].id;
+
         const interval = setInterval(() => {
-          socket.nsp.to(i).emit("timeLimitCode", timeLimit - new Date());
+          socket.nsp.to([firstTeamId,secondTeamId]).emit("timeLimitCode", timeLimit - new Date());
         }, 1000);
 
         setTimeout(() => {
@@ -228,8 +230,6 @@ io.on("connection", (socket) => {
           socket.nsp.to(teamRoom[waitingList[0]].id).emit("teamGameStart", waitingList[0], gameLogId);
           socket.nsp.to(teamRoom[roomId].id).emit("teamGameStart", roomId, gameLogId);
           
-          const firstTeamId = teamRoom[waitingList[0]].id;
-          const secondTeamId = teamRoom[roomId].id;
           Interval.makeInterval(socket, [firstTeamId,secondTeamId], timeLimit, "team")
           waitingList = [];
 

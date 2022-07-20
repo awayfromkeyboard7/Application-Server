@@ -18,7 +18,10 @@ module.exports = (socket, event) => {
         timeLimit.setSeconds(timeLimit.getSeconds() + 5);
         
         const interval = setInterval(() => {
-          socket.nsp.to(i).emit("timeLimitCode", timeLimit - new Date());
+          socket.nsp.to(i).emit("timeLimit", timeLimit - new Date());
+          if(timeLimit < new Date()) {
+            clearInterval(interval);
+          }
         }, 1000);
 
         setTimeout(() => {
@@ -27,7 +30,7 @@ module.exports = (socket, event) => {
           socket.nsp.to(i).emit(event, gameLogId);
           Interval.makeInterval(socket, i, timeLimit, "solo");
 
-        }, 5001);
+        }, 5000);
 
         // socket.nsp.to(i).emit(event, gameLogId);
         // Interval.deleteInterval(i, "wait"); 
