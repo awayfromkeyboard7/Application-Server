@@ -8,16 +8,33 @@ module.exports = (socket, event) => {
     GameRoom.createRoom();
     const rooms = socket.rooms;
 
-    console.log ("what is room@!#!#@!#!@#!@#!@#!@",rooms)
     for (let i of rooms) {
       if (i !== socket.id) {
-        socket.nsp.to(i).emit(event, gameLogId);
+
+        //3분 뒤 시작 인터벌 삭제
+        Interval.deleteInterval(i, "wait"); 
 
         let timeLimit = new Date();
-        timeLimit.setMinutes(timeLimit.getMinutes() + 15);
-        // console.log("passhere/??!?@!?@?!@?!@?!@?!@?",socket, i, timeLimit);
-        Interval.deleteInterval(i, "wait"); 
-        Interval.makeInterval(socket, i, timeLimit, "solo");
+        timeLimit.setSeconds(timeLimit.getSeconds() + 5);
+        
+        const interval = setInterval(() => {
+          socket.nsp.to(i).emit("timeLimit", timeLimit - new Date());
+          if(timeLimit < new Date()) {
+            clearInterval(interval);
+          }
+        }, 1000);
+
+        setTimeout(() => {
+          timeLimit = new Date();
+          timeLimit.setMinutes(timeLimit.getMinutes() + 15);
+          socket.nsp.to(i).emit(event, gameLogId);
+          Interval.makeInterval(socket, i, timeLimit, "solo");
+
+        }, 5000);
+
+        // socket.nsp.to(i).emit(event, gameLogId);
+        // Interval.deleteInterval(i, "wait"); 
+        // Interval.makeInterval(socket, i, timeLimit, "solo");
 
         // const interval = setInterval(() => {
         //   socket.nsp.to(i).emit("timeLimitCode", timeLimit - new Date());
@@ -26,7 +43,7 @@ module.exports = (socket, event) => {
         //     clearInterval(interval);
         //   }
         // }, 1000);
-        //// io.in(i).emit(event, gameLogId);
+        // io.in(i).emit(event, gameLogId);
       }
     }
   });
