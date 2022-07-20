@@ -81,7 +81,6 @@ io.on("connection", (socket) => {
 
   socket.onAny(e => {
     console.log(`SOCKET EVENT::::::${e}`);
-    console.log(socket.handshake);
   });
 
   socket.on("setGitId", async (gitId) => {
@@ -139,6 +138,10 @@ io.on("connection", (socket) => {
   SocketRoutes.solo.getRanking(socket, SocketRoutes.solo.event.getRanking);
   SocketRoutes.solo.exitWait(socket, SocketRoutes.solo.event.exitWait);
 
+  // Follow
+  SocketRoutes.follow.followMember(socket, SocketRoutes.follow.event.followMember);
+  SocketRoutes.follow.getFollowingList(socket, SocketRoutes.follow.event.getFollowingList);
+  SocketRoutes.follow.unFollowMember(socket, SocketRoutes.follow.event.unFollowMember);
 
   socket.on("getGitIdFromNodeId", async (nodeId) => {
     console.log(nodeId);
@@ -368,24 +371,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("unFollowMember", async (myNodeId, targetGitId) => {
-    try {
-      console.log(`unFollowMember >>>>>>>>>>>>>>>>> ${myNodeId} =====> ${targetGitId}`);
-      await User.unfollow(myNodeId, targetGitId);
-    } catch (e) {
-      console.log(e);
-    }
-  });
-
-  socket.on("followMember", async (myNodeId, targetGitId) => {
-    try {
-      console.log(`followMember >>>>>>>>>>>>>>>>> ${myNodeId} =====> ${targetGitId}`);
-      await User.following(myNodeId, targetGitId);
-    } catch (e) {
-      console.log(e);
-    }
-  });
-
   socket.on("disconnecting", async () => {
     try {
       console.log("disconnecting usersSocketId >>>>>>>>>>>> ", UserSocket.getSocketArray())
@@ -409,32 +394,6 @@ io.on("connection", (socket) => {
     } catch (e) {
       console.log(e)
     }
-  })
-
-  socket.on("getFollowingList", async (nodeId) => {
-
-// if (socket.followerList !== undefined) {
-//   console.log("already has followList!!!!!!!");
-//   socket.emit("getFollowingList", socket.followerList);
-// } else {
-//   console.log("reload followers");
-//   const followingList = await User.getFollowingList(nodeId);
-//   const result = await Promise.all (followingList.filter(friend => {
-//     if (friend.gitId in usersSocketId) {
-//       return friend
-//     }
-//   }))
-//   // console.log("myFollowers:::::::", result);
-//   socket.followerList = result;
-//   socket.emit("getFollowingList", result);
-// }
-    const followingList = await User.getFollowingList(nodeId);
-    const result = await Promise.all (followingList.filter(friend => {
-      if (UserSocket.isExist(friend.gitId)) {
-        return friend
-      }
-    }))
-    socket.emit("getFollowingList", result);
   })
 });
 
