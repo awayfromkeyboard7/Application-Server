@@ -59,6 +59,65 @@ UserSchema.statics.findAll = function () {
   return this.find();
 };
 
+// 모든 유저의 gitId 를 가져옴 -> 모든 유저의 gitId 를 대문자로 변경 -> 입력값 대문자로 변경 -> 둘이 비교 후 일치하는 gitId 출력
+UserSchema.statics.getUser = async function (gitId) {
+  const allUserGitId = await this.find();
+
+  for (let i = 0; i < allUserGitId.length; i++) {
+    let userList = allUserGitId[i]["gitId"];
+    let userImage = allUserGitId[i]["avatarUrl"];
+    let userKing = allUserGitId[i]["ranking"];
+    let data = { gitId: userList, avatarUrl: userImage, ranking: userKing };
+
+    if (userList.toUpperCase() === gitId.toUpperCase()) {
+      console.log(data);
+      return data;
+    }
+  }
+};
+
+UserSchema.statics.getUserImage = async function (gitId) {
+  const userImgSearch = await this.find();
+
+  for (let i = 0; i < userImgSearch.length; i++) {
+    let userList = userImgSearch[i]["gitId"];
+
+    if (userList.toUpperCase() === gitId.toUpperCase()) {
+      return userList;
+    }
+  }
+};
+
+//  const result = await this.aggregate([
+//    {
+//      $setWindowFields: {
+//        partitionBy: "$state",
+//        sortBy: {
+//          totalScore: -1,
+//        },
+//        output: {
+//          ranking: {
+//            $rank: {},
+//          },
+//        },
+//      },
+//    },
+//  ]);
+
+//  for (let i = 0; i < result.length; i++) {
+//    let gitId = result[i]["gitId"];
+//    await this.findOneAndUpdate(
+//      { gitId: gitId },
+//      {
+//        $set: {
+//          ranking: result[i]["ranking"],
+//        },
+//      },
+//      { new: true }
+//    );
+//  }
+//  return result;
+
 // 기존 유저 토큰 업데이트
 UserSchema.statics.isExist = function (nodeId, token) {
   console.log("nodeId:", nodeId);
@@ -101,10 +160,10 @@ UserSchema.statics.updateUserInfo = async function (gitId, info) {
   );
 };
 
-UserSchema.statics.getUserImage = async function (gitId) {
-  const user = await this.findOne({ gitId: gitId });
-  return user["imgUrl"];
-};
+// UserSchema.statics.getUserImage = async function (gitId) {
+//   const user = await this.findOne({ gitId: gitId });
+//   return user["imgUrl"];
+// };
 
 //유저 전체정보 반환
 UserSchema.statics.getUserInfo = async function (gitId) {
@@ -150,28 +209,28 @@ UserSchema.statics.addGameLog = async function (gameLog){
   const problemId = gameLog.problemId["_id"]
   const gameLogId = gameLog._id
 
-  allUser = [gameLog.userHistory, gameLog.teamA, gameLog.teamB]
+  allUser = [gameLog.userHistory, gameLog.teamA, gameLog.teamB];
 
-  for (let j = 0 ; j<3 ; j++){
-    for (let i = 0 ; i<allUser[j].length; i++){
-      let userLog = await this.find({ gitId : allUser[j][i].gitId })    
-      let gameLogHistory = userLog[0]["gameLogHistory"]
-      let problemHistory = userLog[0]["problemHistory"]
-      gameLogHistory.push(gameLogId)
-      problemHistory.push(problemId)
+  for (let j = 0; j < 3; j++) {
+    for (let i = 0; i < allUser[j].length; i++) {
+      let userLog = await this.find({ gitId: allUser[j][i].gitId });
+      let gameLogHistory = userLog[0]["gameLogHistory"];
+      let problemHistory = userLog[0]["problemHistory"];
+      gameLogHistory.push(gameLogId);
+      problemHistory.push(problemId);
       await this.findOneAndUpdate(
-        {gitId : allUser[j][i].gitId},
+        { gitId: allUser[j][i].gitId },
         {
           $set: {
-            problemHistory : problemHistory,
-            gameLogHistory : gameLogHistory
-          }
+            problemHistory: problemHistory,
+            gameLogHistory: gameLogHistory,
+          },
         },
-        { new: true}
-      )
+        { new: true }
+      );
     }
   }
-}
+};
 
 UserSchema.statics.following = async function (myNodeId, targetGitId) {
   const nodeId = parseInt(crypto.decrypt(myNodeId))

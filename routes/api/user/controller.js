@@ -5,14 +5,14 @@ const crypto = require('../../../models/keycrypto');
 
 const cookieConfig = { maxAge: 60000000 }
 
-async function getGithubUser (access_token) {
-  const req = await fetch('https://api.github.com/user', {
+async function getGithubUser(access_token) {
+  const req = await fetch("https://api.github.com/user", {
     headers: {
-      Authorization: `bearer ${access_token}`
-    }
-  })
-  const data = await req.json()
-  return data
+      Authorization: `bearer ${access_token}`,
+    },
+  });
+  const data = await req.json();
+  return data;
 }
 
 
@@ -44,7 +44,7 @@ exports.getGitInfo = async(req, res) => {
     }
 
     try {
-      let user = await User.isExist(githubData['id'], token);
+      let user = await User.isExist(githubData["id"], token);
       if (user === null) {
         user = await User.createUser(info);
       }
@@ -60,8 +60,33 @@ exports.getGitInfo = async(req, res) => {
       });
     }
   } else {
-    console.log('Error')
-    res.send("Error happend")
+    console.log("Error");
+    res.send("Error happend");
+  }
+};
+
+exports.findAll = async (req, res) => {
+  const users = await User.findAll();
+
+  res.status(200).json({
+    users,
+    success: true,
+  });
+};
+
+exports.getSearch = async (req, res) => {
+  try {
+    const searchUser = await User.getUser(req.body.gitId);
+
+    res.status(200).json({
+      searchUser,
+      success: true,
+    });
+  } catch (err) {
+    res.status(409).json({
+      err,
+      success: false,
+    });
   }
 }
 
