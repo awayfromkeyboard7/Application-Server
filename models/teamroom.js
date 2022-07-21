@@ -76,9 +76,9 @@ function isWaitingExist(roomId) {
   }
 }
 
-function setPeerId(gitId, peerId) {
+function setPeerId(roomId, gitId, peerId) {
   try { 
-    for (const info of teamRoom[gitId].players) {
+    for (const info of teamRoom[roomId].players) {
       if (info.userInfo.gitId === gitId) {
         info.peerId = peerId;
         return
@@ -92,10 +92,15 @@ function setPeerId(gitId, peerId) {
 
 function getPeerId(gitId) {
   const temp = {};
-  for (const info of teamRoom[gitId].players) {
-    temp[info.userInfo.gitId] = info.peerId;
+  try {
+    for (const info of teamRoom[gitId].players) {
+      temp[info.userInfo.gitId] = info.peerId;
+    }
+    return temp;
+  } catch (e) {
+    console.log("setPeerId ERROR gitId :::: ", gitId);
+    console.log("setPeerId ERROR log :::: ", e);
   }
-  return temp;
 }
 
 module.exports = {
