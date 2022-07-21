@@ -5,13 +5,6 @@ const cookieParser = require("cookie-parser");
 
 const db = require("./lib/db");
 
-const User = require("./models/user");
-const UserSocket = require("./models/usersocket");
-const Chat = require("./models/chat");
-const GameLog = require("./models/gamelog");
-const GameRoom = require("./models/gameroom");
-const teamGameRoom = require("./models/teamroom");
-const Interval = require("./models/interval");
 const SocketRoutes = require("./socketRoutes");
 
 const app = express();
