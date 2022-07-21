@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { stringify } = require("uuid");
 const crypto = require('../models/keycrypto');
 const Schema = mongoose.Schema;
 
@@ -44,6 +45,10 @@ const UserSchema = new Schema({
     type: Number,
     default: 9999999999,
   },
+  rank: {
+    type: Number,
+    default: 0,
+  },
   following: {
     type: Array,
     default: []
@@ -51,7 +56,42 @@ const UserSchema = new Schema({
   follower: {
     type: Array,
     default: []
+  },
+  mostLanguage: {
+    type: String,
+    default : ""
+  },
+  language: {
+    type : Object,
+    default : {
+      Python : 0,
+      JavaScript : 0,
+      CPP: 0 
+    }
+  },
+
+  totalPassRate: {
+    type: Number,
+    default: false,
+  },
+  totalSolo: {
+    type: Number,
+    default: false
+  },
+  totalTeam: {
+    type: Number,
+    default: 0
+  },
+  winSolo: {
+    type: Number,
+    default: 0
+  },
+  winTeam: {
+    type: Number,
+    default: 0
   }
+
+
 });
 
 // 모든 유저 목록
@@ -74,18 +114,63 @@ UserSchema.statics.createUser = function (info) {
   return this.create(info);
 };
 
-UserSchema.statics.updateUserScore = async function (gitId, score) {
-  console.log(gitId, score);
-  return await this.findOneAndUpdate(
-    { gitId: gitId },
-    {
-      $inc: {
-        totalScore: score,
-      },
-    },
-    { new: true }
-  );
+// UserSchema.statics.updateUserScore = async function (gitId, score) {
+//   console.log(gitId, score);
+//   return await this.findOneAndUpdate(
+//     { gitId: gitId },
+//     {
+//       $inc: {
+//         totalScore: score,
+//       },
+//     },
+//     { new: true }
+//   );
+// };
+
+UserSchema.statics.updateUserScore = async function (info) {
+  // console.log("showme info !@#!@#!@#!@@#!#!@#1",info)
+  const userInfo = await this.findOne({gitId : info["gitId"]})
+  // console.log("showme befor userInfo @@@@@@@@!@@@@!@@@ ",userInfo)
+  //유저 점수&랭크 업데이트
+  userInfo["totalScore"] += info["score"]
+  if (userInfo["totalScore"] <0 ){
+    userInfo["totalScore"] = 0
+    userInfo["rank"] = 0
+  }
+  else if ( 50 <= userInfo["totalScore"]){
+    userInfo["rank"] = 5
+  }
+  else{
+    userInfo["rank"] = parseInt(userInfo["totalScore"]/10)
+  }
+
+  //판수, 승리 횟수 추가
+  if (info["mode"] == 'solo'){
+    userInfo["totalSolo"] += 1
+    // console.log("before solowin??!?@?!?#!?#?@!#?",userInfo["winSolo"])
+    if(info["win"]){userInfo["winSolo"]+=1}
+  }
+  else {
+    userInfo["totalTeam"] += 1
+    if(info["win"]){userInfo["winTeam"]+=1}
+  }
+  //passrate 추가
+  userInfo["totalPassRate"] += info["passRate"]
+  //사용 언어 추가 밑 갱신
+  userInfo["language"][info["language"]] += 1
+  
+  // console.log("print2?????????",userInfo["language"][info["language"]])
+
+  mostUsed = userInfo["mostLanguage"]
+  if (mostUsed == "" || userInfo["language"][info["language"]] >= userInfo["language"][mostUsed]){
+    userInfo["mostLanguage"] = info["language"]
+  }
+
+  // console.log("after userInfo@@@@@@@@!@@@@!@@@ ",userInfo)
+  await userInfo.save();
+  return true
 };
+
 
 // 게임 끝난 후 업데이트
 UserSchema.statics.updateUserInfo = async function (gitId, info) {
@@ -120,7 +205,7 @@ UserSchema.statics.totalRankUpdate = async function () {
       $setWindowFields: {
         partitionBy: "$state",
         sortBy: {
-          totalScore: -1,
+          totalScore : -1,
         },
         output: {
           ranking: {

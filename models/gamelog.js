@@ -148,30 +148,38 @@ GameLogSchema.statics.getLog = function(logId) {
 GameLogSchema.statics.isFinish = async function(data){
   const gameLog = await this.findById(mongoose.Types.ObjectId(data["gameId"]));
   gameLog["totalUsers"] -= 1;
-
-
   if (gameLog["totalUsers"] === 0){
-    const userScores = {};
-    gameLog["userHistory"].sort((a, b) => {
+
+    const userLength = gameLog["userHistory"].length
+    await gameLog["userHistory"].sort((a, b) => {
       if (a.passRate === b.passRate) {
         return a.submitAt - b.submitAt;
       } else {
         return b.passRate - a.passRate;
       }
     });
-
     // User.updateUserInfo(gitId,data);
-    for (let i = 0; i < gameLog["userHistory"].length; i++){
-      gameLog["userHistory"][i]["ranking"] = i + 1;
-      userScores[gameLog["userHistory"][i]["gitId"]] = gameLog["userHistory"].length - i - 1;
-    } 
-
-    // console.log("gameLog after last submission::::::::", userScores);
-    gameLog.save()
-    return userScores;
+    let i = 0
+    let info ={}
+    // console.log("type???@!@@#!",typeof gameLog["userHistory"])
+    for await (const user of gameLog["userHistory"]){
+      user["ranking"] = i+1;
+      info["gitId"] = user["gitId"]
+      info["mode"] = 'solo'
+      info["passRate"] = user["passRate"]
+      info["language"] = user["language"]
+      info["score"] = userLength - 2*i
+      info["win"] = (i+1 - userLength/2) < 1
+      console.log("whyfalse??????????",info["win"])
+      i += 1;
+      await User.updateUserScore(info);
+    }
+    // console.log("hoxy??!?@#!?here?????",gameLog)
+    await gameLog.save()
+    return true;
   };
 
-  gameLog.save();
+  await gameLog.save();
 }
 
 GameLogSchema.statics.isFinishTeam = async function(data){
@@ -180,7 +188,6 @@ GameLogSchema.statics.isFinishTeam = async function(data){
 
   if (gameLog["totalUsers"] === 0){
     let result = [gameLog["teamA"], gameLog["teamB"]];
-    const userScores = {};
     result.sort((a, b) => {
       if (a[0].passRate === b[0].passRate) {
         return a[0].submitAt - b[0].submitAt;
@@ -190,17 +197,45 @@ GameLogSchema.statics.isFinishTeam = async function(data){
     });
 
     const winnerScore = result[1].length;
-    for (let team = 0; team < 2; team++){
-      for (let member = 0; member < result[team].length; member++) {
-        result[team][member]["ranking"] = team + 1;
-      }
-    } 
-    for (let winner = 0; winner < result[0].length; winner++) {
-      userScores[result[0][winner]["gitId"]] = winnerScore;
+    const loserScore = -1*result[0].length;
+    const info = {}
+
+    for await (const winner of result[0]){
+      winner["ranking"] = 1;
+      info["gitId"] = winner["gitId"]
+      info["mode"] = 'team'
+      info["passRate"] = result[0][0]["passRate"]
+      info["language"] = result[0][0]["language"]
+      info["score"] = winnerScore
+      info["win"] += true
+      User.updateUserScore(info);
+    }
+
+    for await (const loser of result[1]){
+      loser["ranking"] = 2;
+      info["gitId"] = loser["gitId"]
+      info["mode"] = 'team'
+      info["passRate"] = result[1][0]["passRate"]
+      info["language"] = result[1][0]["language"]
+      info["score"] = loserScore
+      info["win"] += false
+      User.updateUserScore(info);
     }
 
     gameLog.save();
-    return userScores;
+    return true;
+
+    // for (let team = 0; team < 2; team++){
+    //   for (let member = 0; member < result[team].length; member++) {
+    //     result[team][member]["ranking"] = team + 1;
+    //   }
+    // } 
+    // for (let winner = 0; winner < result[0].length; winner++) {
+    //   userScores[result[0][winner]["gitId"]] = winnerScore;
+    // }
+
+    // gameLog.save();
+    // return userScores;
   };
 
   gameLog.save();
