@@ -136,12 +136,14 @@ io.on("connection", (socket) => {
   SocketRoutes.solo.startGame(socket, SocketRoutes.solo.event.startGame);
   SocketRoutes.solo.submitCode(socket, SocketRoutes.solo.event.submitCode);
   SocketRoutes.solo.getRanking(socket, SocketRoutes.solo.event.getRanking);
-  SocketRoutes.solo.exitWait(socket, SocketRoutes.solo.event.exitWait);
 
   // Follow
   SocketRoutes.follow.followMember(socket, SocketRoutes.follow.event.followMember);
   SocketRoutes.follow.getFollowingList(socket, SocketRoutes.follow.event.getFollowingList);
   SocketRoutes.follow.unFollowMember(socket, SocketRoutes.follow.event.unFollowMember);
+  
+  // Disconnecting
+  SocketRoutes.connection.disconnecting(socket, SocketRoutes.connection.event.disconnecting);
 
   socket.on("getGitIdFromNodeId", async (nodeId) => {
     console.log(nodeId);
@@ -370,22 +372,6 @@ io.on("connection", (socket) => {
       console.log("getChatMessage ERROR >>>>>>> ", e);
     }
   });
-
-  socket.on("disconnecting", async () => {
-    try {
-      console.log("disconnecting usersSocketId >>>>>>>>>>>> ", UserSocket.getSocketArray())
-      const followerList = await User.getFollowerListWithGitId(socket.gitId);
-      console.log("disconnecting socket.gitId >>>>>>>> ", socket.gitId);
-      UserSocket.deleteSocketId(socket.gitId)
-      await Promise.all (followerList?.filter(friend => {
-        if (UserSocket.isExist(friend)) {
-          socket.to(UserSocket.getSocketId(friend)).emit("followingUserConnect", socket.gitId);
-        }
-      }));
-    } catch (e) {
-      console.log(e)
-    }
-  })
 
   socket.on("getRoomId", async () => {
     try {

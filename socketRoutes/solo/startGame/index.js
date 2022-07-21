@@ -31,19 +31,6 @@ module.exports = (socket, event) => {
           Interval.makeInterval(socket, i, timeLimit, "solo");
 
         }, 5000);
-
-        // socket.nsp.to(i).emit(event, gameLogId);
-        // Interval.deleteInterval(i, "wait"); 
-        // Interval.makeInterval(socket, i, timeLimit, "solo");
-
-        // const interval = setInterval(() => {
-        //   socket.nsp.to(i).emit("timeLimitCode", timeLimit - new Date());
-        //   if(timeLimit < new Date()) {
-        //     socket.nsp.to(i).emit("timeOutCode");
-        //     clearInterval(interval);
-        //   }
-        // }, 1000);
-        // io.in(i).emit(event, gameLogId);
       }
     }
   });
