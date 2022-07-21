@@ -1,16 +1,22 @@
 const http = require("http");
 const express = require("express");
 const cors = require("cors");
+const uuid = require("uuid");
 const cookieParser = require("cookie-parser");
+
 const db = require("./lib/db");
-const app = express();
+
 const User = require("./models/user");
 const UserSocket = require("./models/usersocket");
+const Chat = require("./models/chat");
 const GameLog = require("./models/gamelog");
 const GameRoom = require("./models/gameroom");
+const teamGameRoom = require("./models/teamroom");
 const Interval = require("./models/interval");
-const uuid = require("uuid");
+const SocketRoutes = require("./socketRoutes");
+const gamelog = require("./models/gamelog");
 
+const app = express();
 const SocketIO = require("socket.io");
 const server = http.createServer(app);
 const io = SocketIO(server, {
@@ -19,8 +25,6 @@ const io = SocketIO(server, {
     method: ["GET", "POST"],
   },
 });
-const SocketRoutes = require("./socketRoutes");
-const gamelog = require("./models/gamelog");
 
 const PORTNUM = 3000;
 
@@ -32,10 +36,7 @@ app.use(express.json());
 app.use("/", require("./routes/"));
 
 let teamRoom = {};
-
 let waitingList = [];
-
-let chatLogs = {};
 
 function arrayRemove(arr, value) { 
   return arr.filter(function(ele){ 
@@ -83,26 +84,26 @@ io.on("connection", (socket) => {
     console.log(`SOCKET EVENT::::::${e}`);
   });
 
-  socket.on("setGitId", async (gitId) => {
-    if (gitId !== null) {
-      console.log("setGitId >>>>>>>> gitId: ", gitId);
-      // 소켓
-      UserSocket.setSocketId(gitId, socket.id);
-      socket.gitId = gitId;
+  SocketRoutes.solo.waitGame(socket, SocketRoutes.solo.event.waitGame);
+  SocketRoutes.solo.startGame(socket, SocketRoutes.solo.event.startGame);
+  SocketRoutes.solo.submitCode(socket, SocketRoutes.solo.event.submitCode);
+  SocketRoutes.solo.getRanking(socket, SocketRoutes.solo.event.getRanking);
 
-      const followerList = await User.getFollowerListWithGitId(socket.gitId);
-      await Promise.all (followerList.filter(friend => {
-        if (UserSocket.isExist(friend)) {
-          socket.to(UserSocket.getSocketId(friend)).emit("followingUserConnect", socket.gitId);
-        }
-      }))
-    }
-    if (!(gitId in chatLogs)) {
-      chatLogs[gitId] = {};
-    }
-    console.log("usersSocketId>>>", UserSocket.getSocketArray());
-    console.log("users initial chatLogs", gitId, chatLogs);
-  });
+  // Team
+  SocketRoutes.team.getTeamRanking(socket, SocketRoutes.team.event.getTeamRanking);
+
+  // Follow
+  SocketRoutes.follow.followMember(socket, SocketRoutes.follow.event.followMember);
+  SocketRoutes.follow.getFollowingList(socket, SocketRoutes.follow.event.getFollowingList);
+  SocketRoutes.follow.unFollowMember(socket, SocketRoutes.follow.event.unFollowMember);
+  
+  // Connection
+  SocketRoutes.connection.setGitId(socket, SocketRoutes.connection.event.setGitId);
+  SocketRoutes.connection.disconnecting(socket, SocketRoutes.connection.event.disconnecting);
+
+  // Chat
+  SocketRoutes.chat.sendChatMessage(socket, SocketRoutes.chat.event.sendChatMessage);
+  SocketRoutes.chat.getChatMessage(socket, SocketRoutes.chat.event.getChatMessage);
 
   socket.on("exitWait", async (gitId) => {
     console.log("exitWait roomId >>>>>>>>>>>>>> ", socket.bangjang);
@@ -132,19 +133,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  SocketRoutes.solo.waitGame(socket, SocketRoutes.solo.event.waitGame);
-  SocketRoutes.solo.startGame(socket, SocketRoutes.solo.event.startGame);
-  SocketRoutes.solo.submitCode(socket, SocketRoutes.solo.event.submitCode);
-  SocketRoutes.solo.getRanking(socket, SocketRoutes.solo.event.getRanking);
-
-  // Follow
-  SocketRoutes.follow.followMember(socket, SocketRoutes.follow.event.followMember);
-  SocketRoutes.follow.getFollowingList(socket, SocketRoutes.follow.event.getFollowingList);
-  SocketRoutes.follow.unFollowMember(socket, SocketRoutes.follow.event.unFollowMember);
-  
-  // Disconnecting
-  SocketRoutes.connection.disconnecting(socket, SocketRoutes.connection.event.disconnecting);
-
   socket.on("getGitIdFromNodeId", async (nodeId) => {
     console.log(nodeId);
     const curId = await User.getUserInfoWithNodeId(nodeId);
@@ -159,7 +147,7 @@ io.on("connection", (socket) => {
       teamRoom[userInfo.gitId] = { id: teamRoomId, players: [{userInfo, peerId:''}] };
       // 퍼플
       // socket.emit("enterNewUserToTeam", teamRoom[userInfo.gitId].players);
-      socket.emit("enterNewUserToTeam", getPlayers(teamRoom[userInfo.gitId]));
+      // socket.emit("enterNewUserToTeam", getPlayers(teamRoom[userInfo.gitId]));
 
       // 팀생성 인터벌 도현 주석
       // let timeLimit = new Date();
@@ -172,7 +160,6 @@ io.on("connection", (socket) => {
     else {
       socket.join(teamRoom[userInfo.gitId].id);
     }
-    // console.log(userInfo.gitId, socket.rooms);
   });
 
   socket.on("inviteMember", (gitId, friendGitId) => {
@@ -282,29 +269,6 @@ io.on("connection", (socket) => {
     socket.nsp.to(teamRoom[bangjang].id).emit("teamGameOver");
   });
 
-  // 팀전 결과 화면 랭킹
-  socket.on("getTeamRanking", async (gameLogId) => {
-
-    let gameLog = await GameLog.getLog(gameLogId);
-    // console.log("teamgame log info!!!!!!!", info);
-    result = [gameLog["teamA"],gameLog["teamB"]];
-    // console.log(result)
-    result.sort((a, b) => {
-      if (a[0].passRate === b[0].passRate) {
-        return a[0].submitAt - b[0].submitAt;
-      } else {
-        return b[0].passRate - a[0].passRate;
-      }
-    });
-    socket.nsp.to(gameLog["roomIdA"]).to(gameLog["roomIdB"]).emit("getTeamRanking", result, gameLog["startAt"]);
-    // 팀 랭킹 확인 후 자동으로 룸에서 나가야 함
-    console.log("userLeft", gameLog["totalUsers"]);
-    if (gameLog["totalUsers"] === -1) {
-      socket.leaveAll();
-      socket.join(socket.id)
-    }
-  });
-
   socket.on("getTeamInfo", (roomId) => {
     // console.log('get game info >>>>> ', roomId, maygetPlayers(teamRoom[roomId]));
     socket.join(teamRoom[roomId].id);
@@ -316,61 +280,10 @@ io.on("connection", (socket) => {
     socket.to(teamRoom[bangjang].id).emit("shareJudgedCode", data);
   });
 
-  socket.on("getTeamRanking", async (gameLogId) => {
-    console.log("getTeamRanking", gameLogId);
-
-    let gameLog = await GameLog.getLog(gameLogId);
-    result = [gameLog["teamA"],gameLog["teamB"]];
-    console.log("teamgame log info!!!!!!!", result);
-    result.sort((a, b) => {
-      if (a[0].passRate === b[0].passRate) {
-        return a[0].submitAt - b[0].submitAt;
-      } else {
-        return b[0].passRate - a[0].passRate;
-      }
-    });
-    socket.nsp.to(gameLog["roomIdA"]).to(gameLog["roomIdB"]).emit("getTeamRanking", result, gameLog["startAt"]);
-  });
-
   socket.on("setPeerId", (userId, peerId, roomId) => {
     setPeerId(teamRoom[roomId], userId, peerId);
     console.log(teamRoom[roomId]);
     socket.broadcast.to(teamRoom[roomId].id).emit("getPeerId", userId, getPeerId(teamRoom[roomId]));
-  });
-
-  socket.on('sendChatMessage', (sender, receiver, message) => {
-    console.log('send-message', message, UserSocket.getSocketId(receiver));
-
-    if (chatLogs[sender][receiver] === undefined) {
-      chatLogs[sender][receiver] = [message];
-    } else {
-      chatLogs[sender][receiver].push(message);
-      // if (chatLogs[sender][receiver].length > 30) {
-      //   chatLogs[sender][receiver].shift();
-      // }
-    }
-    console.log(chatLogs[sender]);
-    socket.to(UserSocket.getSocketId(receiver)).emit('sendChatMessage', message);
-  });
-
-  socket.on("getChatMessage", (sender, receiver) => {
-    try {
-      const senderToReceiver = chatLogs[sender][receiver] !== undefined ? chatLogs[sender][receiver] : [];
-      const receverToSender = chatLogs[receiver][sender] !== undefined ? chatLogs[receiver][sender] : [];
-  
-      let myChatLogs = senderToReceiver.concat(receverToSender);
-      myChatLogs.sort((a, b) => a.sendAt - b.sendAt);
-      console.log('myChatLogs::::::::::');
-      if (myChatLogs.length > 60) {
-       myChatLogs = myChatLogs.slice(-60);
-       chatLogs[sender][receiver] =  JSON.parse(JSON.stringify((chatLogs[sender][receiver].filter(message => { return message["senderId"] === sender }))));
-       chatLogs[receiver][sender] =  JSON.parse(JSON.stringify((chatLogs[receiver][sender].filter(message => { return message["senderId"] === receiver }))));
-      }
-      socket.emit("receiveChatMessage", myChatLogs);
-    } catch(e) {
-      console.log("getChatMessage ERROR >>>>>>> ", sender, receiver);
-      console.log("getChatMessage ERROR >>>>>>> ", e);
-    }
   });
 
   socket.on("getRoomId", async () => {
