@@ -1,9 +1,12 @@
 let idx = 0;
-const room = [];
+const room = {};
+const waitIdices = new Set();
+
+/* room status: waiting, playing, full */
 
 function getRoom(socket) {
   const rooms = socket.rooms;
-  console.log(rooms);
+  // console.log("getRoom", rooms.filter((room) => room != socket.id));
   for (let i of rooms) {
     if (i !== socket.id) {
       return i;
@@ -11,28 +14,80 @@ function getRoom(socket) {
   }
 }
 
-function createRoom(userInfo) {
-  if (userInfo) {
-    room.push([userInfo]);
-  } else {
-    room.push([]);
+function setRoom(roomInfo) {
+  if (roomInfo) {
+    console.log('setRoom>>>>>', roomInfo);
+    room[idx].players = roomInfo;
   }
+}
+
+function createRoom(userInfo) {
+  if (room[idx]?.status === 'playing') {
+    idx++;
+  }
+  room[idx] = {
+    players: [userInfo],
+    status: 'waiting'
+  }
+  waitIdices.add(idx);
+  console.log('roomCreated>>>>>>', JSON.stringify(room));
+  // if (userinfo)
+  // if (userInfo) {
+  //   room.push([userInfo]);
+  // } else {
+  //   room.push([]);
+  // }
+}
+
+function deleteUser(socket, userName) {
+  try {
+    const idx = getRoom(socket)[4];
+    room[idx].players = room[idx].players.filter(item => item.gitId !== userName);
+
+    if (room[idx].players.length === 0) {
+      delete room[idx];
+      waitIdices.delete(idx);
+    }
+    console.log("DELETED ROOM!!!!!!",room);
+  } catch(e) {
+    console.log(e);
+  }
+}
+
+function filterRoom(idx) {
+  const temp = new Set()
+  const unique = GameRoom.room[idx].filter(item => {
+    const alreadyHas = temp.has(item.players.gitId)
+    temp.add(item.players.gitId)
+    return !alreadyHas
+  });
+  GameRoom.setRoom(unique);
 }
 
 function joinRoom(userInfo) {
   console.log('joinRoom>>>>>>', userInfo, idx);
-  room[idx].push(userInfo);
+  try {
+    room[idx].players.push(userInfo);
+  }
+  catch(e) {
+    console.log(e);
+  }
+  console.log('playerJoined>>>>>>', room);
 }
 
-function setRoom(roomInfo) {
-  if (roomInfo) {
-    console.log('setRoom>>>>>', roomInfo);
-    room[idx] = roomInfo;
-  }
+
+function getStatus(idx) {
+  return room[idx].status;
+}
+
+
+function setStatus(idx, status) {
+  room[idx].status = status;
 }
 
 function increaseIdx() {
   idx += 1;
+  return idx;
 }
 
 function getIdx() {
@@ -41,9 +96,14 @@ function getIdx() {
 
 module.exports = {
   room,
+  waitIdices,
 	getRoom,
   setRoom,
+  getStatus,
+  setStatus,
+  deleteUser,
   createRoom,
+  filterRoom,
   joinRoom,
 	increaseIdx,
   getIdx

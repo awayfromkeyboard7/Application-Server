@@ -3,9 +3,9 @@ const Interval = require("../../../models/interval");
 
 module.exports = (socket, event) => {
   socket.on(event, (gameLogId) => {
-    console.log('startGame >>>>>>', gameLogId)
-    GameRoom.increaseIdx();
-    GameRoom.createRoom();
+    console.log('startGame >>>>>>', gameLogId);
+    // GameRoom.increaseIdx();
+    // GameRoom.createRoom();
     const rooms = socket.rooms;
 
     for (let i of rooms) {

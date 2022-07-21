@@ -6,7 +6,7 @@ module.exports = (socket, event) => {
     console.log('getRanking >>>>>>>>>', id);
     const myRoom = GameRoom.getRoom(socket);
     let info = await GameLog.getLog(id);
-  
+    console.log('getRanking >>>>>>>>>', info);
     info["userHistory"].sort((a, b) => {
       if (a.passRate === b.passRate) {
         return a.submitAt - b.submitAt;

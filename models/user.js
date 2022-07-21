@@ -75,7 +75,6 @@ UserSchema.statics.createUser = function (info) {
 };
 
 UserSchema.statics.updateUserScore = async function (gitId, score) {
-  console.log(gitId, score);
   return await this.findOneAndUpdate(
     { gitId: gitId },
     {
@@ -151,10 +150,12 @@ UserSchema.statics.addGameLog = async function (gameLog){
   const gameLogId = gameLog._id
 
   allUser = [gameLog.userHistory, gameLog.teamA, gameLog.teamB]
+  console.log("dd0124", allUser);
 
-  for (let j = 0 ; j<3 ; j++){
-    for (let i = 0 ; i<allUser[j].length; i++){
-      let userLog = await this.find({ gitId : allUser[j][i].gitId })    
+  for (let j = 0 ; j < allUser.length ; j++){
+    for (let i = 0 ; i < allUser[j].length; i++){
+      console.log("dd0124-2", allUser[j][i]["gitId"], allUser[j][i].gitId);
+      let userLog = await this.find({ gitId : allUser[j][i]["gitId"] })    
       let gameLogHistory = userLog[0]["gameLogHistory"]
       let problemHistory = userLog[0]["problemHistory"]
       gameLogHistory.push(gameLogId)

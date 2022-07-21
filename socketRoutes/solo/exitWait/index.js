@@ -5,7 +5,8 @@ module.exports = (socket, event) => {
     let myRoom = await GameRoom.getRoom(socket);
     const myRealRoom = myRoom;
     console.log(">>>>>> EXIT >>>>>>>", userName);
-    GameRoom.setRoom(GameRoom.room[GameRoom.getIdx()]?.filter((item) => item.gitId !== userName));
+    // GameRoom.setRoom(GameRoom.room[GameRoom.getIdx()]?.filter((item) => item.players.gitId !== userName));
+    GameRoom.deleteUser(userName);
     console.log(GameRoom.room[GameRoom.getIdx()]);
     console.log("socket.rooms >>>>>>>>>>>>>>> before ", socket.rooms);
     socket.leaveAll();
