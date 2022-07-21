@@ -1,2 +1,12 @@
 exports.event = require('./event');
 exports.getTeamRanking = require('./getTeamRanking');
+exports.createTeam = require('./createTeam');
+exports.inviteMember = require('./inviteMember');
+exports.acceptInvite = require('./acceptInvite');
+exports.getUsers = require('./getUsers');
+exports.startMatching = require('./startMatching');
+exports.goToMatchingRoom = require('./goToMatchingRoom');
+exports.submitCodeTeam = require('./submitCodeTeam');
+exports.getTeamInfo = require('./getTeamInfo');
+exports.shareJudgedCode = require('./shareJudgedCode');
+exports.setPeerId = require('./setPeerId');

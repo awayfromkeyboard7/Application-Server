@@ -1,1 +1,11 @@
 exports.getTeamRanking = "getTeamRanking";
+exports.createTeam = "createTeam";
+exports.inviteMember = "inviteMember";
+exports.acceptInvite = "acceptInvite";
+exports.getUsers = "getUsers";
+exports.startMatching = "startMatching";
+exports.goToMatchingRoom = "goToMatchingRoom";
+exports.submitCodeTeam = "submitCodeTeam";
+exports.getTeamInfo = "getTeamInfo";
+exports.shareJudgedCode = "shareJudgedCode";
+exports.setPeerId = "setPeerId";
