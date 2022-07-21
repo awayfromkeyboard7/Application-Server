@@ -23,6 +23,10 @@ module.exports = (socket, event) => {
         const gameLogId = await GameLog.createTeamLog(waitingRoomPlayers, teamRoomPlayers, waitingRoomId, teamRoomId);
         console.log(gameLogId);
         User.addGameLog(await GameLog.getLog(gameLogId));
+
+        socket.nsp.to(waitingRoomId).emit("matchingComplete", waitingRoomPlayers, teamRoomPlayers);
+        socket.nsp.to(teamRoomId).emit("matchingComplete", teamRoomPlayers, waitingRoomPlayers);
+
         let timeLimit = new Date();
         timeLimit.setSeconds(timeLimit.getSeconds() + 5);
         const firstTeamId = waitingRoomId;
