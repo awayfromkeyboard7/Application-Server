@@ -140,7 +140,6 @@ GameLogSchema.statics.updateLogTeam = async function(data) {
 
 
 GameLogSchema.statics.getLog = function(logId) {
-  // console.log('getLog::>>>>:>?>?>DFSDF', logId);
   return this.findById(mongoose.Types.ObjectId(logId));
 }
 
@@ -161,7 +160,6 @@ GameLogSchema.statics.isFinish = async function(data){
     // User.updateUserInfo(gitId,data);
     let i = 0
     let info ={}
-    // console.log("type???@!@@#!",typeof gameLog["userHistory"])
     for await (const user of gameLog["userHistory"]){
       user["ranking"] = i+1;
       info["gitId"] = user["gitId"]
@@ -170,11 +168,9 @@ GameLogSchema.statics.isFinish = async function(data){
       info["language"] = user["language"]
       info["score"] = userLength - 2*i
       info["win"] = (i+1 - userLength/2) < 1
-      console.log("whyfalse??????????",info["win"])
       i += 1;
       await User.updateUserScore(info);
     }
-    // console.log("hoxy??!?@#!?here?????",gameLog)
     await gameLog.save()
     return true;
   };

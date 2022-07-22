@@ -5,7 +5,6 @@ const UserSocket = require("../../../models/usersocket");
 module.exports = (socket, event) => {
   socket.on(event, async (gitId) => {
     if (gitId !== null) {
-      console.log("setGitId >>>>>>>> gitId: ", gitId);
       // 소켓
       UserSocket.setSocketId(gitId, socket.id);
       socket.gitId = gitId;
@@ -20,6 +19,5 @@ module.exports = (socket, event) => {
     if (!Chat.isExist(gitId)) {
       Chat.setChatLog(gitId, {})
     }
-    console.log("usersSocketId>>>", UserSocket.getSocketArray());
   });
 }

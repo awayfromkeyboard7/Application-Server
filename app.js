@@ -68,7 +68,6 @@ io.on("connection", (socket) => {
   SocketRoutes.chat.resetUnreadCount(socket, SocketRoutes.chat.event.resetUnreadCount);
 });
 
-
 server.listen(PORTNUM, () => {
   console.log(`Server is running... port: ${PORTNUM}`);
 });

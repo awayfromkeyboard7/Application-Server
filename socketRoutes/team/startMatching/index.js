@@ -4,7 +4,7 @@ const GameLog = require("../../../models/gamelog");
 const Interval = require("../../../models/interval");
 
 module.exports = (socket, event) => {
-  socket.on("startMatching", async (roomId) => {
+  socket.on(event, async (roomId) => {
     const teamRoomId = await teamGameRoom.getId(roomId)
     socket.join(teamRoomId);
     // console.log(socket.rooms);
@@ -21,7 +21,7 @@ module.exports = (socket, event) => {
         const teamRoomPlayers = await teamGameRoom.getPlayers(roomId); 
   
         const gameLogId = await GameLog.createTeamLog(waitingRoomPlayers, teamRoomPlayers, waitingRoomId, teamRoomId);
-        console.log(gameLogId);
+        // console.log(gameLogId);
         User.addGameLog(await GameLog.getLog(gameLogId));
 
         socket.nsp.to(waitingRoomId).emit("matchingComplete", waitingRoomPlayers, teamRoomPlayers);
@@ -37,12 +37,11 @@ module.exports = (socket, event) => {
           if(timeLimit < new Date()) {
             clearInterval(interval);
           }
-  
         }, 1000);
   
         setTimeout(() => {
-          timeLimit = new Date();
-          timeLimit.setMinutes(timeLimit.getMinutes() + 15);
+          let timeLimit2 = new Date();
+          timeLimit2.setMinutes(timeLimit2.getMinutes() + 15);
   
           // create gamelog for 2 teams.......
           
@@ -51,7 +50,7 @@ module.exports = (socket, event) => {
           socket.nsp.to(waitingRoomId).emit("teamGameStart", waitingRoomBangJang, gameLogId);
           socket.nsp.to(teamRoomId).emit("teamGameStart", roomId, gameLogId);
           
-          Interval.makeInterval(socket, [firstTeamId,secondTeamId], timeLimit, "team")
+          Interval.makeInterval(socket, [firstTeamId,secondTeamId], timeLimit2, "team")
         }, 5001);
       }
      } else {
