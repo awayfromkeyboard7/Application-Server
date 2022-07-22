@@ -5,5 +5,6 @@ router.use('/login', require('./login'));
 router.use('/user',  require('./user'));
 router.use('/gamelog', require('./gamelog'));
 router.use('/problem', require('./problem'));
+router.use('/ranking', require('./ranking'));
 
 module.exports = router;
