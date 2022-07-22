@@ -37,7 +37,9 @@ function receiveChat(sender, receiver) {
     const receiverToSender = chatLogs[receiver][sender] !== undefined ? chatLogs[receiver][sender].message : [];
 
     // 읽지 않은 메시지 리셋
-    chatLogs[receiver][sender].unread = 0;
+    if (sender in chatLogs[receiver]) {
+      chatLogs[receiver][sender].unread = 0;
+    }
 
     let myChatLogs = senderToReceiver.concat(receiverToSender);
     myChatLogs.sort((a, b) => a.sendAt - b.sendAt);
@@ -51,6 +53,7 @@ function receiveChat(sender, receiver) {
     return myChatLogs;
   } catch(e) {
     console.log("getChatMessage ERROR >>>>>>> ", sender, receiver);
+    console.log("getChatMessage ERROR >>>>>>> ", e);
     return false;
   }
 }
@@ -60,7 +63,7 @@ async function getUnreadCount(sender, receiver) {
     console.log("getUnreadCount :::: ", sender, receiver);
     if (chatLogs[sender][receiver] !== undefined) {
       console.log("getUnreadCount :::: receiver unread ", chatLogs[sender][receiver].unread);
-      return chatLogs[sender][receiver].unread;
+      return chatLogs[sender][receiver]?.unread;
     }
   } catch (e) {
     console.log("getUnreadCount ERROR >>>>>>> ", sender, receiver);

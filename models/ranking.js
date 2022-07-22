@@ -40,11 +40,11 @@ const RankingSchema = new Schema({
       },
 })
 
-RankingSchema.statics.getRanking =async function(result){
+RankingSchema.statics.getRanking = async function(result){
   return await this.findOne({type: "all"})
 }
 
-RankingSchema.statics.updateRanking =async function(result){
+RankingSchema.statics.updateRanking = async function(result){
   // console.log("passHere??????updateRank")
   // console.log(result)
   for await(let user of result){
