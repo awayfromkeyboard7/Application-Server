@@ -64,6 +64,8 @@ io.on("connection", (socket) => {
   // Chat
   SocketRoutes.chat.sendChatMessage(socket, SocketRoutes.chat.event.sendChatMessage);
   SocketRoutes.chat.getChatMessage(socket, SocketRoutes.chat.event.getChatMessage);
+  SocketRoutes.chat.getUnreadMessage(socket, SocketRoutes.chat.event.getUnreadMessage);
+  SocketRoutes.chat.resetUnreadCount(socket, SocketRoutes.chat.event.resetUnreadCount);
 });
 
 

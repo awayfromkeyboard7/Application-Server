@@ -307,8 +307,8 @@ UserSchema.statics.getFollowingList = async function (myNodeId) {
   const followingList = await Promise.all (user['following'].map( async (friendNodeId) => {
     const friend = await this.findOne({ nodeId: friendNodeId })
     return {
-      gitId: friend.gitId,
-      avatarUrl: friend.avatarUrl
+      gitId: friend?.gitId,
+      avatarUrl: friend?.avatarUrl
     }
   }))
   return followingList;
