@@ -1,6 +1,8 @@
 const GameRoom = require("../../../models/gameroom");
 const Interval = require("../../../models/interval");
 
+
+// startGame
 module.exports = (socket, event) => {
   socket.on(event, (gameLogId) => {
     console.log('startGame >>>>>>', gameLogId);
@@ -26,10 +28,10 @@ module.exports = (socket, event) => {
         }, 1000);
 
         setTimeout(() => {
-          timeLimit = new Date();
-          timeLimit.setMinutes(timeLimit.getMinutes() + 15);
+          let timeLimit2 = new Date();
+          timeLimit2.setMinutes(timeLimit2.getMinutes() + 15);
           socket.nsp.to(room).emit(event, gameLogId);
-          Interval.makeInterval(socket, room, timeLimit, "solo");
+          Interval.makeInterval(socket, room, timeLimit2, "solo");
 
         }, 5000);
       }

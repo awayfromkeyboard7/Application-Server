@@ -10,12 +10,12 @@ module.exports = (socket, event) => {
     const teamRoomId = teamroom.id;
 
     const unique = teamroom.players.filter((item) => {
-      console.log("item :::: ", item)
+      // console.log("item :::: ", item)
       const alreadyHas = temp.has(item.userInfo.gitId);
       temp.add(item.userInfo.gitId);
       return !alreadyHas;
     });
-    console.log("unique :::: ", unique);
+    // console.log("unique :::: ", unique);
     teamGameRoom.setPlayers(roomId, unique);
     socket.join(teamRoomId);
     console.log(`${userInfo.gitId} join ${roomId}'s room socketId is ${teamRoomId}`);

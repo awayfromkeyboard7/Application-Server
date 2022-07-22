@@ -35,11 +35,11 @@ module.exports = (socket, event) => {
           console.log("SOLO EXIT>>>>>>>>", GameRoom.room, socket.rooms);
           GameRoom.deleteUser(socket, gitId);
           console.log("SOLO EXIT AFTER>>>>>>>>", GameRoom.room);
-          console.log("PLAYERS AFTER EXIT", GameRoom.room)
+          // console.log("PLAYERS AFTER EXIT", GameRoom.room[myRoom[4]]);
           if (GameRoom.room[myRoom[4]] !== undefined) {
             socket.to(myRoom).emit(event, GameRoom.room[myRoom[4]].players);
           } else {
-            console.log("HERE DELETE TIME INTERVAL");
+            // console.log("HERE DELETE TIME INTERVAL");
             // if (GameRoom.room[myRoom[4]].status === 'waiting') Interval.deleteInterval(myRoom, 'wait');
             // else if (GameRoom.room[myRoom[4]].status === 'playing') Interval.deleteInterval(myRoom, 'solo');
             
@@ -52,7 +52,8 @@ module.exports = (socket, event) => {
       // 모든방에서 나가진 후 자기 private room 입장
       socket.leaveAll();
       socket.join(socket.id);
-      // socket.leave(myRoom);
+      // console.log("SOLO AFTER LEAVE>>>>>>>>", socket.rooms);
+          // socket.leave(myRoom);
 
     } catch(e) {
       console.log(`exitWait ERROR ::::::: gitId: ${gitId}`);

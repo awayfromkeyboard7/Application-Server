@@ -1,15 +1,17 @@
 const GameRoom = require("../../../models/gameroom");
 const Interval = require("../../../models/interval");
 
+
+// waitGame
 module.exports = (socket, event) => {
   socket.on(event, (userInfo) => {
 
     console.log('GameRoom>>>>', GameRoom.room)
-    console.log('GameRoomIdx>>>>', GameRoom.getIdx())
-    console.log('GameRoomlength>>>>', Object.keys(GameRoom.room).length)
+    // console.log('GameRoomIdx>>>>', GameRoom.getIdx())
+    // console.log('GameRoomlength>>>>', Object.keys(GameRoom.room).length)
     let idx = GameRoom.getIdx();
-    console.log('cur idx?????', idx);
-    console.log('GameRoomStatus>>>>', GameRoom.room[idx])
+    // console.log('cur idx?????', idx);
+    // console.log('GameRoomStatus>>>>', GameRoom.room[idx])
 
     // get out ghost!!!!!
     if (userInfo.size === 0) return;
@@ -23,7 +25,6 @@ module.exports = (socket, event) => {
       // Interval.deleteInterval(`room${idx}`, 'wait');
       let timeLimit = new Date();
       timeLimit.setMinutes(timeLimit.getMinutes() + 3);
-      // console.log(`room${idx}`);
       Interval.makeInterval(socket, `room${idx}`, timeLimit, "wait")
     } 
 
@@ -60,8 +61,8 @@ module.exports = (socket, event) => {
     }
 
     socket.nsp.to(`room${idx}`).emit('enterNewUser', GameRoom.room[idx].players);
-    console.log('GameRoom AFTER>>>>', GameRoom.room)
-    console.log('GameRoomIdx AFTER>>>>', GameRoom.getIdx())
-    console.log('GameRoomlength AFTER>>>>', Object.keys(GameRoom.room).length)
+    console.log('GameRoom AFTER>>>>', GameRoom.room, socket.rooms);
+    // console.log('GameRoomIdx AFTER>>>>', GameRoom.getIdx())
+    // console.log('GameRoomlength AFTER>>>>', Object.keys(GameRoom.room).length)
   })
 }

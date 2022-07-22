@@ -232,24 +232,24 @@ UserSchema.statics.totalRankUpdate = async function () {
 };
 
 UserSchema.statics.addGameLog = async function (gameLog){
-  console.log('addGameLog::::::::::', gameLog);
-  const problemId = gameLog.problemId["_id"]
-  const gameLogId = gameLog._id
+  // console.log('addGameLog::::::::::', gameLog);
+  const problemId = await gameLog.problemId["_id"]
+  const gameLogId = await gameLog._id
 
   allUser = [gameLog.userHistory, gameLog.teamA, gameLog.teamB]
-  console.log("dd0124", allUser);
+  // console.log("dd0124", allUser); 
 
   for (let j = 0 ; j < allUser.length ; j++){
     for (let i = 0 ; i < allUser[j].length; i++){
-      console.log("dd0124-2", allUser[j][i]["gitId"], allUser[j][i].gitId);
-      let userLog = await this.find({ gitId : allUser[j][i]["gitId"] })    
+      let currentUser = await allUser[j][i]
+      let userLog = await this.find({ gitId : currentUser["gitId"] })    
       let gameLogHistory = userLog[0]["gameLogHistory"]
       let problemHistory = userLog[0]["problemHistory"]
       gameLogHistory.push(gameLogId)
       problemHistory.push(problemId)
-      console.log("dd0124-3", allUser[j][i]["gitId"]);
+      // console.log("dd0124-3", currentUser["gitId"]);
       await this.findOneAndUpdate(
-        {gitId : allUser[j][i]["gitId"]},
+        {gitId : currentUser["gitId"]},
         {
           $set: {
             problemHistory : problemHistory,
@@ -264,7 +264,7 @@ UserSchema.statics.addGameLog = async function (gameLog){
 
 UserSchema.statics.following = async function (myNodeId, targetGitId) {
   const nodeId = parseInt(crypto.decrypt(myNodeId))
-  console.log('decrypt nodeId >>>>>>>>>>> ', nodeId)
+  // console.log('decrypt nodeId >>>>>>>>>>> ', nodeId)
   
   const targetUser = await this.findOne({ gitId: targetGitId });
 
@@ -308,11 +308,10 @@ UserSchema.statics.getFollowingList = async function (myNodeId) {
   const nodeId = parseInt(crypto.decrypt(myNodeId));
   const user = await this.findOne({ nodeId: nodeId });
   // Promise.all을 사용한 이유 https://joyful-development.tistory.com/20
-  console.log(user['following']);
   const followingList = await Promise.all (user['following'].map( async (friendNodeId) => {
     const friend = await this.findOne({ nodeId: friendNodeId });
-    console.log(friend);
-    console.log(friend['gitId'], friend['avatarUrl']);
+    // console.log(friend);
+    // console.log(friend['gitId'], friend['avatarUrl']);
     return {
       gitId: friend['gitId'],
       avatarUrl: friend['avatarUrl']

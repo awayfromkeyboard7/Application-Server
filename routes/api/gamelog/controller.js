@@ -32,13 +32,13 @@ exports.updateGamelogTeam = async (req, res) => {
   try {
     await GameLog.updateLogTeam(req.body);
     const userScores = await GameLog.isFinishTeam(req.body);
-    console.log('updategamelogTeam:::::::', userScores);
+    // console.log('updategamelogTeam:::::::', userScores);
     if (userScores) {
       const gameLog = await GameLog.getLog(req.body["gameId"])
       // console.log("gamelog???!?@!@!!!#!@#!@#!@#@!#!@#",gameLog)
       // Interval.deleteInterval("hoxy??",'team')
       Interval.deleteInterval([gameLog["roomIdA"],gameLog["roomIdB"]],'team');
-      console.log(Object.entries(userScores));
+      // console.log(Object.entries(userScores));
       Object.entries(userScores).forEach(([gitId, score]) => User.updateUserScore(gitId, score));
       User.totalRankUpdate();
     }
@@ -62,10 +62,10 @@ exports.updateGamelog = async (req, res) => {
     // console.log("@#@#@#@##@#@#showme reqbody!@!@@#@#@#@#@#@#@#!@!",userScores)
     if (await GameLog.isFinish(req.body)) {
       const gameLog = await GameLog.getLog(req.body.gameId);
-      console.log('GAME END DELETE INTERVAL', gameLog["roomId"]);
+      // console.log('GAME END DELETE INTERVAL', gameLog["roomId"]);
       Interval.deleteInterval(gameLog["roomId"], 'solo');
       await User.totalRankUpdate();
-      console.log('GAME END DELETEddddd INTERVAL', gameLog["roomId"]);
+      // console.log('GAME END DELETEddddd INTERVAL', gameLog["roomId"]);
     }
     res.status(200).json({
       success: true
@@ -108,7 +108,7 @@ exports.getGamelog = async (req, res) => {
     logId = req.body['gameLogId']
     let info = await GameLog.getLog(logId);
 
-    console.log(req.body)
+    // console.log(req.body)
     const problemId = mongoose.Types.ObjectId(req.body.mode === 'team' ? '62cea4c0de41eb81f44ed976' : '62c973cd465933160b9499c1');
     const problems = await Problem.getProblem(problemId);
     info.problemId = problems

@@ -1,48 +1,35 @@
 const userSids = require('./usersocket');
+// const GameRoom = require('./gameroom');
 
 let intervalList = {};
-
-function deleteInterval(roomId, mode) {
-  // console.log("DDDDD???", roomId, mode);
-  // console.log("before showme interval list!@!@!@!#!@#!@#1",roomId, mode, `${roomId}${mode}`, intervalList[`${roomId}${mode}`])
-  clearInterval(intervalList[`${roomId}${mode}`]);
-  // console.log("before showme interval list!@!@!@!#!@#!@#1",intervalList)
-  delete intervalList[`${roomId}${mode}`];
-  console.log("after DELETE INTERVAL",roomId, mode, `${roomId}${mode}`, intervalList)
-}
 
 function makeInterval(socket, roomId, timeLimit, mode) {
   // console.log("BEFORE make interval value", roomId, mode, `${roomId}${mode}`, intervalList);
   deleteInterval(roomId, mode);
-  let intervalId;
-  intervalId = setInterval(() => {
+
+  interval = setInterval(() => {
     if (mode === "wait") {
-      socket.nsp.emit("timeLimit", timeLimit - new Date());
-      // socket.to(roomId).emit("timeLimit", timeLimit - new Date());
-      console.log("where to emit TIME INTERVAL???????", roomId, mode, socket.rooms);
-      console.log("SOCKET IDS???????", userSids.usersSocketId);
+      socket.nsp.to(roomId).emit("timeLimit", timeLimit - new Date());
+      // console.log("where to emit TIME INTERVAL???????", roomId, mode, socket.rooms);
+      // console.log("SOCKET IDS???????", userSids.usersSocketId);
+      // console.log("GAME ROOM???????", GameRoom);
       if (timeLimit < new Date()) {
-        // socket.to(roomId).emit("timeOut");
-        socket.nsp.emit("timeOut");
-        if (intervalId) {
-          clearInterval(intervalId);
+        socket.nsp.to(roomId).emit("timeOut");
+        if (interval) {
+          clearInterval(interval);
         }
       }
     } 
-    // else if (mode === 'ready') {
-    //   timeLimit.setSeconds(timeLimit.getSeconds() + 5);
-    //   socket.nsp.to(roomId).emit("timeLimit", timeLimit - new Date());
-    //   if(timeLimit < new Date()) {
-    //     clearInterval(interval);
-    //   }
-    // } 
     else {
       socket.nsp.to(roomId).emit("timeLimitCode", timeLimit - new Date());
-      console.log("where to emit TIME INTERVAL???????", roomId, mode, socket.rooms);
+      // console.log("where to emit TIME INTERVAL???????", roomId, mode, socket.rooms);
+      // console.log("SOCKET IDS???????", userSids.usersSocketId);
+      // console.log("GAME ROOM???????", JSON.stringify(GameRoom.room));
+
       if (timeLimit < new Date()) {
         socket.nsp.to(roomId).emit("timeOutCode");
-        if (intervalId) {
-          clearInterval(intervalId);
+        if (interval) {
+          clearInterval(interval);
         }
       }
     }
@@ -50,10 +37,20 @@ function makeInterval(socket, roomId, timeLimit, mode) {
     // console.log(intervalList)
   }, 1000);
   // console.log("INTERVALID?????", intervalId);
-  intervalList[`${roomId}${mode}`] = intervalId;
+  intervalList[`${roomId}${mode}`] = interval;
   // console.log("make interval value @!#!",roomId, mode, `${roomId}${mode}`, intervalList);
 }
 
+
+function deleteInterval(roomId, mode) {
+  // console.log("DDDDD???", roomId, mode);
+  // console.log("before showme interval list!@!@!@!#!@#!@#1",roomId, mode, `${roomId}${mode}`, intervalList[`${roomId}${mode}`])
+  // console.log("DELETE THIS INTERVAL", intervalList[`${roomId}${mode}`]);
+  clearInterval(intervalList[`${roomId}${mode}`]);
+  // console.log("before showme interval list!@!@!@!#!@#!@#1",intervalList)
+  delete intervalList[`${roomId}${mode}`];
+  // console.log("after DELETE INTERVAL",roomId, mode, `${roomId}${mode}`, intervalList)
+}
 
 
 module.exports = {

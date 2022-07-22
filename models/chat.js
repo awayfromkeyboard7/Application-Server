@@ -12,7 +12,7 @@ function isExist(gitId) {
 
 function setChatLog(gitId, logs) {
   chatLogs[gitId] = logs
-  console.log("setChatLog ::::: ", chatLogs);
+  // console.log("setChatLog ::::: ", chatLogs);
 }
 
 function sendChat(sender, receiver, message) {
@@ -23,7 +23,7 @@ function sendChat(sender, receiver, message) {
       chatLogs[sender][receiver].push(message);
     }
     // socket.to(UserSocket.getSocketId(receiver)).emit('sendChatMessage', message);
-    console.log(chatLogs[sender]);
+    // console.log(chatLogs[sender]);
   } catch (e) {
     console.log('/models/chat.js sendChat ERROR :::: ', sender, receiver, message)
     console.log('/models/chat.js sendChat ERROR :::: ', e)

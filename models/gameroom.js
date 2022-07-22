@@ -18,7 +18,7 @@ function getRoom(socket) {
 
 function setRoom(roomInfo) {
   if (roomInfo) {
-    console.log('setRoom>>>>>', roomInfo);
+    // console.log('setRoom>>>>>', roomInfo);
     room[idx].players = roomInfo;
   }
 }
@@ -32,7 +32,7 @@ function createRoom(userInfo) {
     status: 'waiting'
   }
   waitIdices.add(idx);
-  console.log('roomCreated>>>>>>', JSON.stringify(room));
+  // console.log('roomCreated>>>>>>', JSON.stringify(room));
   // if (userinfo)
   // if (userInfo) {
   //   room.push([userInfo]);
@@ -49,12 +49,12 @@ function deleteUser(socket, userName) {
       room[idx].players = room[idx].players.filter(item => item.gitId !== userName);
   
       if (room[idx].players.length === 0) {
-        // if (room[idx].status === 'waiting') Interval.deleteInterval(myRoom, 'wait');
-        // else if (room[idx].status === 'playing') Interval.deleteInterval(myRoom, 'solo');
+        if (room[idx].status === 'waiting') Interval.deleteInterval(myRoom, 'wait');
+        else if (room[idx].status === 'playing') Interval.deleteInterval(myRoom, 'solo');
         delete room[idx];
         waitIdices.delete(idx);
       }
-      console.log("DELETED ROOM!!!!!!",room);
+      // console.log("DELETED ROOM!!!!!!",room);
     }
 
   } catch(e) {
@@ -64,23 +64,23 @@ function deleteUser(socket, userName) {
 
 function filterRoom(idx) {
   const temp = new Set()
-  const unique = GameRoom.room[idx].filter(item => {
+  const unique = room[idx].filter(item => {
     const alreadyHas = temp.has(item.players.gitId)
     temp.add(item.players.gitId)
     return !alreadyHas
   });
-  GameRoom.setRoom(unique);
+  setRoom(unique);
 }
 
 function joinRoom(userInfo) {
-  console.log('joinRoom>>>>>>', userInfo, idx);
+  // console.log('joinRoom>>>>>>', userInfo, idx);
   try {
     room[idx].players.push(userInfo);
   }
   catch(e) {
     console.log(e);
   }
-  console.log('playerJoined>>>>>>', room);
+  // console.log('playerJoined>>>>>>', room);
 }
 
 
