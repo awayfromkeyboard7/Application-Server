@@ -1,63 +1,62 @@
-let intervalList ={}
+const userSids = require('./usersocket');
+
+let intervalList = {};
+
+function deleteInterval(roomId, mode) {
+  // console.log("DDDDD???", roomId, mode);
+  // console.log("before showme interval list!@!@!@!#!@#!@#1",roomId, mode, `${roomId}${mode}`, intervalList[`${roomId}${mode}`])
+  clearInterval(intervalList[`${roomId}${mode}`]);
+  // console.log("before showme interval list!@!@!@!#!@#!@#1",intervalList)
+  delete intervalList[`${roomId}${mode}`];
+  console.log("after DELETE INTERVAL",roomId, mode, `${roomId}${mode}`, intervalList)
+}
 
 function makeInterval(socket, roomId, timeLimit, mode) {
-    // console.log("howmany???!#?!@#?")
-    // let key = false
-    // if (mode == "team"){
-    //     key = `${roomId[0]}${roomId[1]}`
-    // }
-    // else {
-    //     key = `${roomId}${mode}`
-    // }
-    // console.log("isit same!#!@#!#!#!@#",key);
-    const interval = setInterval(() => {
-        // console.log("why crash?!?#!?#?!#?!",roomId, mode);
-        if(mode === "wait") {
-            socket.nsp.to(roomId).emit("timeLimit", timeLimit - new Date());
-            if(timeLimit < new Date()) {
-                socket.nsp.to(roomId).emit("timeOut");
-                if (interval){
-                clearInterval(interval);
-                }
-            }        
-        } else {
-            socket.nsp.to(roomId).emit("timeLimitCode", timeLimit - new Date());
-            if(timeLimit < new Date()) {
-                socket.nsp.to(roomId).emit("timeOutCode");
-                if (interval){
-                clearInterval(interval);
-                }
-            }
+  // console.log("BEFORE make interval value", roomId, mode, `${roomId}${mode}`, intervalList);
+  deleteInterval(roomId, mode);
+  let intervalId;
+  intervalId = setInterval(() => {
+    if (mode === "wait") {
+      socket.nsp.emit("timeLimit", timeLimit - new Date());
+      // socket.to(roomId).emit("timeLimit", timeLimit - new Date());
+      console.log("where to emit TIME INTERVAL???????", roomId, mode, socket.rooms);
+      console.log("SOCKET IDS???????", userSids.usersSocketId);
+      if (timeLimit < new Date()) {
+        // socket.to(roomId).emit("timeOut");
+        socket.nsp.emit("timeOut");
+        if (intervalId) {
+          clearInterval(intervalId);
         }
-        // console.log("@@@@@@@@room id & mode@@@@@@", roomId, mode )
-        // console.log(intervalList)
-
-    }, 1000);
-    intervalList[`${roomId}${mode}`] = interval;
-    // console.log("make interval value @!#!",intervalList[key]);
+      }
+    } 
+    // else if (mode === 'ready') {
+    //   timeLimit.setSeconds(timeLimit.getSeconds() + 5);
+    //   socket.nsp.to(roomId).emit("timeLimit", timeLimit - new Date());
+    //   if(timeLimit < new Date()) {
+    //     clearInterval(interval);
+    //   }
+    // } 
+    else {
+      socket.nsp.to(roomId).emit("timeLimitCode", timeLimit - new Date());
+      console.log("where to emit TIME INTERVAL???????", roomId, mode, socket.rooms);
+      if (timeLimit < new Date()) {
+        socket.nsp.to(roomId).emit("timeOutCode");
+        if (intervalId) {
+          clearInterval(intervalId);
+        }
+      }
+    }
+    // console.log("@@@@@@@@room id & mode@@@@@@", roomId, mode )
+    // console.log(intervalList)
+  }, 1000);
+  // console.log("INTERVALID?????", intervalId);
+  intervalList[`${roomId}${mode}`] = intervalId;
+  // console.log("make interval value @!#!",roomId, mode, `${roomId}${mode}`, intervalList);
 }
 
 
-function deleteInterval(roomId, mode) {
-    // let key = false
-    // if (mode == "team"){
-    //     key = `${roomId[0]}${roomId[1]}`
-    // }else {
-    //     key = `${roomId}${mode}`
-    // }
-    // console.log("isit clear??????!@?!@?", roomId, mode)
-    // console.log("isit clear??????!@?!@?", key)
-    // console.log(is,key);
-    // console.log("clear interval value!@!@!@#!@#!#",intervalList[key])
-    clearInterval(intervalList[`${roomId}${mode}`])
-    // console.log("before showme interval list!@!@!@!#!@#!@#1",intervalList)
-    delete intervalList[`${roomId}${mode}`]
-    // console.log("after showme interval list!@!@!@!#!@#!@#1",intervalList)
-
-    // intervalList.remove(key);
-    }
 
 module.exports = {
-    makeInterval,
-    deleteInterval
-    };
+  makeInterval,
+  deleteInterval,
+};

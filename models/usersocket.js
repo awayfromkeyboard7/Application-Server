@@ -33,6 +33,7 @@ function getSocketArray () {
 }
 
 module.exports = {
+  usersSocketId,
   setSocketId,
   getSocketId,
   deleteSocketId,

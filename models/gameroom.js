@@ -1,3 +1,5 @@
+const Interval = require('./interval');
+
 let idx = 0;
 const room = {};
 const waitIdices = new Set();
@@ -41,14 +43,20 @@ function createRoom(userInfo) {
 
 function deleteUser(socket, userName) {
   try {
-    const idx = getRoom(socket)[4];
-    room[idx].players = room[idx].players.filter(item => item.gitId !== userName);
-
-    if (room[idx].players.length === 0) {
-      delete room[idx];
-      waitIdices.delete(idx);
+    const myRoom = getRoom(socket);
+    if (myRoom !== undefined) {
+      const idx = myRoom[4];
+      room[idx].players = room[idx].players.filter(item => item.gitId !== userName);
+  
+      if (room[idx].players.length === 0) {
+        // if (room[idx].status === 'waiting') Interval.deleteInterval(myRoom, 'wait');
+        // else if (room[idx].status === 'playing') Interval.deleteInterval(myRoom, 'solo');
+        delete room[idx];
+        waitIdices.delete(idx);
+      }
+      console.log("DELETED ROOM!!!!!!",room);
     }
-    console.log("DELETED ROOM!!!!!!",room);
+
   } catch(e) {
     console.log(e);
   }

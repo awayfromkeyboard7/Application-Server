@@ -38,9 +38,9 @@ exports.updateGamelogTeam = async (req, res) => {
       // console.log("gamelog???!?@!@!!!#!@#!@#!@#@!#!@#",gameLog)
       // Interval.deleteInterval("hoxy??",'team')
       Interval.deleteInterval([gameLog["roomIdA"],gameLog["roomIdB"]],'team');
-      User.totalRankUpdate();
       console.log(Object.entries(userScores));
-      await Object.entries(userScores).forEach(([gitId, score]) => User.updateUserScore(gitId, score));
+      Object.entries(userScores).forEach(([gitId, score]) => User.updateUserScore(gitId, score));
+      User.totalRankUpdate();
     }
 
     res.status(200).json({
@@ -57,15 +57,15 @@ exports.updateGamelogTeam = async (req, res) => {
 exports.updateGamelog = async (req, res) => {
   try {
     await GameLog.updateLog(req.body);
-    const userScores = await GameLog.isFinish(req.body);
+    // console.log("howmanytimes pass here????!@#!#!@?#",req.body)
+    // const userScores = await GameLog.isFinish(req.body);
     // console.log("@#@#@#@##@#@#showme reqbody!@!@@#@#@#@#@#@#@#!@!",userScores)
-    if (userScores) {
+    if (await GameLog.isFinish(req.body)) {
       const gameLog = await GameLog.getLog(req.body.gameId);
-
-      // console.log("@!#!@#!@#!gamelog isit???????",gameLog["roomId"])
-      Interval.deleteInterval(gameLog["roomId"],'solo')
-      User.totalRankUpdate();
-      Object.entries(userScores).forEach(([gitId, score]) => User.updateUserScore(gitId, score));
+      console.log('GAME END DELETE INTERVAL', gameLog["roomId"]);
+      Interval.deleteInterval(gameLog["roomId"], 'solo');
+      await User.totalRankUpdate();
+      console.log('GAME END DELETEddddd INTERVAL', gameLog["roomId"]);
     }
     res.status(200).json({
       success: true

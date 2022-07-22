@@ -20,8 +20,10 @@ module.exports = (socket, event) => {
       socket.join(`room${idx}`);
 
       // 시간제한 설정
+      // Interval.deleteInterval(`room${idx}`, 'wait');
       let timeLimit = new Date();
       timeLimit.setMinutes(timeLimit.getMinutes() + 3);
+      // console.log(`room${idx}`);
       Interval.makeInterval(socket, `room${idx}`, timeLimit, "wait")
     } 
 
@@ -50,9 +52,11 @@ module.exports = (socket, event) => {
       GameRoom.createRoom(userInfo);
       socket.join(`room${idx}`);
 
+      // Interval.deleteInterval(`room${idx}`, 'wait');
+
       let timeLimit = new Date();
       timeLimit.setMinutes(timeLimit.getMinutes() + 3);
-      Interval.makeInterval(socket, `room${idx}}`, timeLimit, "wait");
+      Interval.makeInterval(socket, `room${idx}`, timeLimit, "wait");
     }
 
     socket.nsp.to(`room${idx}`).emit('enterNewUser', GameRoom.room[idx].players);
