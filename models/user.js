@@ -207,7 +207,6 @@ UserSchema.statics.totalRankUpdate = async function () {
       },
     },
   ]);
-
   for (let i = 0; i < result.length; i++) {
     let gitId = result[i]["gitId"];
     await this.findOneAndUpdate(
@@ -299,8 +298,8 @@ UserSchema.statics.getFollowingList = async function (myNodeId) {
   const followingList = await Promise.all (user['following'].map( async (friendNodeId) => {
     const friend = await this.findOne({ nodeId: friendNodeId });
     return {
-      gitId: friend['gitId'],
-      avatarUrl: friend['avatarUrl']
+      gitId: friend?.gitId,
+      avatarUrl: friend?.avatarUrl
     }
   }))
   return followingList;

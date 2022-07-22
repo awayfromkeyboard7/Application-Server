@@ -4,6 +4,7 @@ const GameLog = require('../../../models/gamelog');
 const Interval = require('../../../models/interval');
 const Problem = require('../../../models/problem');
 const User = require('../../../models/user');
+const Ranking = require('../../../models/ranking');
 
 /*
 [Game Logs] 개인전 / 팀전
@@ -54,9 +55,8 @@ exports.updateGamelog = async (req, res) => {
     await GameLog.updateLog(req.body);
     if (await GameLog.isFinish(req.body)) {
       const gameLog = await GameLog.getLog(req.body.gameId);
-      // console.log('GAME END DELETE INTERVAL', gameLog["roomId"]);
-      Interval.deleteInterval(gameLog["roomId"], 'solo');
-      await User.totalRankUpdate();
+      Interval.deleteInterval(gameLog["roomId"],'solo')
+      Ranking.updateRank(await User.totalRankUpdate());
     }
     res.status(200).json({
       success: true
