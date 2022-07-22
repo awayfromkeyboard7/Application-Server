@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 // const User = require('./user');
 const Schema = mongoose.Schema;
 
-const   UserSchema = new Schema({
+const UserSchema = new Schema({
     gitId: {
       type: String,
       required: true
@@ -49,7 +49,7 @@ RankingSchema.statics.updateRanking =async function(result){
   // console.log(result)
   for await(let user of result){
     if(0<user["totalSolo"]+user["totalTeam"]){
-      user["winRate"] = parseInt(user["winSolo"]+user["winTeam"]/user["totalSolo"]+user["totalTeam"])
+      user["winRate"] = parseInt(user["winSolo"]+user["winTeam"]/user["totalSolo"]+user["totalTeam"]*100)
     }
     delete user["token"]
     delete user["problemHistory"]
