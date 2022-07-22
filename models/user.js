@@ -215,7 +215,6 @@ UserSchema.statics.totalRankUpdate = async function () {
       },
     },
   ]);
-
   for (let i = 0; i < result.length; i++) {
     let gitId = result[i]["gitId"];
     await this.findOneAndUpdate(
