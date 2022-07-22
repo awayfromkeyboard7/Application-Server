@@ -15,8 +15,6 @@ module.exports = (socket, event) => {
 
         //게임 시작시 wait interval 삭제
         Interval.deleteInterval(room, "wait"); 
-        // ready interval 시작
-        // Interval.makeInterval(socket, room, new Date(), "ready");
         let timeLimit = new Date();
         timeLimit.setSeconds(timeLimit.getSeconds() + 5);
         

@@ -26,27 +26,9 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(express.json());
 app.use("/", require("./routes/"));
 
-function publicRooms() {
-  const {
-    sockets: {
-      adapter: { sids, rooms },
-    },
-  } = io;
-  const publicRooms = [];
-  rooms.forEach((_, key) => {
-    if (sids.get(key) === undefined) {
-      publicRooms.push(key);
-      console.log(key);
-    }
-  })
-  return publicRooms;
-}
-
 io.on("connection", (socket) => {
   socket.onAny(e => {
     console.log(`SOCKET EVENT::::::${e}`);
-    // console.log(`TOTAL PUBLICROOMS?????::::::${publicRooms()}`);
-    // console.log(`OBJECT GAMEROOMS?????::::::${JSON.stringify(GameRoom.room)}`);
   });
 
   // Connection
@@ -83,7 +65,6 @@ io.on("connection", (socket) => {
   SocketRoutes.chat.sendChatMessage(socket, SocketRoutes.chat.event.sendChatMessage);
   SocketRoutes.chat.getChatMessage(socket, SocketRoutes.chat.event.getChatMessage);
 });
-
 
 server.listen(PORTNUM, () => {
   console.log(`Server is running... port: ${PORTNUM}`);

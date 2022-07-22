@@ -28,17 +28,12 @@ POST: /api/gamelog
 }
 */
 exports.updateGamelogTeam = async (req, res) => {
-  // console.log('updategamelogTeam', req.body);
   try {
     await GameLog.updateLogTeam(req.body);
     const userScores = await GameLog.isFinishTeam(req.body);
-    // console.log('updategamelogTeam:::::::', userScores);
     if (userScores) {
       const gameLog = await GameLog.getLog(req.body["gameId"])
-      // console.log("gamelog???!?@!@!!!#!@#!@#!@#@!#!@#",gameLog)
-      // Interval.deleteInterval("hoxy??",'team')
       Interval.deleteInterval([gameLog["roomIdA"],gameLog["roomIdB"]],'team');
-      // console.log(Object.entries(userScores));
       Object.entries(userScores).forEach(([gitId, score]) => User.updateUserScore(gitId, score));
       User.totalRankUpdate();
     }
@@ -57,15 +52,11 @@ exports.updateGamelogTeam = async (req, res) => {
 exports.updateGamelog = async (req, res) => {
   try {
     await GameLog.updateLog(req.body);
-    // console.log("howmanytimes pass here????!@#!#!@?#",req.body)
-    // const userScores = await GameLog.isFinish(req.body);
-    // console.log("@#@#@#@##@#@#showme reqbody!@!@@#@#@#@#@#@#@#!@!",userScores)
     if (await GameLog.isFinish(req.body)) {
       const gameLog = await GameLog.getLog(req.body.gameId);
       // console.log('GAME END DELETE INTERVAL', gameLog["roomId"]);
       Interval.deleteInterval(gameLog["roomId"], 'solo');
       await User.totalRankUpdate();
-      // console.log('GAME END DELETEddddd INTERVAL', gameLog["roomId"]);
     }
     res.status(200).json({
       success: true
@@ -108,11 +99,9 @@ exports.getGamelog = async (req, res) => {
     logId = req.body['gameLogId']
     let info = await GameLog.getLog(logId);
 
-    // console.log(req.body)
     const problemId = mongoose.Types.ObjectId(req.body.mode === 'team' ? '62cea4c0de41eb81f44ed976' : '62c973cd465933160b9499c1');
     const problems = await Problem.getProblem(problemId);
     info.problemId = problems
-    // info.problemId = await Problem.getProblem(mongoose.Types.ObjectId(info.problemId));
     res.status(200).json({
       info,
       success: true

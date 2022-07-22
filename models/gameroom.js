@@ -18,7 +18,6 @@ function getRoom(socket) {
 
 function setRoom(roomInfo) {
   if (roomInfo) {
-    // console.log('setRoom>>>>>', roomInfo);
     room[idx].players = roomInfo;
   }
 }
@@ -32,13 +31,6 @@ function createRoom(userInfo) {
     status: 'waiting'
   }
   waitIdices.add(idx);
-  // console.log('roomCreated>>>>>>', JSON.stringify(room));
-  // if (userinfo)
-  // if (userInfo) {
-  //   room.push([userInfo]);
-  // } else {
-  //   room.push([]);
-  // }
 }
 
 function deleteUser(socket, userName) {
@@ -54,7 +46,6 @@ function deleteUser(socket, userName) {
         delete room[idx];
         waitIdices.delete(idx);
       }
-      // console.log("DELETED ROOM!!!!!!",room);
     }
 
   } catch(e) {
@@ -73,14 +64,12 @@ function filterRoom(idx) {
 }
 
 function joinRoom(userInfo) {
-  // console.log('joinRoom>>>>>>', userInfo, idx);
   try {
     room[idx].players.push(userInfo);
   }
   catch(e) {
     console.log(e);
   }
-  // console.log('playerJoined>>>>>>', room);
 }
 
 
