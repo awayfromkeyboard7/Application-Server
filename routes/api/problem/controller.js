@@ -1,5 +1,5 @@
 const request = require("superagent");
-const Problem = require("../../../models/problem");
+const Problem = require("../../../models/db/problem");
 
 // exports.getProblem = async (req, res) => {
 //   try {

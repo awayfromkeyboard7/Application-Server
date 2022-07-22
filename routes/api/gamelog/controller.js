@@ -1,10 +1,10 @@
 const request = require('superagent');
 const mongoose = require('mongoose');
-const GameLog = require('../../../models/gamelog');
+const GameLog = require('../../../models/db/gamelog');
 const Interval = require('../../../models/interval');
-const Problem = require('../../../models/problem');
-const User = require('../../../models/user');
-const Ranking = require('../../../models/ranking');
+const Problem = require('../../../models/db/problem');
+const User = require('../../../models/db/user');
+const Ranking = require('../../../models/db/ranking');
 
 /*
 [Game Logs] 개인전 / 팀전

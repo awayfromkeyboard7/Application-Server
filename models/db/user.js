@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const { stringify } = require("uuid");
-const crypto = require('../models/keycrypto');
+const crypto = require('../keycrypto');
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({

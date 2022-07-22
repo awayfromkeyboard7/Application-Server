@@ -1,4 +1,4 @@
-const User = require("../../../models/user");
+const User = require("../../../models/db/user");
 const Chat = require("../../../models/chat");
 const UserSocket = require("../../../models/usersocket");
 

@@ -1,6 +1,6 @@
 const { json } = require('express');
 const fetch = require('node-fetch');
-const User = require('../../../models/user');
+const User = require('../../../models/db/user');
 const crypto = require('../../../models/keycrypto');
 
 const cookieConfig = { maxAge: 60000000 }

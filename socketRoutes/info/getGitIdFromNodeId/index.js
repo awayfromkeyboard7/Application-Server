@@ -1,4 +1,4 @@
-const User = require("../../../models/user");
+const User = require("../../../models/db/user");
 
 // 확인 필요
 module.exports = (socket, event) => {

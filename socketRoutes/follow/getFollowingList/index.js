@@ -1,4 +1,4 @@
-const User = require("../../../models/user");
+const User = require("../../../models/db/user");
 const UserSocket = require("../../../models/usersocket");
 
 module.exports = (socket, event) => {

@@ -1,6 +1,6 @@
 const teamGameRoom = require("../../../models/teamroom");
-const User = require("../../../models/user");
-const GameLog = require("../../../models/gamelog");
+const User = require("../../../models/db/user");
+const GameLog = require("../../../models/db/gamelog");
 const Interval = require("../../../models/interval");
 
 module.exports = (socket, event) => {

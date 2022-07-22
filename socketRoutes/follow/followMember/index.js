@@ -1,4 +1,4 @@
-const User = require("../../../models/user");
+const User = require("../../../models/db/user");
 
 module.exports = (socket, event) => {
   socket.on(event, async (myNodeId, targetGitId) => {

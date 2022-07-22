@@ -1,4 +1,4 @@
-const GameLog = require("../../../models/gamelog");
+const GameLog = require("../../../models/db/gamelog");
 
 // 팀전 결과 화면 랭킹
 module.exports = (socket, event) => {
