@@ -29,6 +29,14 @@ const UserSchema = new Schema({
     winRate: {
       type: Number,
       default: 0
+    },
+    rankingPercent: {
+      type: Number,
+      default: 100
+    },
+    totalScore: {
+      type: Number,
+      default: 0
     }
   });
 
@@ -68,6 +76,7 @@ RankingSchema.statics.updateRanking = async function(result){
     delete user["winTeam"]
   }
 
+  console.log("rankupdate??????????")
   return this.findOneAndUpdate(
       { type: "all" },
       { 

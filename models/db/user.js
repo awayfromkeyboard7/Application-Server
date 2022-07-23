@@ -45,6 +45,10 @@ const UserSchema = new Schema({
     type: Number,
     default: 9999999999,
   },
+  rankingPercent: {
+    type: Number,
+    default: 100,
+  },
   rank: {
     type: Number,
     default: 0,
@@ -214,6 +218,7 @@ UserSchema.statics.totalRankUpdate = async function () {
       {
         $set: {
           ranking: result[i]["ranking"],
+          rankingPercent: parseInt(1000*result[i]["ranking"] /result.length)/10
         },
       },
       { new: true }
@@ -252,7 +257,7 @@ UserSchema.statics.addGameLog = async function (gameLog){
 
 UserSchema.statics.following = async function (myNodeId, targetGitId) {
   const nodeId = parseInt(crypto.decrypt(myNodeId))
-  
+
   const targetUser = await this.findOne({ gitId: targetGitId });
 
   // 나 자신을 팔로우 예외처리
