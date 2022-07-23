@@ -1,4 +1,4 @@
-const userSids = require('./usersocket');
+import userSids from './usersocket';
 // const GameRoom = require('./gameroom');
 
 let intervalList = {};
@@ -37,7 +37,7 @@ function deleteInterval(roomId, mode) {
 }
 
 
-module.exports = {
+export {
   makeInterval,
   deleteInterval,
 };

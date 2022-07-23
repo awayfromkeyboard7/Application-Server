@@ -1,4 +1,4 @@
-exports.event = require('./event');
-exports.disconnecting = require('./disconnecting');
-exports.setGitId = require('./setGitId');
-exports.exitWait = require('./exitWait');
+export const event = require('./event');
+export const disconnecting = require('./disconnecting');
+export const setGitId = require('./setGitId').default;
+export const exitWait = require('./exitWait').default;

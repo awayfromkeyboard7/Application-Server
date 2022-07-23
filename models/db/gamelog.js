@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
-const Problem = require('./problem');
-const User = require('./user');
-const Schema = mongoose.Schema;
+import { Schema as _Schema, Types, model } from 'mongoose';
+import { random } from './problem.js';
+import { updateUserScore } from './user.js';
+const Schema = _Schema;
 
 /* userHistory: Array of attributes updated after game closed */
 const UserHistorySchema = new Schema({
@@ -87,7 +87,7 @@ GameLogSchema.statics.createLog = function(data) {
 
 GameLogSchema.statics.createTeamLog = async function(teamA, teamB, roomIdA, roomIdB) {
   const data = {
-    problemId: await Problem.random(),
+    problemId: await random(),
     teamA,
     teamB,
     gameMode: 'team',
@@ -102,7 +102,7 @@ GameLogSchema.statics.createTeamLog = async function(teamA, teamB, roomIdA, room
 
 GameLogSchema.statics.updateLog = function(data) {
   return this.findOneAndUpdate(
-    { _id: mongoose.Types.ObjectId(data['gameId']) },
+    { _id: Types.ObjectId(data['gameId']) },
     { 
       $set: { 
         'userHistory.$[element].language': data['language'],
@@ -121,7 +121,7 @@ GameLogSchema.statics.updateLog = function(data) {
 
 GameLogSchema.statics.updateLogTeam = async function(data) {
   // console.log("updateLogTeam?>>>>>>>>", data);
-  const gameLog = await this.findById(mongoose.Types.ObjectId(data["gameId"]));
+  const gameLog = await this.findById(Types.ObjectId(data["gameId"]));
   let myteam = "teamA";
   for (let userInfo of gameLog["teamB"]){
     if (userInfo.gitId === data["gitId"]){
@@ -140,12 +140,12 @@ GameLogSchema.statics.updateLogTeam = async function(data) {
 
 
 GameLogSchema.statics.getLog = function(logId) {
-  return this.findById(mongoose.Types.ObjectId(logId));
+  return this.findById(Types.ObjectId(logId));
 }
 
 //도현 추가
 GameLogSchema.statics.isFinish = async function(data){
-  const gameLog = await this.findById(mongoose.Types.ObjectId(data["gameId"]));
+  const gameLog = await this.findById(Types.ObjectId(data["gameId"]));
   gameLog["totalUsers"] -= 1;
   if (gameLog["totalUsers"] === 0){
 
@@ -169,7 +169,7 @@ GameLogSchema.statics.isFinish = async function(data){
       info["score"] = userLength - 2*i
       info["win"] = (i+1 - userLength/2) < 1
       i += 1;
-      await User.updateUserScore(info);
+      await updateUserScore(info);
     }
     await gameLog.save()
     return true;
@@ -179,7 +179,7 @@ GameLogSchema.statics.isFinish = async function(data){
 }
 
 GameLogSchema.statics.isFinishTeam = async function(data){
-  const gameLog = await this.findById(mongoose.Types.ObjectId(data["gameId"]));
+  const gameLog = await this.findById(Types.ObjectId(data["gameId"]));
   gameLog["totalUsers"] -= 1;
 
   if (gameLog["totalUsers"] === 0){
@@ -204,7 +204,7 @@ GameLogSchema.statics.isFinishTeam = async function(data){
       info["language"] = result[0][0]["language"]
       info["score"] = winnerScore
       info["win"] += true
-      User.updateUserScore(info);
+      updateUserScore(info);
     }
 
     for await (const loser of result[1]){
@@ -215,7 +215,7 @@ GameLogSchema.statics.isFinishTeam = async function(data){
       info["language"] = result[1][0]["language"]
       info["score"] = loserScore
       info["win"] += false
-      User.updateUserScore(info);
+      updateUserScore(info);
     }
 
     gameLog.save();
@@ -237,4 +237,4 @@ GameLogSchema.statics.isFinishTeam = async function(data){
   gameLog.save();
 }
 
-module.exports = mongoose.model('GameLog', GameLogSchema);
+export default model('GameLog', GameLogSchema);

@@ -1,6 +1,6 @@
 const router = require('express').Router();
-const controller = require("./controller");
+import { sendCode } from "./controller";
 
 // 채점 서버
-router.post('/', controller.sendCode);
-module.exports = router;
+router.post('/', sendCode);
+export default router;

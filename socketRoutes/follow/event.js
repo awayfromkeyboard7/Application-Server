@@ -1,3 +1,3 @@
-exports.followMember = "followMember";
-exports.getFollowingList = "getFollowingList";
-exports.unFollowMember = "unFollowMember";
+export const followMember = "followMember";
+export const getFollowingList = "getFollowingList";
+export const unFollowMember = "unFollowMember";

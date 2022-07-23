@@ -1,8 +1,8 @@
-const request = require('superagent');
-const Judge = require('../../../models/judge');
+import { post } from 'superagent';
+import Judge from '../../../models/judge';
 require("dotenv").config();
 
-exports.sendCode = async function(req, res) {
+export async function sendCode(req, res) {
   // judge 도커에 채점 요청
   console.log("Some request accepted");
 
@@ -12,8 +12,7 @@ exports.sendCode = async function(req, res) {
   const code = req.body['code'];
   
   console.log("Send request to Container", req.body);
-  request
-    .post(`${process.env.JUDGE_SERVER_URL}/judge`)
+  post(`${process.env.JUDGE_SERVER_URL}/judge`)
     .set('Accept', 'application/json')
     .send({
       gitId,

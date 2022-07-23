@@ -1,10 +1,10 @@
-const UserSocket = require("../../../models/usersocket");
-const Chat = require("../../../models/chat");
+import UserSocket from "../../../models/usersocket";
+import { getUnreadCount } from "../../../models/chat";
 
-module.exports = (socket, event) => {
+export default (socket, event) => {
   socket.on(event, async (sender, receiver) => {
     console.log("getUnreadMessage :::: ", sender, receiver);
-    const unreadCount = await Chat.getUnreadCount(sender, receiver);
+    const unreadCount = await getUnreadCount(sender, receiver);
     console.log("getUnreadMessage :::: ", sender, receiver, unreadCount);
     socket.emit('unreadMessage', { senderId: sender, count: unreadCount });
   });

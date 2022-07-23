@@ -1,2 +1,2 @@
-exports.event = require('./event');
-exports.getGitIdFromNodeId = require('./getGitIdFromNodeId');
+export const event = require('./event');
+export const getGitIdFromNodeId = require('./getGitIdFromNodeId');

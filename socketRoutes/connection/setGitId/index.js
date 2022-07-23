@@ -1,23 +1,23 @@
-const User = require("../../../models/db/user");
-const Chat = require("../../../models/chat");
-const UserSocket = require("../../../models/usersocket");
+import { getFollowerListWithGitId } from "../../../models/db/user";
+import { isExist, setChatLog } from "../../../models/chat";
+import { setSocketId, isExist as _isExist, getSocketId } from "../../../models/usersocket";
 
-module.exports = (socket, event) => {
+export default (socket, event) => {
   socket.on(event, async (gitId) => {
     if (gitId !== null) {
       // 소켓
-      UserSocket.setSocketId(gitId, socket.id);
+      setSocketId(gitId, socket.id);
       socket.gitId = gitId;
 
-      const followerList = await User.getFollowerListWithGitId(socket.gitId);
+      const followerList = await getFollowerListWithGitId(socket.gitId);
       await Promise.all (followerList.filter(friend => {
-        if (UserSocket.isExist(friend)) {
-          socket.to(UserSocket.getSocketId(friend)).emit("followingUserConnect", socket.gitId);
+        if (_isExist(friend)) {
+          socket.to(getSocketId(friend)).emit("followingUserConnect", socket.gitId);
         }
       }))
     }
-    if (!Chat.isExist(gitId)) {
-      Chat.setChatLog(gitId, {})
+    if (!isExist(gitId)) {
+      setChatLog(gitId, {})
     }
   });
 }

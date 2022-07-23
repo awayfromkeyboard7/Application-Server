@@ -1,6 +1,6 @@
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
 
-module.exports.getResult = async function (code) {
+export async function getResult (code) {
   const res = await fetch(process.env.JG_SERVER, {
     method: 'POST',
     headers: {

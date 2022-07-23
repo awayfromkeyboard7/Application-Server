@@ -1,3 +1,3 @@
-exports.disconnecting = "disconnecting";
-exports.setGitId = "setGitId";
-exports.exitWait = "exitWait";
+export const disconnecting = "disconnecting";
+export const setGitId = "setGitId";
+export const exitWait = "exitWait";

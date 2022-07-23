@@ -1,10 +1,10 @@
-const request = require('superagent');
-const mongoose = require('mongoose');
-const GameLog = require('../../../models/db/gamelog');
-const Interval = require('../../../models/interval');
-const Problem = require('../../../models/db/problem');
-const User = require('../../../models/db/user');
-const Ranking = require('../../../models/db/ranking');
+import request from 'superagent';
+import { Types } from 'mongoose';
+import GameLog from '../../../models/db/gamelog';
+import Interval from '../../../models/interval';
+import Problem from '../../../models/db/problem';
+import { updateUserScore, totalRankUpdate, addGameLog } from '../../../models/db/user';
+import Ranking from '../../../models/db/ranking';
 
 /*
 [Game Logs] 개인전 / 팀전
@@ -28,15 +28,15 @@ POST: /api/gamelog
   }
 }
 */
-exports.updateGamelogTeam = async (req, res) => {
+export async function updateGamelogTeam(req, res) {
   try {
     await GameLog.updateLogTeam(req.body);
     const userScores = await GameLog.isFinishTeam(req.body);
     if (userScores) {
       const gameLog = await GameLog.getLog(req.body["gameId"])
       Interval.deleteInterval([gameLog["roomIdA"],gameLog["roomIdB"]],'team');
-      Object.entries(userScores).forEach(([gitId, score]) => User.updateUserScore(gitId, score));
-      User.totalRankUpdate();
+      Object.entries(userScores).forEach(([gitId, score]) => updateUserScore(gitId, score));
+      totalRankUpdate();
     }
 
     res.status(200).json({
@@ -48,15 +48,15 @@ exports.updateGamelogTeam = async (req, res) => {
       message: err.message
     })
   }
-};
+}
 
-exports.updateGamelog = async (req, res) => {
+export async function updateGamelog(req, res) {
   try {
     await GameLog.updateLog(req.body);
     if (await GameLog.isFinish(req.body)) {
       const gameLog = await GameLog.getLog(req.body.gameId);
       Interval.deleteInterval(gameLog["roomId"],'solo')
-      Ranking.updateRank(await User.totalRankUpdate());
+      Ranking.updateRank(await totalRankUpdate());
     }
     res.status(200).json({
       success: true
@@ -67,9 +67,9 @@ exports.updateGamelog = async (req, res) => {
       message: err.message
     })
   }
-};
+}
 
-exports.createGamelog = async (req, res) => {
+export async function createGamelog(req, res) {
   try {
     // roomId = 연어
 
@@ -80,7 +80,7 @@ exports.createGamelog = async (req, res) => {
       roomId : req.body.roomId
     }
     const gameLog = await GameLog.createLog(info);
-    User.addGameLog(gameLog);
+    addGameLog(gameLog);
     info.userHistory.forEach(item => console.log(item.gitId))
     res.status(200).json({
       gameLogId : gameLog._id,
@@ -92,14 +92,14 @@ exports.createGamelog = async (req, res) => {
       message: err.message
     });
   }
-};
+}
 
-exports.getGamelog = async (req, res) => {
+export async function getGamelog(req, res) {
   try {
     logId = req.body['gameLogId']
     let info = await GameLog.getLog(logId);
 
-    const problemId = mongoose.Types.ObjectId(req.body.mode === 'team' ? '62cea4c0de41eb81f44ed976' : '62c973cd465933160b9499c1');
+    const problemId = Types.ObjectId(req.body.mode === 'team' ? '62cea4c0de41eb81f44ed976' : '62c973cd465933160b9499c1');
     const problems = await Problem.getProblem(problemId);
     info.problemId = problems
     res.status(200).json({
@@ -112,4 +112,4 @@ exports.getGamelog = async (req, res) => {
       message: err.message
     });
   }
-};
+}

@@ -1,1 +1,1 @@
-exports.getGitIdFromNodeId = "getGitIdFromNodeId";
+export const getGitIdFromNodeId = "getGitIdFromNodeId";

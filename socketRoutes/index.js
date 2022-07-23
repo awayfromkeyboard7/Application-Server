@@ -1,8 +1,6 @@
-// 'use strict';
-
-exports.solo = require('./solo');
-exports.team = require('./team');
-exports.chat = require('./chat');
-exports.info = require('./info');
-exports.follow = require('./follow');
-exports.connection = require('./connection');
+export * from './solo/index.js';
+// export * from './team/index.js';
+// export * from './chat/index.js';
+// export * from './info/index.js';
+// export * from './follow/index.js';
+// export * from './connection/index.js';

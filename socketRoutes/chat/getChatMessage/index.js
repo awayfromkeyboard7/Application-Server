@@ -1,9 +1,9 @@
-const Chat = require("../../../models/chat");
+import { receiveChat } from "../../../models/chat";
 
-module.exports = (socket, event) => {
+export default (socket, event) => {
   socket.on(event, (sender, receiver) => {
     try {
-      const myChatLogs = Chat.receiveChat(sender, receiver);
+      const myChatLogs = receiveChat(sender, receiver);
       if (myChatLogs !== false) {
         socket.emit("receiveChatMessage", myChatLogs);
       }

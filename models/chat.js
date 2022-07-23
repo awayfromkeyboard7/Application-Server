@@ -1,4 +1,4 @@
-const UserSocket = require("./usersocket");
+import UserSocket from "./usersocket";
 
 let chatLogs = {};
 
@@ -79,7 +79,7 @@ function resetUnreadCount(sender, receiver) {
   }
 }
 
-module.exports = {
+export {
   isExist,
   setChatLog,
   sendChat,

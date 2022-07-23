@@ -1,5 +1,5 @@
-const request = require("superagent");
-const Problem = require("../../../models/db/problem");
+import request from "superagent";
+import { random } from "../../../models/db/problem";
 
 // exports.getProblem = async (req, res) => {
 //   try {
@@ -17,9 +17,9 @@ const Problem = require("../../../models/db/problem");
 //   }
 // };
 
-exports.getProblem = async (req, res) => {
+export async function getProblem(req, res) {
   try {
-    const problems = await Problem.random();
+    const problems = await random();
 
     res.status(200).json({
       problems,
@@ -31,7 +31,7 @@ exports.getProblem = async (req, res) => {
       message: err.message,
     });
   }
-};
+}
 
 // exports.getProblem = async (req, res) => {
 //   console.log("hello");

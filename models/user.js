@@ -1,8 +1,6 @@
-import mongoose, { Schema } from 'mongoose';
-import { stringify } from 'uuid';
-import crypto from '../keycrypto';
-
-// const Schema = mongoose.Schema;
+import mongoose, { Schema } from "mongoose";
+import { stringify } from "uuid";
+import crypto from '../models/keycrypto';
 
 const UserSchema = new Schema({
   token: {
@@ -129,7 +127,9 @@ UserSchema.statics.createUser = function (info) {
 // };
 
 UserSchema.statics.updateUserScore = async function (info) {
+  // console.log("showme info !@#!@#!@#!@@#!#!@#1",info)
   const userInfo = await this.findOne({gitId : info["gitId"]})
+  // console.log("showme befor userInfo @@@@@@@@!@@@@!@@@ ",userInfo)
   //유저 점수&랭크 업데이트
   userInfo["totalScore"] += info["score"]
   if (userInfo["totalScore"] <0 ){
@@ -146,6 +146,7 @@ UserSchema.statics.updateUserScore = async function (info) {
   //판수, 승리 횟수 추가
   if (info["mode"] == 'solo'){
     userInfo["totalSolo"] += 1
+    // console.log("before solowin??!?@?!?#!?#?@!#?",userInfo["winSolo"])
     if(info["win"]){userInfo["winSolo"]+=1}
   }
   else {
@@ -156,11 +157,15 @@ UserSchema.statics.updateUserScore = async function (info) {
   userInfo["totalPassRate"] += info["passRate"]
   //사용 언어 추가 밑 갱신
   userInfo["language"][info["language"]] += 1
+  
+  // console.log("print2?????????",userInfo["language"][info["language"]])
 
   mostUsed = userInfo["mostLanguage"]
   if (mostUsed == "" || userInfo["language"][info["language"]] >= userInfo["language"][mostUsed]){
     userInfo["mostLanguage"] = info["language"]
   }
+
+  // console.log("after userInfo@@@@@@@@!@@@@!@@@ ",userInfo)
   await userInfo.save();
   return true
 };
@@ -193,6 +198,7 @@ UserSchema.statics.getUserInfo = async function (gitId) {
 
 //전체 랭킹 업데이트
 UserSchema.statics.totalRankUpdate = async function () {
+  // console.log("passhere?!?!@#!@#!$!@#!!hello");
   const result = await this.aggregate([
     {
       $setWindowFields: {
@@ -208,6 +214,7 @@ UserSchema.statics.totalRankUpdate = async function () {
       },
     },
   ]);
+
   for (let i = 0; i < result.length; i++) {
     let gitId = result[i]["gitId"];
     await this.findOneAndUpdate(
@@ -224,21 +231,20 @@ UserSchema.statics.totalRankUpdate = async function () {
 };
 
 UserSchema.statics.addGameLog = async function (gameLog){
-  const problemId = await gameLog.problemId["_id"]
-  const gameLogId = await gameLog._id
+  const problemId = gameLog.problemId["_id"]
+  const gameLogId = gameLog._id
 
   allUser = [gameLog.userHistory, gameLog.teamA, gameLog.teamB]
 
-  for (let j = 0 ; j < allUser.length ; j++){
-    for (let i = 0 ; i < allUser[j].length; i++){
-      let currentUser = await allUser[j][i]
-      let userLog = await this.find({ gitId : currentUser["gitId"] })    
+  for (let j = 0 ; j<3 ; j++){
+    for (let i = 0 ; i<allUser[j].length; i++){
+      let userLog = await this.find({ gitId : allUser[j][i].gitId })    
       let gameLogHistory = userLog[0]["gameLogHistory"]
       let problemHistory = userLog[0]["problemHistory"]
       gameLogHistory.push(gameLogId)
       problemHistory.push(problemId)
       await this.findOneAndUpdate(
-        {gitId : currentUser["gitId"]},
+        {gitId : allUser[j][i].gitId},
         {
           $set: {
             problemHistory : problemHistory,
@@ -253,6 +259,7 @@ UserSchema.statics.addGameLog = async function (gameLog){
 
 UserSchema.statics.following = async function (myNodeId, targetGitId) {
   const nodeId = parseInt(crypto.decrypt(myNodeId))
+  console.log('decrypt nodeId >>>>>>>>>>> ', nodeId)
   
   const targetUser = await this.findOne({ gitId: targetGitId });
 
@@ -297,10 +304,10 @@ UserSchema.statics.getFollowingList = async function (myNodeId) {
   const user = await this.findOne({ nodeId: nodeId });
   // Promise.all을 사용한 이유 https://joyful-development.tistory.com/20
   const followingList = await Promise.all (user['following'].map( async (friendNodeId) => {
-    const friend = await this.findOne({ nodeId: friendNodeId });
+    const friend = await this.findOne({ nodeId: friendNodeId })
     return {
-      gitId: friend?.gitId,
-      avatarUrl: friend?.avatarUrl
+      gitId: friend.gitId,
+      avatarUrl: friend.avatarUrl
     }
   }))
   return followingList;
@@ -346,7 +353,5 @@ UserSchema.statics.unfollow = async function (myNodeId, friendGitId) {
   )
 }
 
-
-// module.exports = mongoose.model("User", UserSchema);
 
 export default mongoose.model("User", UserSchema);

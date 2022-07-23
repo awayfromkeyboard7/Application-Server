@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+import { Schema as _Schema, model } from "mongoose";
+const Schema = _Schema;
 
 const ExampleSchema = new Schema({
   inputText: {
@@ -48,4 +48,4 @@ ProblemSchema.statics.getProblem = async function (problemId) {
   return await this.findById(problemId).exec();
 }
 
-module.exports = mongoose.model("Problem", ProblemSchema);
+export default model("Problem", ProblemSchema);

@@ -1,11 +1,11 @@
-const http = require("http");
-const express = require("express");
-const cors = require("cors");
-const cookieParser = require("cookie-parser");
+import http from 'http';
+import express from 'express';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
-const db = require("./lib/db");
+import db from './lib/db.js';
 
-const SocketRoutes = require("./socketRoutes");
+import { SocketRoutes } from './socketRoutes/index.js';
 
 const app = express();
 const SocketIO = require("socket.io");
@@ -24,7 +24,7 @@ db.connect();
 app.use(cors());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(express.json());
-app.use("/", require("./routes/"));
+app.use("/", require("./routes/").default);
 
 io.on("connection", (socket) => {
   socket.onAny(e => {

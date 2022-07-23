@@ -1,6 +1,6 @@
 const router = require('express').Router();
-const controller = require('./controller');
+import { getAllRanking } from './controller';
 
-router.get('/getRanking', controller.getAllRanking);
+router.get('/getRanking', getAllRanking);
 
-module.exports = router;
+export default router;

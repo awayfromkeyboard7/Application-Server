@@ -1,4 +1,4 @@
-const Interval = require('./interval');
+import { deleteInterval } from './interval.js';
 
 let idx = 0;
 const room = {};
@@ -41,8 +41,8 @@ function deleteUser(socket, userName) {
       room[idx].players = room[idx].players.filter(item => item.gitId !== userName);
   
       if (room[idx].players.length === 0) {
-        if (room[idx].status === 'waiting') Interval.deleteInterval(myRoom, 'wait');
-        else if (room[idx].status === 'playing') Interval.deleteInterval(myRoom, 'solo');
+        if (room[idx].status === 'waiting') deleteInterval(myRoom, 'wait');
+        else if (room[idx].status === 'playing') deleteInterval(myRoom, 'solo');
         delete room[idx];
         waitIdices.delete(idx);
       }
@@ -91,7 +91,7 @@ function getIdx() {
   return idx;
 }
 
-module.exports = {
+export {
   room,
   waitIdices,
 	getRoom,

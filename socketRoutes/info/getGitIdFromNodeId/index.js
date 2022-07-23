@@ -1,9 +1,9 @@
-const User = require("../../../models/db/user");
+import { getUserInfoWithNodeId } from "../../../models/db/user";
 
 // 확인 필요
-module.exports = (socket, event) => {
+export default (socket, event) => {
   socket.on("getGitIdFromNodeId", async (nodeId) => {
     // console.log(nodeId);
-    const curId = await User.getUserInfoWithNodeId(nodeId);
+    const curId = await getUserInfoWithNodeId(nodeId);
   })
 }

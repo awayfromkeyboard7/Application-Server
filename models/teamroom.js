@@ -103,7 +103,7 @@ function getPeerId(gitId) {
   }
 }
 
-module.exports = {
+export {
   isExist,
   createRoom,
   getRoom,

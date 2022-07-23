@@ -1,8 +1,8 @@
-const UserSocket = require("../../../models/usersocket");
-const Chat = require("../../../models/chat");
+import UserSocket from "../../../models/usersocket";
+import { resetUnreadCount } from "../../../models/chat";
 
-module.exports = (socket, event) => {
+export default (socket, event) => {
   socket.on(event, async (sender, receiver) => {
-    Chat.resetUnreadCount(sender, receiver);
+    resetUnreadCount(sender, receiver);
   })
 }

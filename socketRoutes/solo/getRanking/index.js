@@ -1,11 +1,11 @@
-const GameRoom = require("../../../models/gameroom");
-const GameLog = require("../../../models/db/gamelog");
+import { getRoom } from "../../../models/gameroom.js";
+import { getLog } from "../../../models/db/gamelog.js";
 
-module.exports = (socket, event) => {
+export default (socket, event) => {
   socket.on(event, async (id) => {
     // console.log('getRanking >>>>>>>>>', id);
-    const myRoom = GameRoom.getRoom(socket);
-    let info = await GameLog.getLog(id);
+    const myRoom = getRoom(socket);
+    let info = await getLog(id);
     // console.log('getRanking >>>>>>>>>', info);
     info["userHistory"].sort((a, b) => {
       if (a.passRate === b.passRate) {

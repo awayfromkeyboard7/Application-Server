@@ -1,7 +1,7 @@
 const router = require('express').Router();
-const controller = require('./controller');
+import { githubLogin } from './controller';
 
 // 깃허브 로그인
-router.get('/', controller.githubLogin);
+router.get('/', githubLogin);
 
-module.exports = router;
+export default router;

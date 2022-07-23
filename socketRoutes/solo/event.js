@@ -1,9 +1,7 @@
-// "use strict";
-
-exports.waitGame = "waitGame";
-exports.startGame = "startGame";
-exports.submitCode = "submitCode";
-exports.getRanking = "getRanking";
-exports.exitWait = "exitWait";
-exports.disconnecting = "disconnecting";
-exports.getRoomId = "getRoomId";
+export const waitGame = "waitGame";
+export const startGame = "startGame";
+export const submitCode = "submitCode";
+export const getRanking = "getRanking";
+export const exitWait = "exitWait";
+export const disconnecting = "disconnecting";
+export const getRoomId = "getRoomId";

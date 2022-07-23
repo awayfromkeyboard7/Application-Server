@@ -1,8 +1,8 @@
-const Ranking = require('../../../models/db/ranking');
+import { getRanking } from '../../../models/db/ranking';
 
-exports.getAllRanking = async (req, res) => {
+export async function getAllRanking(req, res) {
     try {
-        const data = await Ranking.getRanking();
+        const data = await getRanking();
         res.status(200).json({
         data,
         success: true,
@@ -13,4 +13,4 @@ exports.getAllRanking = async (req, res) => {
         message: err.message,
       });
     }
-  };
+  }

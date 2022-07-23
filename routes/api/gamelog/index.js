@@ -1,9 +1,9 @@
 const router = require('express').Router();
-const controller = require('./controller');
+import { updateGamelog, createGamelog, getGamelog, updateGamelogTeam } from './controller';
 
-router.post('/update', controller.updateGamelog);
-router.post('/createNew', controller.createGamelog);
-router.post('/getGameLog', controller.getGamelog);
-router.post('/updateTeam', controller.updateGamelogTeam);
+router.post('/update', updateGamelog);
+router.post('/createNew', createGamelog);
+router.post('/getGameLog', getGamelog);
+router.post('/updateTeam', updateGamelogTeam);
 
-module.exports = router;
+export default router;

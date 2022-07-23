@@ -32,7 +32,7 @@ function getSocketArray () {
   return usersSocketId;
 }
 
-module.exports = {
+export {
   usersSocketId,
   setSocketId,
   getSocketId,
