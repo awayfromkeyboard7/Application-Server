@@ -36,7 +36,7 @@ exports.updateGamelogTeam = async (req, res) => {
       const gameLog = await GameLog.getLog(req.body["gameId"])
       Interval.deleteInterval([gameLog["roomIdA"],gameLog["roomIdB"]],'team');
       Object.entries(userScores).forEach(([gitId, score]) => User.updateUserScore(gitId, score));
-      Ranking.updateRanking(await User.totalRankUpdate());
+      User.totalRankUpdate();
     }
 
     res.status(200).json({
@@ -56,7 +56,7 @@ exports.updateGamelog = async (req, res) => {
     if (await GameLog.isFinish(req.body)) {
       const gameLog = await GameLog.getLog(req.body.gameId);
       Interval.deleteInterval(gameLog["roomId"],'solo')
-      Ranking.updateRanking(await User.totalRankUpdate());
+      Ranking.updateRank(await User.totalRankUpdate());
     }
     res.status(200).json({
       success: true
