@@ -62,16 +62,16 @@ RankingSchema.statics.updateRanking = async function(result){
     delete user["winTeam"]
   }
 
-  return this.findOneAndUpdate(
-      { type: "all" },
-      { 
-        $set: { 
-          rank : result,
-        }
-      },
-      { 
-        new: true
-      }
-    ).exec();
+  // return this.findOneAndUpdate(
+  //     { type: "all" },
+  //     { 
+  //       $set: { 
+  //         rank : result,
+  //       }
+  //     },
+  //     { 
+  //       new: true
+  //     }
+  //   ).exec();
 }
 module.exports = mongoose.model('Ranking', RankingSchema);
