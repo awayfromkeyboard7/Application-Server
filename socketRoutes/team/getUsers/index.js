@@ -7,7 +7,7 @@ module.exports = (socket, event) => {
       socket.join(teamRoomId);
       let players = teamGameRoom.getPlayers(roomId);
       if (!(await players.map(item => item.gitId).includes(gitId))) {
-        teamGameRoom.addPlayer(roomId, { gitId, avatarUrl }, true);
+        teamGameRoom.addPlayer(roomId, { gitId, avatarUrl });
         players = teamGameRoom.getPlayers(roomId);
       }
       socket.emit('setUsers', players);
