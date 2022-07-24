@@ -1,5 +1,5 @@
 // user들의 socket Id
-let usersSocketId = {};
+const usersSocketId = {};
 
 function setSocketId (gitId, socketId) {
   usersSocketId[gitId] = socketId;
@@ -38,6 +38,6 @@ module.exports = {
   getSocketId,
   deleteSocketId,
   isExist,
-  getSocketArray
+  getSocketArray,
 }
 

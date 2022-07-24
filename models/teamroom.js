@@ -1,5 +1,6 @@
-let teamRoom = {};
+const teamRoom = {};
 let waitingList = [];
+const prevRoom = {};
 
 function isExist(gitId) {
   if (gitId in teamRoom) {
@@ -11,18 +12,18 @@ function isExist(gitId) {
 
 function createRoom(gitId, id, userInfo) {
   teamRoom[gitId] = { id: id, players: [{ userInfo: userInfo, peerId: '' }]}
-  console.log("createRoom :::: ", gitId, id, teamRoom[gitId])
+  // console.log("createRoom :::: ", gitId, id, teamRoom[gitId])
 }
 
-function getRoom(gitId) {
-  if (isExist(gitId)) {
-    return teamRoom[gitId]
+function getRoom(bangjang) {
+  if (isExist(bangjang)) {
+    return teamRoom[bangjang]
   }
 }
 
-async function getId(bangjang) {
-  const room = await getRoom(bangjang)
-  if (room != undefined){
+function getId(bangjang) {
+  const room = getRoom(bangjang)
+  if (room !== undefined){
     return room.id
   }
 }
@@ -33,17 +34,17 @@ function deleteId(bangjang) {
 
 function setPlayers(bangjang, players) {
   teamRoom[bangjang].players = players;
-  console.log("setPlayers :::: ", teamRoom[bangjang].players);
+  // console.log("setPlayers :::: ", teamRoom[bangjang].players);
 }
 
 function addPlayer(bangjang, userInfo) {
   teamRoom[bangjang].players.push({ userInfo: userInfo, peerId: '' });
-  console.log("addPlayer :::: ", teamRoom[bangjang].players)
+  // console.log("addPlayer :::: ", teamRoom[bangjang].players)
 }
 
 function getPlayers(bangjang) {
   const temp = [];
-  console.log("bangjang :::: ", bangjang);
+  // console.log("bangjang :::: ", bangjang);
   if (isExist(bangjang) && bangjang !== undefined) {
     for (const info of teamRoom[bangjang]?.players) {
       temp.push(info.userInfo);
@@ -52,7 +53,11 @@ function getPlayers(bangjang) {
   } else {
     return false;
   }
-} 
+}
+
+function deletePlayer(bangjang, gitId) {
+  teamRoom[bangjang].players = teamRoom[bangjang].players.filter(item => item.userInfo.gitId !== gitId);
+}
 
 function addToWaitingList(bangjang) {
   waitingList.push(bangjang);
@@ -77,7 +82,7 @@ function isWaitingExist(roomId) {
 }
 
 function setPeerId(roomId, gitId, peerId) {
-  try { 
+  try {
     for (const info of teamRoom[roomId].players) {
       if (info.userInfo.gitId === gitId) {
         info.peerId = peerId;
@@ -103,7 +108,17 @@ function getPeerId(gitId) {
   }
 }
 
+function getPrevRoom(gitId) {
+  return prevRoom[gitId];
+}
+
+function setPrevRoom(socket) {
+  prevRoom[socket.gitId] = socket.bangjang;
+  console.log("asdfasdfasdfasdfadsf",prevRoom);
+}
+
 module.exports = {
+  teamRoom,
   isExist,
   createRoom,
   getRoom,
@@ -112,10 +127,13 @@ module.exports = {
   setPlayers,
   addPlayer,
   getPlayers,
+  deletePlayer,
   addToWaitingList,
   popFromWaitingList,
   getWaitingLength,
   isWaitingExist,
   setPeerId,
-  getPeerId
+  getPeerId,
+  setPrevRoom,
+  getPrevRoom
 }
