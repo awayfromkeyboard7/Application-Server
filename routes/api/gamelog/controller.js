@@ -56,7 +56,7 @@ exports.updateGamelog = async (req, res) => {
     if (await GameLog.isFinish(req.body)) {
       const gameLog = await GameLog.getLog(req.body.gameId);
       Interval.deleteInterval(gameLog["roomId"],'solo')
-      Ranking.updateRanking(await User.totalRankUpdate());
+      await Ranking.updateRanking(await User.totalRankUpdate());
     }
     res.status(200).json({
       success: true

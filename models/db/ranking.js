@@ -41,7 +41,7 @@ const UserSchema = new Schema({
   });
 
 const RankingSchema = new Schema({
-    type :{
+    type: {
         type: String,
         default: "all"
     },
@@ -52,17 +52,14 @@ const RankingSchema = new Schema({
 })
 
 RankingSchema.statics.getRanking = async function(){
-  data = await this.findOne({type: "all"})
-  console.log("passhere!@#@################")
+  const data = await this.findOne({type: "all"})
   return data["rank"]
 }
 
 RankingSchema.statics.updateRanking = async function(result){
-  // console.log("passHere??????updateRank")
-  // console.log(result)
   for await(let user of result){
-    if(0<user["totalSolo"]+user["totalTeam"]){
-      user["winRate"] = parseInt(100*(user["winSolo"]+user["winTeam"])/(user["totalSolo"]+user["totalTeam"]))
+    if(0 < user["totalSolo"] + user["totalTeam"]){
+      user["winRate"] = parseInt(100 * (user["winSolo"] + user["winTeam"]) / (user["totalSolo"] + user["totalTeam"]))
     }
     delete user["token"]
     delete user["problemHistory"]
