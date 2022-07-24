@@ -1,17 +1,17 @@
 const teamGameRoom = require("../../../models/teamroom");
 
 module.exports = (socket, event) => {
-  socket.on(event, async (roomId) => {
+  socket.on(event, async (roomId, gitId, avatarUrl) => {
     try {
-      // console.log("getUsers :::: ", roomId);
-      // const teamRoom = await teamGameRoom.getRoom(roomId);
-      const teamRoomId = await teamGameRoom.getId(roomId);
-      // console.log("getUsers :::: ", teamRoom);
+      const teamRoomId = teamGameRoom.getId(roomId);
       socket.join(teamRoomId);
-      const players = await teamGameRoom.getPlayers(roomId);
+      let players = teamGameRoom.getPlayers(roomId);
+      if (!(await players.map(item => item.gitId).includes(gitId))) {
+        teamGameRoom.addPlayer(roomId, { gitId, avatarUrl }, true);
+        players = teamGameRoom.getPlayers(roomId);
+      }
       socket.emit('setUsers', players);
     } catch(e) {
-      console.log("getUsers ERROR :::: ", roomId);
       console.log("getUsers ERROR :::: ", e);
     }
   });

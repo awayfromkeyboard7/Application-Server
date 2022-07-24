@@ -27,10 +27,10 @@ module.exports = (socket, event) => {
 
         else {
           console.log("SOLO EXIT>>>>>>>>", GameRoom.room, socket.rooms);
-          GameRoom.deleteUser(socket, gitId);
+          GameRoom.deletePlayer(socket, gitId);
           console.log("SOLO EXIT AFTER>>>>>>>>", GameRoom.room);
           // console.log("PLAYERS AFTER EXIT", GameRoom.room[myRoom[4]]);
-          if (GameRoom.room[myRoom[4]] !== undefined) {
+          if (GameRoom.room[myRoom.slice(4)] !== undefined) {
             socket.to(myRoom).emit(event, GameRoom.room[myRoom[4]].players);
           }
         }

@@ -2,16 +2,16 @@ const Interval = require('./interval');
 
 let idx = 0;
 const room = {};
+const prevRoom = {};
 const waitIdices = new Set();
-
 /* room status: waiting, playing, full */
 
 function getRoom(socket) {
   const rooms = socket.rooms;
   // console.log("getRoom", rooms.filter((room) => room != socket.id));
-  for (let i of rooms) {
-    if (i !== socket.id) {
-      return i;
+  for (const room of rooms) {
+    if (room !== socket.id) {
+      return room;
     }
   }
 }
@@ -33,17 +33,18 @@ function createRoom(userInfo) {
   waitIdices.add(idx);
 }
 
-function deleteUser(socket, userName) {
+function deletePlayer(socket, userName, delay) {
   try {
     const myRoom = getRoom(socket);
     if (myRoom !== undefined) {
-      const idx = myRoom[4];
+      const idx = myRoom.slice(4);
       room[idx].players = room[idx].players.filter(item => item.gitId !== userName);
   
       if (room[idx].players.length === 0) {
         if (room[idx].status === 'waiting') Interval.deleteInterval(myRoom, 'wait');
         else if (room[idx].status === 'playing') Interval.deleteInterval(myRoom, 'solo');
-        delete room[idx];
+        if (delay === undefined) delete room[idx];
+        
         waitIdices.delete(idx);
       }
     }
@@ -91,6 +92,16 @@ function getIdx() {
   return idx;
 }
 
+function getPrevRoom(gitId) {
+  console.log(prevRoom);
+  return prevRoom[gitId];
+}
+
+function setPrevRoom(socket) {
+  prevRoom[socket.gitId] = getRoom(socket);
+}
+
+
 module.exports = {
   room,
   waitIdices,
@@ -98,10 +109,13 @@ module.exports = {
   setRoom,
   getStatus,
   setStatus,
-  deleteUser,
+  deletePlayer,
   createRoom,
   filterRoom,
   joinRoom,
 	increaseIdx,
-  getIdx
+  getIdx,
+  getPrevRoom,
+  setPrevRoom,
+  prevRoom
 };

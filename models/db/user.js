@@ -105,7 +105,7 @@ UserSchema.statics.findAll = function () {
 
 // 기존 유저 토큰 업데이트
 UserSchema.statics.isExist = function (nodeId, token) {
-  console.log("nodeId:", nodeId);
+  // console.log("nodeId:", nodeId);
   return this.findOneAndUpdate(
     { nodeId: nodeId },
     { token: token },

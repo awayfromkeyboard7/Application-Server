@@ -3,9 +3,9 @@ const Chat = require("../../../models/chat");
 
 module.exports = (socket, event) => {
   socket.on(event, async (sender, receiver) => {
-    console.log("getUnreadMessage :::: ", sender, receiver);
+    // console.log("getUnreadMessage :::: ", sender, receiver);
     const unreadCount = await Chat.getUnreadCount(sender, receiver);
-    console.log("getUnreadMessage :::: ", sender, receiver, unreadCount);
+    // console.log("getUnreadMessage :::: ", sender, receiver, unreadCount);
     socket.emit('unreadMessage', { senderId: sender, count: unreadCount });
   });
 }

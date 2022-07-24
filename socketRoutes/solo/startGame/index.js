@@ -6,11 +6,10 @@ const Interval = require("../../../models/interval");
 module.exports = (socket, event) => {
   socket.on(event, (gameLogId) => {
     console.log('startGame >>>>>>', gameLogId);
-    // GameRoom.increaseIdx();
-    // GameRoom.createRoom();
+
     const rooms = socket.rooms;
 
-    for (let room of rooms) {
+    for (const room of rooms) {
       if (room !== socket.id) {
 
         //게임 시작시 wait interval 삭제

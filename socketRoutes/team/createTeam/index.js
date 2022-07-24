@@ -3,11 +3,14 @@ const uuid = require("uuid");
 
 module.exports = (socket, event) => {
   socket.on(event, (userInfo) => {
+    console.log("current team room????", teamGameRoom.teamRoom);
+
     if (!(teamGameRoom.isExist(userInfo.gitId))) {
+      console.log("refresh page SHOULD NOT be in here")
       const teamRoomId = uuid.v4();
       socket.join(teamRoomId);
       teamGameRoom.createRoom(userInfo.gitId, teamRoomId, userInfo)
-
+      console.log("TEAMROOM after creation", JSON.stringify(teamGameRoom.teamRoom));
       return () => {
         clearInterval(interval);
       };
