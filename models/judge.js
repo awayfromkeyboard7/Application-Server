@@ -16,6 +16,6 @@ module.exports.getResult = async function (code) {
     })
   })
   const data = await res.json();
-  console.log(data)
+  // console.log(data)
   return data
 }

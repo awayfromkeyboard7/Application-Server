@@ -38,7 +38,11 @@ function setPlayers(bangjang, players) {
 }
 
 function addPlayer(bangjang, userInfo) {
-  teamRoom[bangjang].players.push({ userInfo: userInfo, peerId: '' });
+  if (bangjang === userInfo.gitId) {
+    teamRoom[bangjang].players.unshift({ userInfo: userInfo, peerId: '' });
+  } else {
+    teamRoom[bangjang].players.push({ userInfo: userInfo, peerId: '' });
+  }
   // console.log("addPlayer :::: ", teamRoom[bangjang].players)
 }
 
@@ -114,7 +118,7 @@ function getPrevRoom(gitId) {
 
 function setPrevRoom(socket) {
   prevRoom[socket.gitId] = socket.bangjang;
-  console.log("asdfasdfasdfasdfadsf",prevRoom);
+  // console.log("asdfasdfasdfasdfadsf",prevRoom);
 }
 
 module.exports = {

@@ -16,7 +16,7 @@ module.exports = (socket, event) => {
     });
     teamGameRoom.setPlayers(roomId, unique);
     socket.join(teamRoomId);
-    console.log(`${userInfo.gitId} join ${roomId}'s room socketId is ${teamRoomId}`);
+    // console.log(`${userInfo.gitId} join ${roomId}'s room socketId is ${teamRoomId}`);
     socket.nsp
       .to(teamRoomId)
       .emit("enterNewUserToTeam", teamGameRoom.getPlayers(roomId));

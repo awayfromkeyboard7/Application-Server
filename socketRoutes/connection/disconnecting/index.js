@@ -7,14 +7,16 @@ module.exports = async (socket, event) => {
   await socket.on(event, async () => {
     // disconnected when solo play
     // try&catch yields UNDEFINED ROOM!!!
-    console.log(socket.rooms);
+    // console.log(socket.rooms);
     if (socket.mode === 'solo') {
       GameRoom.setPrevRoom(socket);
       GameRoom.deletePlayer(socket, socket.gitId);
     }
     else if (socket.mode === 'team') {
       TeamRoom.setPrevRoom(socket);
+      console.log("before!!!!! disconnecting", TeamRoom.teamRoom);
       TeamRoom.deletePlayer(socket.bangjang, socket.gitId);
+      console.log("after!!!!! disconnecting", TeamRoom.teamRoom);
     }
     try {
       if (socket.id !== undefined) {

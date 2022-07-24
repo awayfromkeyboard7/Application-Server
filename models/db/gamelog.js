@@ -96,7 +96,7 @@ GameLogSchema.statics.createTeamLog = async function(teamA, teamB, roomIdA, room
     totalUsers: 2
   }
   const newLog = await this.create(data);
-  console.log('newLog>>>>', newLog._id)
+  // console.log('newLog>>>>', newLog._id)
   return newLog._id;
 }
 

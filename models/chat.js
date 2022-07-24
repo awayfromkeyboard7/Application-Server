@@ -24,7 +24,7 @@ function sendChat(sender, receiver, message) {
     }
     // socket.to(UserSocket.getSocketId(receiver)).emit('sendChatMessage', message);
 
-    console.log(`Send Chat ${sender} >>> ${receiver}`, chatLogs[sender]);
+    // console.log(`Send Chat ${sender} >>> ${receiver}`, chatLogs[sender]);
   } catch (e) {
     console.log('/models/chat.js sendChat ERROR :::: ', sender, receiver, message)
     console.log('/models/chat.js sendChat ERROR :::: ', e)
@@ -60,9 +60,9 @@ function receiveChat(sender, receiver) {
 
 async function getUnreadCount(sender, receiver) {
   try {
-    console.log("getUnreadCount :::: ", sender, receiver);
+    // console.log("getUnreadCount :::: ", sender, receiver);
     if (chatLogs[sender][receiver] !== undefined) {
-      console.log("getUnreadCount :::: receiver unread ", chatLogs[sender][receiver].unread);
+      // console.log("getUnreadCount :::: receiver unread ", chatLogs[sender][receiver].unread);
       return chatLogs[sender][receiver]?.unread;
     }
   } catch (e) {

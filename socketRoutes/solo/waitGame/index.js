@@ -47,7 +47,7 @@ module.exports = (socket, event) => {
     }
 
     socket.nsp.to(`room${idx}`).emit('enterNewUser', GameRoom.room[idx].players);
-    console.log('GameRoom AFTER>>>>', GameRoom.room, socket.rooms);
+    // console.log('GameRoom AFTER>>>>', GameRoom.room, socket.rooms);
     if (GameRoom.room[idx].players.length === 8) {
       socket.emit('getRoomId', `room${idx}`, 'waiting');
       GameRoom.setStatus(myRoom.slice(4), 'playing');

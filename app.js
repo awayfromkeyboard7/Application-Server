@@ -29,7 +29,9 @@ app.use("/", require("./routes/"));
 
 io.on("connection", (socket) => {
   socket.onAny(e => {
-    console.log(`SOCKET EVENT::::::${e}`);
+    if (e != 'getUnreadMessage' || e != 'getFollowingList') {
+      console.log(`SOCKET EVENT::::::${e}`);
+    }
     // console.log(socket.adapter.rooms);
     // console.log(socket.rooms);
   });

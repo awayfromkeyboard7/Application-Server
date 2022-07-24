@@ -2,7 +2,7 @@ const teamGameRoom = require("../../../models/teamroom");
 
 module.exports = (socket, event) => {
   socket.on(event, async (userId, peerId, roomId) => {
-    console.log("setPeerID Socket :::: ", userId, peerId, roomId);
+    // console.log("setPeerID Socket :::: ", userId, peerId, roomId);
 
     // const teamRoom = await teamGameRoom.getRoom(roomId);
     const teamRoomId = await teamGameRoom.getId(roomId);
