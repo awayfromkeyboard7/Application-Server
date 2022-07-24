@@ -7,7 +7,6 @@ module.exports = async (socket, event) => {
   await socket.on(event, async () => {
     // disconnected when solo play
     // try&catch yields UNDEFINED ROOM!!!
-    // console.log(socket.rooms);
     if (socket.mode === 'solo') {
       GameRoom.setPrevRoom(socket);
       GameRoom.deletePlayer(socket, socket.gitId);
@@ -22,7 +21,6 @@ module.exports = async (socket, event) => {
       if (socket.id !== undefined) {
 
         const followerList = await User.getFollowerListWithGitId(socket?.gitId);
-
         // console.log("disconnecting socket.gitId >>>>>>>> ", socket?.gitId);
         UserSocket.deleteSocketId(socket?.gitId)
         // console.log('disconnecting SOCKET:::::::', UserSocket.usersSocketId);

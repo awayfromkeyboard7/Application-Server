@@ -12,7 +12,6 @@ function isExist(gitId) {
 
 function createRoom(gitId, id, userInfo) {
   teamRoom[gitId] = { id: id, players: [{ userInfo: userInfo, peerId: '' }]}
-  // console.log("createRoom :::: ", gitId, id, teamRoom[gitId])
 }
 
 function getRoom(bangjang) {
@@ -34,7 +33,6 @@ function deleteId(bangjang) {
 
 function setPlayers(bangjang, players) {
   teamRoom[bangjang].players = players;
-  // console.log("setPlayers :::: ", teamRoom[bangjang].players);
 }
 
 function addPlayer(bangjang, userInfo) {
@@ -43,12 +41,17 @@ function addPlayer(bangjang, userInfo) {
   } else {
     teamRoom[bangjang].players.push({ userInfo: userInfo, peerId: '' });
   }
-  // console.log("addPlayer :::: ", teamRoom[bangjang].players)
+  let temp = new Set();
+  const unique = teamRoom[bangjang].players.filter((item) => {
+    const alreadyHas = temp.has(item.userInfo.gitId);
+    temp.add(item.userInfo.gitId);
+    return !alreadyHas;
+  });
+  setPlayers(bangjang, unique);
 }
 
 function getPlayers(bangjang) {
   const temp = [];
-  // console.log("bangjang :::: ", bangjang);
   if (isExist(bangjang) && bangjang !== undefined) {
     for (const info of teamRoom[bangjang]?.players) {
       temp.push(info.userInfo);
@@ -118,7 +121,6 @@ function getPrevRoom(gitId) {
 
 function setPrevRoom(socket) {
   prevRoom[socket.gitId] = socket.bangjang;
-  // console.log("asdfasdfasdfasdfadsf",prevRoom);
 }
 
 module.exports = {

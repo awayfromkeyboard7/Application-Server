@@ -15,7 +15,6 @@ const io = SocketIO(server, {
     origin: "*",
     method: ["GET", "POST"],
   },
-  // closeOnBeforeunload: false
 });
 
 const PORTNUM = 3000;
@@ -29,11 +28,7 @@ app.use("/", require("./routes/"));
 
 io.on("connection", (socket) => {
   socket.onAny(e => {
-    if (e != 'getUnreadMessage' || e != 'getFollowingList') {
-      console.log(`SOCKET EVENT::::::${e}`);
-    }
-    // console.log(socket.adapter.rooms);
-    // console.log(socket.rooms);
+    console.log(`SOCKET EVENT::::::${e}`);
   });
 
   // Connection

@@ -9,7 +9,6 @@ module.exports = (socket, event) => {
     socket.mode = mode;
     if (mode === 'solo') {
       const prevRoom = GameRoom.getPrevRoom(gitId);
-      // console.log("PREVIOUS ROOM????", prevRoom, mode);
       if (prevRoom !== undefined) {
         socket.join(prevRoom);
       }
@@ -18,33 +17,16 @@ module.exports = (socket, event) => {
       if (socket.bangjang === undefined) {
         socket.bangjang = roomId;
       }
-
-      console.log('setteamroom', mode, socket.bangjang);
-      // const prevRoom = await TeamRoom.getPrevRoom(gitId);
       const prevRoomId = TeamRoom.getId(socket.bangjang);
-      // console.log(prevRoomId);
-      // console.log(prevRoom, prevRoomId, TeamRoom.teamRoom[prevRoom]?.id);
       if (prevRoomId !== undefined) {
-        // console.log(await TeamRoom.getId(prevRoom));
         socket.join(prevRoomId);
-        // socket.join(teamGameRoom.getId(userInfo.gitId));
         let players = TeamRoom.getPlayers(socket.bangjang);
-        // console.log("players gitId", gitId, players.map(item => item.gitId));
-        // console.log("gitId in players?", players.map(item => item.gitId).includes(gitId));
-        if (!(players.map(item => item.gitId).includes(gitId))) {
+        if (!(await players.map(item => item.gitId).includes(gitId))) {
           TeamRoom.addPlayer(socket.bangjang, { gitId, avatarUrl });
           players = TeamRoom.getPlayers(socket.bangjang);
         }
-        console.log("teamROOM after reconnecting:::::", JSON.stringify(TeamRoom.teamRoom));
-        console.log("PLAYERS :::::", players);
         socket.emit('setUsers', players);
       }
-      // const teamRoomId = TeamRoom.getId(roomId);
-      // console.log("GET PLAYERS IN", teamRoomId);
-      // // console.log("getUsers :::: ", teamRoom);
-      // socket.join(teamRoomId);
-
-
     }
     if (gitId !== null) {
       // 소켓
@@ -62,7 +44,5 @@ module.exports = (socket, event) => {
     if (!Chat.isExist(gitId)) {
       Chat.setChatLog(gitId, {})
     }
-    // console.log('SETGITID SOCKET ROOMS""""', UserSocket.usersSocketId);
-
   });
 }
