@@ -76,7 +76,6 @@ RankingSchema.statics.updateRanking = async function(result){
     delete user["winTeam"]
   }
 
-  console.log("rankupdate??????????")
   return this.findOneAndUpdate(
       { type: "all" },
       { 
