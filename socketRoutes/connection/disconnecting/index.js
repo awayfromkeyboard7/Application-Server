@@ -28,7 +28,7 @@ module.exports = async (socket, event) => {
         if (followerList !== undefined) {
           await Promise.all (followerList?.filter(friend => {
             if (UserSocket.isExist(friend)) {
-              socket.to(UserSocket.getSocketId(friend)).emit("followingUserConnect", socket?.gitId);
+              socket.to(UserSocket.getSocketId(friend)).emit("followingUserDisconnect", socket?.gitId);
             }
           }));
         }
