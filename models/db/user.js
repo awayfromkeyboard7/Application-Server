@@ -154,6 +154,7 @@ UserSchema.statics.updateUserScore = async function (info) {
   else {
     userInfo["totalTeam"] += 1
     if(info["win"]){userInfo["winTeam"]+=1}
+    console.log("passhere????")
   }
   //passrate 추가
   userInfo["totalPassRate"] += info["passRate"]

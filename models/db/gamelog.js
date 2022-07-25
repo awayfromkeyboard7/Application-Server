@@ -203,7 +203,7 @@ GameLogSchema.statics.isFinishTeam = async function(data){
       info["passRate"] = result[0][0]["passRate"]
       info["language"] = result[0][0]["language"]
       info["score"] = winnerScore
-      info["win"] += true
+      info["win"] = true
       User.updateUserScore(info);
     }
 
@@ -217,7 +217,6 @@ GameLogSchema.statics.isFinishTeam = async function(data){
       info["win"] += false
       User.updateUserScore(info);
     }
-
     gameLog.save();
     return true;
 
