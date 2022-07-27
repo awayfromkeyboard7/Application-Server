@@ -15,6 +15,7 @@ module.exports = (socket, event) => {
       if (myRoom?.includes("room")) {
         // console.log("SOLO EXIT>>>>>>>>", GameRoom.room, socket.rooms);
         GameRoom.deletePlayer(socket, gitId);
+        GameRoom.deletePrevRoom(gitId);
         // console.log("SOLO EXIT AFTER>>>>>>>>", GameRoom.room);
         // console.log("PLAYERS AFTER EXIT", GameRoom.room[myRoom.slice(4)]);
         if (GameRoom.room[myRoom.slice(4)] !== undefined) {
@@ -50,6 +51,7 @@ module.exports = (socket, event) => {
       socket.join(socket.id);
       // console.log('exitWait myRoom: ', myRoom)
       console.log("exitWait total solo room after remove: ", GameRoom.room);
+      console.log("exitWait total prev room after remove: ", GameRoom.prevRoom);
     } catch (e) {
       console.log(`exitWait ERROR ::::::: gitId: ${gitId}`);
       console.log(`exitWait ERROR ::::::: log: ${e}`);

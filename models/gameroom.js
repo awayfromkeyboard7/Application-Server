@@ -97,12 +97,18 @@ function getIdx() {
 }
 
 function getPrevRoom(gitId) {
-  console.log(prevRoom);
+  console.log('previous solo Room???: ', prevRoom);
   return prevRoom[gitId];
 }
 
 function setPrevRoom(socket) {
   prevRoom[socket.gitId] = getRoom(socket);
+}
+
+function deletePrevRoom(gitId) {
+  if (prevRoom[gitId] !== undefined) {
+    delete prevRoom[gitId];
+  }
 }
 
 
@@ -121,5 +127,6 @@ module.exports = {
   getIdx,
   getPrevRoom,
   setPrevRoom,
+  deletePrevRoom,
   prevRoom
 };
