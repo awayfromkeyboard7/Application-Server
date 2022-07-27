@@ -31,11 +31,9 @@ POST: /api/gamelog
 exports.updateGamelogTeam = async (req, res) => {
   try {
     await GameLog.updateLogTeam(req.body);
-    const userScores = await GameLog.isFinishTeam(req.body);
-    if (userScores) {
+    if (await GameLog.isFinishTeam(req.body)) {
       const gameLog = await GameLog.getLog(req.body["gameId"])
       Interval.deleteInterval([gameLog["roomIdA"],gameLog["roomIdB"]],'team');
-      Object.entries(userScores).forEach(([gitId, score]) => User.updateUserScore(gitId, score));
       Ranking.updateRanking(await User.totalRankUpdate());
     }
 
@@ -54,6 +52,7 @@ exports.updateGamelog = async (req, res) => {
   try {
     await GameLog.updateLog(req.body);
     if (await GameLog.isFinish(req.body)) {
+
       const gameLog = await GameLog.getLog(req.body.gameId);
       Interval.deleteInterval(gameLog["roomId"],'solo')
       await Ranking.updateRanking(await User.totalRankUpdate());
@@ -99,8 +98,8 @@ exports.getGamelog = async (req, res) => {
     logId = req.body['gameLogId']
     let info = await GameLog.getLog(logId);
 
-    const problemId = mongoose.Types.ObjectId(req.body.mode === 'team' ? '62cea4c0de41eb81f44ed976' : '62c973cd465933160b9499c1');
-    const problems = await Problem.getProblem(problemId);
+    // const problemId = mongoose.Types.ObjectId(req.body.mode === 'team' ? '62cea4c0de41eb81f44ed976' : '62c973cd465933160b9499c1');
+    const problems = await Problem.getProblem(info.problemId);
     info.problemId = problems
     res.status(200).json({
       info,

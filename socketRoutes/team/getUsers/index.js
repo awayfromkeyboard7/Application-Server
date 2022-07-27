@@ -12,7 +12,7 @@ module.exports = (socket, event) => {
       }
       socket.emit('setUsers', players);
     } catch(e) {
-      console.log("getUsers ERROR :::: ", e);
+      console.log("[getUsers][ERROR] :::: log: ", e);
     }
   });
 }

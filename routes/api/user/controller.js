@@ -3,7 +3,9 @@ const fetch = require('node-fetch');
 const User = require('../../../models/db/user');
 const crypto = require('../../../models/keycrypto');
 
-const cookieConfig = { maxAge: 60000000 }
+const cookieConfig = { 
+  maxAge: 60000000
+}
 
 async function getGithubUser (access_token) {
   const req = await fetch('https://api.github.com/user', {
@@ -59,9 +61,6 @@ exports.getGitInfo = async(req, res) => {
         success: false,
       });
     }
-  } else {
-    console.log('Error')
-    res.send("Error happend")
   }
 }
 
