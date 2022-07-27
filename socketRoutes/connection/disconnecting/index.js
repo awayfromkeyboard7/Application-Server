@@ -21,9 +21,7 @@ module.exports = async (socket, event) => {
       if (socket.id !== undefined) {
 
         const followerList = await User.getFollowerListWithGitId(socket?.gitId);
-        // console.log("disconnecting socket.gitId >>>>>>>> ", socket?.gitId);
         UserSocket.deleteSocketId(socket?.gitId)
-        // console.log('disconnecting SOCKET:::::::', UserSocket.usersSocketId);
 
         if (followerList !== undefined) {
           await Promise.all (followerList?.filter(friend => {
@@ -34,7 +32,7 @@ module.exports = async (socket, event) => {
         }
       }
     } catch (e) {
-      console.log(e)
+      console.log(`[disconnecting][ERROR] log: ${e}`);
     }
   })
 }

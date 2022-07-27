@@ -4,8 +4,7 @@ const User = require('../../../models/db/user');
 const crypto = require('../../../models/keycrypto');
 
 const cookieConfig = { 
-  maxAge: 60000000,
-  secure: true
+  maxAge: 60000000
 }
 
 async function getGithubUser (access_token) {
@@ -62,9 +61,6 @@ exports.getGitInfo = async(req, res) => {
         success: false,
       });
     }
-  } else {
-    console.log('Error')
-    res.send("Error happend")
   }
 }
 

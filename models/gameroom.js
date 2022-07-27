@@ -50,17 +50,21 @@ function deletePlayer(socket, userName, delay) {
     }
 
   } catch(e) {
-    console.log(e);
+    console.log(`[deletePlayer][ERROR] :::: log: ${e}`);
   }
 }
 
 function filterRoom(idx) {
   const temp = new Set()
-  const unique = room[idx].filter(item => {
-    const alreadyHas = temp.has(item.players.gitId)
-    temp.add(item.players.gitId)
-    return !alreadyHas
-  });
+  try {
+    const unique = room[idx].filter(item => {
+      const alreadyHas = temp.has(item.players.gitId)
+      temp.add(item.players.gitId)
+      return !alreadyHas
+    });
+  } catch (e) {
+    console.log(`[filterRoom][ERROR] :::: log: ${e}`);
+  }
   setRoom(unique);
 }
 
