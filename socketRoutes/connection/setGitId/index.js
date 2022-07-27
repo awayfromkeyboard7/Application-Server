@@ -3,9 +3,15 @@ const Chat = require("../../../models/chat");
 const UserSocket = require("../../../models/usersocket");
 const GameRoom = require("../../../models/gameroom");
 const TeamRoom = require("../../../models/teamroom");
+const { verify } = require('../../../routes/api/user/controller');
 
 module.exports = (socket, event) => {
   socket.on(event, async (gitId, avatarUrl, mode, roomId) => {
+    // console.log(socket.handshake.query['mykey']);
+    // console.log(socket.handshake.query['gameLogId']);
+    const token = JSON.parse(socket.handshake.auth['token'].slice(2))['token'];
+    console.log(socket.gitId);
+    console.log(socket.avatarUrl);
     socket.mode = mode;
     if (mode === 'solo') {
       const prevRoom = GameRoom.getPrevRoom(gitId);

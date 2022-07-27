@@ -3,7 +3,11 @@ const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 
+const { verify } = require('./routes/api/user/controller');
+// const jwt = require('jsonwebtoken');
+// console.log(jwt);
 const db = require("./lib/db");
+// console.log(db);
 
 const SocketRoutes = require("./socketRoutes");
 
@@ -25,6 +29,21 @@ app.use(cors());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(express.json());
 app.use("/", require("./routes/"));
+
+io.use(async (socket, next) => {
+  if (socket.handshake.auth) {
+    try {
+      const token = JSON.parse(socket.handshake.auth['token'].slice(2))['token'];
+      const payload = await verify(token);
+      socket.gitId = await payload.gitId;
+      socket.avatarUrl = await socket.avatarUrl;
+      console.log(socket.avatarUrl);
+    } catch(e) {
+      console.log(e);
+    }
+  }
+  next();
+})
 
 io.on("connection", (socket) => {
   socket.onAny(e => {

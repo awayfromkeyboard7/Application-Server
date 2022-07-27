@@ -26,7 +26,7 @@ const UserSchema = new Schema({
   problemHistory: {
     type: [
       {
-        type: Object,
+        type: Schema.Types.ObjectId,
         ref: "Problem",
       },
     ],
@@ -35,7 +35,7 @@ const UserSchema = new Schema({
   gameLogHistory: {
     type: [
       {
-        type: Object,
+        type: Schema.Types.ObjectId,
         ref: "Gamelog",
       },
     ],
@@ -61,10 +61,10 @@ const UserSchema = new Schema({
     type: Array,
     default: []
   },
-  mostLanguage: {
-    type: String,
-    default : ""
-  },
+  // mostLanguage: {
+  //   type: String,
+  //   default : ""
+  // },
   language: {
     type : Object,
     default : {
@@ -73,7 +73,6 @@ const UserSchema = new Schema({
       CPP: 0 
     }
   },
-
   totalPassRate: {
     type: Number,
     default: false,
@@ -94,8 +93,6 @@ const UserSchema = new Schema({
     type: Number,
     default: 0
   }
-
-
 });
 
 // 모든 유저 목록

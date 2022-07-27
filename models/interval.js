@@ -1,4 +1,4 @@
-const userSids = require('./usersocket');
+// const userSids = require('./usersocket');
 // const GameRoom = require('./gameroom');
 
 let intervalList = {};
