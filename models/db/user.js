@@ -1,6 +1,4 @@
 const mongoose = require("mongoose");
-const { stringify } = require("uuid");
-const crypto = require('../keycrypto');
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
@@ -61,10 +59,6 @@ const UserSchema = new Schema({
     type: Array,
     default: []
   },
-  // mostLanguage: {
-  //   type: String,
-  //   default : ""
-  // },
   language: {
     type : Object,
     default : {

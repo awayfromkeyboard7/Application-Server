@@ -1,7 +1,6 @@
 const { json } = require('express');
 const fetch = require('node-fetch');
 const User = require('../../../models/db/user');
-const crypto = require('../../../models/keycrypto');
 const jwt = require('jsonwebtoken');
 
 require("dotenv").config();
