@@ -81,9 +81,6 @@ exports.getGitInfo = async(req, res) => {
         success: false,
       });
     }
-  } else {
-    console.log('Error')
-    res.send("Error happend")
   }
 }
 

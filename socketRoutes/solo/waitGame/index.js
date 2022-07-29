@@ -12,7 +12,7 @@ module.exports = (socket, event) => {
 
         let idx = GameRoom.getIdx();
         // get out ghost!!!!!
-        if (userInfo.size === 0) return;
+        if (Object.keys(userInfo).length === 0) return;
 
         // 새 개인전룸 생성
         if (Object.keys(GameRoom.room).length === 0 || GameRoom.room[idx] === undefined) {

@@ -22,12 +22,9 @@ function sendChat(sender, receiver, message) {
       chatLogs[sender][receiver].message.push(message);
       chatLogs[sender][receiver].unread += 1;
     }
-    // socket.to(UserSocket.getSocketId(receiver)).emit('sendChatMessage', message);
-
-    // console.log(`Send Chat ${sender} >>> ${receiver}`, chatLogs[sender]);
   } catch (e) {
-    console.log('/models/chat.js sendChat ERROR :::: ', sender, receiver, message)
-    console.log('/models/chat.js sendChat ERROR :::: ', e)
+    console.log(`[sendChat][ERROR] :::: sender: ${sender} receiver: ${receiver} message: ${message}`);
+    console.log(`[sendChat][ERROR] :::: log: ${e}`);
   }
 }
 
@@ -52,8 +49,8 @@ function receiveChat(sender, receiver) {
 
     return myChatLogs;
   } catch(e) {
-    console.log("getChatMessage ERROR >>>>>>> ", sender, receiver);
-    console.log("getChatMessage ERROR >>>>>>> ", e);
+    console.log(`[getChatMessage][ERROR] :::: sender: ${sender} receiver: ${receiver}`);
+    console.log(`[getChatMessage][ERROR] :::: log: ${e}`);
     return false;
   }
 }
@@ -66,8 +63,8 @@ async function getUnreadCount(sender, receiver) {
       return chatLogs[sender][receiver]?.unread;
     }
   } catch (e) {
-    console.log("getUnreadCount ERROR >>>>>>> ", sender, receiver);
-    console.log("getUnreadCount ERROR >>>>>>> ", e);
+    console.log(`[getUnreadCount][ERROR] :::: sender: ${sender} receiver: ${receiver}`);
+    console.log(`[getUnreadCount][ERROR] :::: log: ${e}`);
   }
 }
 
@@ -75,7 +72,7 @@ function resetUnreadCount(sender, receiver) {
   try {
     chatLogs[sender][receiver].unread = 0;
   } catch(e) {
-    console.log("resetUnreadCount ERROR >>>>>>> ", sender, receiver);
+    console.log(`[resetUnreadCount][ERROR] :::: sender: ${sender} receiver: ${receiver}`);
   }
 }
 

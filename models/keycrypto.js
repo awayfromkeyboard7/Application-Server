@@ -5,15 +5,18 @@ const ENCRYPTION_KEY = process.env.COOKIE_SECRET; // Must be 256 bits (32 charac
 const IV_LENGTH = 16;
 
 function encrypt(text) {
-  let iv = crypto.randomBytes(IV_LENGTH);
-  let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
-  let encrypted = cipher.update(text);
- 
-  encrypted = Buffer.concat([encrypted, cipher.final()]);
- 
-  return iv.toString('hex') + ':' + encrypted.toString('hex');
+  try {
+    let iv = crypto.randomBytes(IV_LENGTH);
+    let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
+    let encrypted = cipher.update(text);
+   
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+   
+    return iv.toString('hex') + ':' + encrypted.toString('hex');
+  } catch(e) {
+    console.log("encrypt :::: ERROR ", e);
+  }
 }
-
 
 function decrypt(text) {
   try {
@@ -29,7 +32,6 @@ function decrypt(text) {
   } catch(e) {
     console.log(e);
   }
-
 }
 
 module.exports = {
