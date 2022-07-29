@@ -7,8 +7,6 @@ const Auth = require("../../../models/auth");
 
 module.exports = (socket, event) => {
   socket.on(event, async (token, mode, roomId) => {
-    console.log("[LOG] setGitId :::: token: ", token);
-
     try {
       socket.token = token;
       socket.mode = mode;

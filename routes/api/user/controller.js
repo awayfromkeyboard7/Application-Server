@@ -1,6 +1,7 @@
 const { json } = require('express');
 const fetch = require('node-fetch');
 const User = require('../../../models/db/user');
+const Auth = require('../../../models/auth');
 const jwt = require('jsonwebtoken');
 
 require("dotenv").config();
@@ -11,7 +12,7 @@ const ISSUER = process.env.ISSUER;
 
 const cookieConfig = { 
   maxAge: 60 * 60 * 2 * 1000,
-  secure: true,
+  // secure: true,
 }
 
 async function getGithubUser (access_token) {
@@ -22,22 +23,6 @@ async function getGithubUser (access_token) {
   })
   const data = await req.json()
   return data
-}
-
-
-exports.getUser = async(req, res) => {
-  try {
-    const UserInfo = await User.getUserInfo(req.body.gitId);
-    res.status(200).json({
-      UserInfo : UserInfo,
-      success: true
-    });
-  } catch(err) {
-    res.status(409).json({
-      success: false,
-      message: err.message
-    });
-  }
 }
 
 exports.getGitInfo = async(req, res) => {
@@ -86,11 +71,19 @@ exports.getGitInfo = async(req, res) => {
 
 exports.getUser = async(req, res) => {
   try {
-    const UserInfo = await User.getUserInfo(req.body.gitId);
-    res.status(200).json({
-      UserInfo,
-      success: UserInfo ? true : false
-    });
+    const payload = await Auth.verify(req.cookies['jwt']);
+    if (payload.gitId === req.body.gitId) {
+      const UserInfo = await User.getUserInfo(req.body.gitId);
+      res.status(200).json({
+        UserInfo,
+        success: UserInfo ? true : false
+      });
+    } else {
+      res.status(403).json({
+        success: false,
+        message: err.message
+      });
+    }
   } catch(err) {
     res.status(409).json({
       success: false,
