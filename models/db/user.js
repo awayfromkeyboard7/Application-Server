@@ -115,19 +115,6 @@ UserSchema.statics.createUser = function (info) {
   return this.create(info);
 };
 
-// UserSchema.statics.updateUserScore = async function (gitId, score) {
-//   console.log(gitId, score);
-//   return await this.findOneAndUpdate(
-//     { gitId: gitId },
-//     {
-//       $inc: {
-//         totalScore: score,
-//       },
-//     },
-//     { new: true }
-//   );
-// };
-
 UserSchema.statics.updateUserScore = async function (info) {
   const userInfo = await this.findOne({gitId : info["gitId"]})
   //유저 점수&랭크 업데이트
@@ -252,9 +239,7 @@ UserSchema.statics.addGameLog = async function (gameLog){
   }
 }
 
-UserSchema.statics.following = async function (myNodeId, targetGitId) {
-  const nodeId = parseInt(crypto.decrypt(myNodeId))
-
+UserSchema.statics.following = async function (nodeId, targetGitId) {
   const targetUser = await this.findOne({ gitId: targetGitId });
 
   // 나 자신을 팔로우 예외처리
@@ -293,8 +278,8 @@ UserSchema.statics.getFollowerListWithGitId = async function (myGitId) {
 }
 
 
-UserSchema.statics.getFollowingList = async function (myNodeId) {
-  const nodeId = parseInt(crypto.decrypt(myNodeId));
+UserSchema.statics.getFollowingList = async function (nodeId) {
+  // const nodeId = parseInt(crypto.decrypt(myNodeId));
   const user = await this.findOne({ nodeId: nodeId });
   // Promise.all을 사용한 이유 https://joyful-development.tistory.com/20
   const followingList = await Promise.all (user['following'].map( async (friendNodeId) => {
@@ -319,8 +304,7 @@ UserSchema.statics.getFollowingUserWithGitId = async function (myGitId) {
   }
 }
 
-UserSchema.statics.getUserInfoWithNodeId = async function (myNodeId) {
-  const nodeId = parseInt(crypto.decrypt(myNodeId));
+UserSchema.statics.getUserInfoWithNodeId = async function (nodeId) {
   return await this.findOne({ nodeId: nodeId });
 }
 

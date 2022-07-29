@@ -1,12 +1,16 @@
 const User = require("../../../models/db/user");
+const Auth = require("../../../models/auth");
 
 module.exports = (socket, event) => {
-  socket.on(event, async (myNodeId, targetGitId) => {
+  socket.on(event, async (targetGitId) => {
     try {
-      // console.log(`followMember >>>>>>>>>>>>>>>>> ${myNodeId} =====> ${targetGitId}`);
-      await User.following(myNodeId, targetGitId);
+      const userInfo = await Auth.verify(socket.token);
+      if (userInfo !== false) {
+        const nodeId = userInfo.nodeId;
+        await User.following(nodeId, targetGitId);
+      }
     } catch (e) {
-      console.log(e);
+      console.log("[ERROR] followMemeber :::: log: ", e);
     }
   });
 };

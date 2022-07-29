@@ -3,13 +3,14 @@ const fetch = require('node-fetch');
 const User = require('../../../models/db/user');
 const crypto = require('../../../models/keycrypto');
 const jwt = require('jsonwebtoken');
+
 require("dotenv").config();
 const SECRETKEY = process.env.JWT_SECRET;
 const EXPIRESIN = process.env.EXPIRESIN;
 const ISSUER = process.env.ISSUER;
 
 const cookieConfig = { 
-  maxAge: 60000000,
+  maxAge: 60 * 60 * 2 * 1000,
   // httpOnly: true,
 }
 
@@ -50,7 +51,7 @@ exports.getGitInfo = async(req, res) => {
       nodeId: githubData['id'],
       avatarUrl: githubData['avatar_url']
     }
-    console.log('USER INFO after git oauth', info);
+
     try {
       let user = await User.isExist(githubData['id'], token);
       if (user === null) {
@@ -59,25 +60,19 @@ exports.getGitInfo = async(req, res) => {
 
       const payload = {
         gitId: user.gitId,
+        nodeId: user.nodeId,
         avatarUrl: user.avatarUrl,
       };
 
-      const result = {
-        token: jwt.sign(
-          payload, 
-          SECRETKEY, 
-          {
-            expiresIn: EXPIRESIN,
-            issuer: ISSUER,
-          }
-        )
-      }
+      const result = jwt.sign(
+        payload, 
+        SECRETKEY, 
+        {
+          expiresIn: EXPIRESIN,
+          issuer: ISSUER,
+        }
+      )
 
-      res.cookie('avatarUrl', githubData['avatar_url'], cookieConfig);
-      res.cookie('gitId', githubData['login'], cookieConfig);
-      res.cookie('nodeId', crypto.encrypt(githubData['id'].toString()), cookieConfig);
-      // res.cookie('nodeId', githubData['id'], cookieConfig);
-      // console.log('jwt token', result);
       res.cookie('jwt', result, cookieConfig);
       res.status(200).json({ success: true });
     } catch(err) {
@@ -105,33 +100,4 @@ exports.getUser = async(req, res) => {
       message: err.message
     });
   }
-}
-
-// exports.sign = async(user) => {
-//   const payload = {
-//     gitId: user.gitId,
-//     avatarUrl: user.avatarUrl,
-//   };
-//   const result = {
-//     token: jwt.sign(
-//       payload, 
-//       SECRETKEY, 
-//       {
-//         expiresIn: EXPIRESIN,
-//         issuer: ISSUER,
-//       }
-//     )
-//   }
-//   return result;
-// }
-
-exports.verify = async (token) => {
-  return new Promise(
-    (resolve, reject) => {
-      jwt.verify(token, SECRETKEY, (e, decoded) => {
-        if (e) reject(e);
-        resolve(decoded);
-      });
-    }
-  );
 }
