@@ -1,4 +1,4 @@
-const { json } = require('express');
+// const { json } = require('express');
 const fetch = require('node-fetch');
 const User = require('../../../models/db/user');
 const crypto = require('../../../models/keycrypto');
@@ -18,20 +18,20 @@ async function getGithubUser (access_token) {
 }
 
 
-exports.getUser = async(req, res) => {
-  try {
-    const UserInfo = await User.getUserInfo(req.body.gitId);
-    res.status(200).json({
-      UserInfo : UserInfo,
-      success: true
-    });
-  } catch(err) {
-    res.status(409).json({
-      success: false,
-      message: err.message
-    });
-  }
-}
+// exports.getUser = async(req, res) => {
+//   try {
+//     const UserInfo = await User.getUserInfo(req.body.gitId);
+//     res.status(200).json({
+//       UserInfo : UserInfo,
+//       success: true
+//     });
+//   } catch(err) {
+//     res.status(409).json({
+//       success: false,
+//       message: err.message
+//     });
+//   }
+// }
 
 exports.getGitInfo = async(req, res) => {
   const token = req.body['accessToken']

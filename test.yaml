@@ -1,0 +1,27 @@
+# config:
+#   target: "http://localhost:5000"
+#   rejectUnauthorized: false
+#   phases:
+#     - duration: 60 # n초 동안
+#       arrivalRate: 10 # n명의 가상 User를 생성 (유저는 초당 1번 요청)
+#       name: Warm up
+
+# scenarios:
+#   - name: "judge" # 설명
+#     flow:
+#       - post: # 해당 url에 get 요청을 합니다.
+#           url: "/hash/123"
+
+
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 60
+      arrivalRate: 25
+
+scenarios:
+  - name: My socket.io test
+    engine: socketio
+    flow:
+      - emit:
+          channel: "exitWait"

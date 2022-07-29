@@ -6,6 +6,9 @@ const TeamRoom = require("../../../models/teamroom");
 
 module.exports = (socket, event) => {
   socket.on(event, async (gitId, avatarUrl, mode, roomId) => {
+    if (avatarUrl === null) {
+      avatarUrl = 'https%3A%2F%2Favatars.githubusercontent.com%2Fu%2F89336928%3Fv%3D4'
+    }
     socket.mode = mode;
     try {
       if (mode === 'solo') {

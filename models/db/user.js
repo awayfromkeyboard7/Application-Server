@@ -224,7 +224,8 @@ UserSchema.statics.addGameLog = async function (gameLog){
   for (let j = 0 ; j < allUser.length ; j++){
     for (let i = 0 ; i < allUser[j].length; i++){
       let currentUser = await allUser[j][i]
-      let userLog = await this.find({ gitId : currentUser["gitId"] })    
+      let userLog = await this.find({ gitId : currentUser["gitId"] })   
+      console.log(userLog) 
       let gameLogHistory = userLog[0]["gameLogHistory"]
       let problemHistory = userLog[0]["problemHistory"]
       gameLogHistory.push(gameLogId)
