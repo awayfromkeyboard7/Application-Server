@@ -5,13 +5,14 @@ const crypto = require('../../../models/keycrypto');
 const jwt = require('jsonwebtoken');
 
 require("dotenv").config();
+
 const SECRETKEY = process.env.JWT_SECRET;
 const EXPIRESIN = process.env.EXPIRESIN;
 const ISSUER = process.env.ISSUER;
 
 const cookieConfig = { 
   maxAge: 60 * 60 * 2 * 1000,
-  // httpOnly: true,
+  secure: true,
 }
 
 async function getGithubUser (access_token) {

@@ -11,8 +11,7 @@ const SocketIO = require("socket.io");
 const server = http.createServer(app);
 const io = SocketIO(server, {
   cors: {
-    origin: "*",
-    method: ["GET", "POST"],
+    origin: process.env.ORIGIN,
   },
 });
 
@@ -20,7 +19,10 @@ const PORTNUM = 3000;
 
 // https://m.blog.naver.com/psj9102/221282415870
 db.connect();
-app.use(cors());
+app.use(cors({
+  origin: process.env.ORIGIN,
+  method: ["GET", "POST"],
+}));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(express.json());
 app.use("/", require("./routes/"));
