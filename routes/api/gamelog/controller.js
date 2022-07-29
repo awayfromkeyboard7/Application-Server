@@ -5,19 +5,27 @@ const Interval = require('../../../models/interval');
 const Problem = require('../../../models/db/problem');
 const User = require('../../../models/db/user');
 const Ranking = require('../../../models/db/ranking');
+const Auth = require('../../../models/auth');
 
 exports.updateGamelogTeam = async (req, res) => {
   try {
-    await GameLog.updateLogTeam(req.body);
-    if (await GameLog.isFinishTeam(req.body)) {
-      const gameLog = await GameLog.getLog(req.body["gameId"])
-      Interval.deleteInterval([gameLog["roomIdA"],gameLog["roomIdB"]],'team');
-      Ranking.updateRanking(await User.totalRankUpdate());
+    const payload = await Auth.verify(req.cookies['jwt']);
+    if (payload.gitId === req.body.gitId) {
+      await GameLog.updateLogTeam(req.body);
+      if (await GameLog.isFinishTeam(req.body)) {
+        const gameLog = await GameLog.getLog(req.body["gameId"])
+        Interval.deleteInterval([gameLog["roomIdA"],gameLog["roomIdB"]],'team');
+        Ranking.updateRanking(await User.totalRankUpdate());
+      }
+      res.status(200).json({
+        success: true
+      });
+    } else {
+      res.status(403).json({
+        success: false,
+        message: err.message
+      });
     }
-
-    res.status(200).json({
-      success: true
-    });
   } catch(err) {
     res.status(409).json({
       success: false,
@@ -28,16 +36,24 @@ exports.updateGamelogTeam = async (req, res) => {
 
 exports.updateGamelog = async (req, res) => {
   try {
-    await GameLog.updateLog(req.body);
-    if (await GameLog.isFinish(req.body)) {
-
-      const gameLog = await GameLog.getLog(req.body.gameId);
-      Interval.deleteInterval(gameLog["roomId"],'solo')
-      await Ranking.updateRanking(await User.totalRankUpdate());
+    const payload = await Auth.verify(req.cookies['jwt']);
+    if (payload.gitId === req.body.gitId) {
+      await GameLog.updateLog(req.body);
+      if (await GameLog.isFinish(req.body)) {
+  
+        const gameLog = await GameLog.getLog(req.body.gameId);
+        Interval.deleteInterval(gameLog["roomId"],'solo')
+        await Ranking.updateRanking(await User.totalRankUpdate());
+      }
+      res.status(200).json({
+        success: true
+      });
+    } else {
+      res.status(403).json({
+        success: false,
+        message: err.message
+      });
     }
-    res.status(200).json({
-      success: true
-    });
   } catch(err) {
     res.status(409).json({
       success: false,
@@ -48,21 +64,27 @@ exports.updateGamelog = async (req, res) => {
 
 exports.createGamelog = async (req, res) => {
   try {
-    // roomId = 연어
-
-    const info = {
-      problemId : await Problem.random(),
-      userHistory: req.body.players,
-      totalUsers: req.body.totalUsers,
-      roomId : req.body.roomId
+    const payload = await Auth.verify(req.cookies['jwt']);
+    if (payload !== false) {
+      const info = {
+        problemId : await Problem.random(),
+        userHistory: req.body.players,
+        totalUsers: req.body.totalUsers,
+        roomId : req.body.roomId
+      }
+      const gameLog = await GameLog.createLog(info);
+      User.addGameLog(gameLog);
+      info.userHistory.forEach(item => console.log(item.gitId))
+      res.status(200).json({
+        gameLogId : gameLog._id,
+        success: true
+      });
+    } else {
+      res.status(403).json({
+        success: false,
+        message: err.message
+      });
     }
-    const gameLog = await GameLog.createLog(info);
-    User.addGameLog(gameLog);
-    info.userHistory.forEach(item => console.log(item.gitId))
-    res.status(200).json({
-      gameLogId : gameLog._id,
-      success: true
-    });
   } catch(err) {
     res.status(409).json({
       success: false,
@@ -73,16 +95,24 @@ exports.createGamelog = async (req, res) => {
 
 exports.getGamelog = async (req, res) => {
   try {
-    logId = req.body['gameLogId']
-    let info = await GameLog.getLog(logId);
-
-    const problemId = mongoose.Types.ObjectId(req.body.mode === 'team' ? '62cea4c0de41eb81f44ed976' : '62e0f67f8f1ac997694d4e86');
-    const problems = await Problem.getProblem(problemId);
-    info.problemId = problems
-    res.status(200).json({
-      info,
-      success: true
-    });
+    const payload = await Auth.verify(req.cookies['jwt']);
+    if (payload !== false) {
+      logId = req.body['gameLogId']
+      let info = await GameLog.getLog(logId);
+  
+      const problemId = mongoose.Types.ObjectId(req.body.mode === 'team' ? '62cea4c0de41eb81f44ed976' : '62e0f67f8f1ac997694d4e86');
+      const problems = await Problem.getProblem(problemId);
+      info.problemId = problems
+      res.status(200).json({
+        info,
+        success: true
+      });
+    } else {
+      res.status(403).json({
+        success: false,
+        message: err.message
+      });
+    }
   } catch(err) {
     res.status(409).json({
       success: false,
