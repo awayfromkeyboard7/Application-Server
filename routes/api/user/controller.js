@@ -2,9 +2,16 @@ const { json } = require('express');
 const fetch = require('node-fetch');
 const User = require('../../../models/db/user');
 const crypto = require('../../../models/keycrypto');
+const jwt = require('jsonwebtoken');
+
+require("dotenv").config();
+const SECRETKEY = process.env.JWT_SECRET;
+const EXPIRESIN = process.env.EXPIRESIN;
+const ISSUER = process.env.ISSUER;
 
 const cookieConfig = { 
-  maxAge: 60000000
+  maxAge: 60 * 60 * 2 * 1000,
+  // httpOnly: true,
 }
 
 async function getGithubUser (access_token) {
@@ -51,9 +58,22 @@ exports.getGitInfo = async(req, res) => {
         user = await User.createUser(info);
       }
 
-      res.cookie('avatarUrl', githubData['avatar_url'], cookieConfig);
-      res.cookie('gitId', githubData['login'], cookieConfig);
-      res.cookie('nodeId', crypto.encrypt(githubData['id'].toString()), cookieConfig);
+      const payload = {
+        gitId: user.gitId,
+        nodeId: user.nodeId,
+        avatarUrl: user.avatarUrl,
+      };
+
+      const result = jwt.sign(
+        payload, 
+        SECRETKEY, 
+        {
+          expiresIn: EXPIRESIN,
+          issuer: ISSUER,
+        }
+      )
+
+      res.cookie('jwt', result, cookieConfig);
       res.status(200).json({ success: true });
     } catch(err) {
       console.log(err);

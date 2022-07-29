@@ -1,4 +1,5 @@
 const crypto = require("crypto");
+require("dotenv").config();
 
 const ENCRYPTION_KEY = process.env.COOKIE_SECRET; // Must be 256 bits (32 characters)
 const IV_LENGTH = 16;
@@ -17,7 +18,6 @@ function encrypt(text) {
   }
 }
 
-
 function decrypt(text) {
   try {
     let textParts = text.split(':');
@@ -30,7 +30,7 @@ function decrypt(text) {
   
     return decrypted.toString();
   } catch(e) {
-    console.log("decrypt :::: ERROR ", e);
+    console.log(e);
   }
 }
 

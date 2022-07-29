@@ -1,12 +1,16 @@
 const User = require("../../../models/db/user");
+const Auth = require("../../../models/auth");
 
 module.exports = (socket, event) => {
-  socket.on(event, async (myNodeId, targetGitId) => {
+  socket.on(event, async (targetGitId) => {
     try {
-      await User.unfollow(myNodeId, targetGitId);
+      const userInfo = await Auth.verify(socket.token);
+      if (userInfo !== false) {
+        const nodeId = userInfo.nodeId;
+        await User.unfollow(nodeId, targetGitId);
+      }
     } catch (e) {
-      console.log(`[unFollowMember Socket][ERROR] :::: myNodeId: ${myNodeId} targetGitId: ${targetGitId}`);
-      console.log(`[unFollowMember Socket][ERROR] :::: log: ${e}`);
+      console.log("[ERROR] unFollowMemeber :::: log: ", e);
     }
   });
 }

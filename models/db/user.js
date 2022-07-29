@@ -26,7 +26,7 @@ const UserSchema = new Schema({
   problemHistory: {
     type: [
       {
-        type: Object,
+        type: Schema.Types.ObjectId,
         ref: "Problem",
       },
     ],
@@ -35,7 +35,7 @@ const UserSchema = new Schema({
   gameLogHistory: {
     type: [
       {
-        type: Object,
+        type: Schema.Types.ObjectId,
         ref: "Gamelog",
       },
     ],
@@ -61,10 +61,10 @@ const UserSchema = new Schema({
     type: Array,
     default: []
   },
-  mostLanguage: {
-    type: String,
-    default : ""
-  },
+  // mostLanguage: {
+  //   type: String,
+  //   default : ""
+  // },
   language: {
     type : Object,
     default : {
@@ -73,7 +73,6 @@ const UserSchema = new Schema({
       CPP: 0 
     }
   },
-
   totalPassRate: {
     type: Number,
     default: false,
@@ -94,8 +93,6 @@ const UserSchema = new Schema({
     type: Number,
     default: 0
   }
-
-
 });
 
 // 모든 유저 목록
@@ -243,9 +240,7 @@ UserSchema.statics.addGameLog = async function (gameLog){
   }
 }
 
-UserSchema.statics.following = async function (myNodeId, targetGitId) {
-  const nodeId = parseInt(crypto.decrypt(myNodeId))
-
+UserSchema.statics.following = async function (nodeId, targetGitId) {
   const targetUser = await this.findOne({ gitId: targetGitId });
 
   // 나 자신을 팔로우 예외처리
@@ -288,10 +283,8 @@ UserSchema.statics.getFollowerListWithGitId = async function (myGitId) {
   }
 }
 
-
-UserSchema.statics.getFollowingList = async function (myNodeId) {
+UserSchema.statics.getFollowingList = async function (nodeId) {
   try {
-    const nodeId = parseInt(crypto.decrypt(myNodeId));
     const user = await this.findOne({ nodeId: nodeId });
     // Promise.all을 사용한 이유 https://joyful-development.tistory.com/20
     const followingList = await Promise.all (user['following'].map( async (friendNodeId) => {
@@ -303,7 +296,7 @@ UserSchema.statics.getFollowingList = async function (myNodeId) {
     }))
     return followingList;
   } catch (e) {
-    console.log(`[getFollowingList][ERROR] :::: myNodeId: ${myNodeId}`);
+    console.log(`[getFollowingList][ERROR] :::: myNodeId: ${nodeId}`);
     console.log(`[getFollowingList][ERROR] :::: log: ${e}`);
   }
 }
@@ -325,12 +318,11 @@ UserSchema.statics.getFollowingUserWithGitId = async function (myGitId) {
   }
 }
 
-UserSchema.statics.getUserInfoWithNodeId = async function (myNodeId) {
+UserSchema.statics.getUserInfoWithNodeId = async function (nodeId) {
   try {
-    const nodeId = parseInt(crypto.decrypt(myNodeId));
     return await this.findOne({ nodeId: nodeId });
   } catch (e) {
-    console.log(`[getUserInfoWithNodeId][ERROR] :::: myNodeId: ${myNodeId}`);
+    console.log(`[getUserInfoWithNodeId][ERROR] :::: nodeId: ${nodeId}`);
     console.log(`[getUserInfoWithNodeId][ERROR] :::: log: ${e}`);
   }
 }
