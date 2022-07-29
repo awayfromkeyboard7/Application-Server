@@ -4,7 +4,6 @@ require("dotenv").config();
 
 const SECRETKEY = process.env.JWT_SECRET;
 const EXPIRESIN = process.env.EXPIRESIN;
-const ISSUER = process.env.ISSUER;
 
 exports.verify = async (token) => {
   try {

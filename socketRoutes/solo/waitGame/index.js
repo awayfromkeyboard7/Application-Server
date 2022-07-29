@@ -8,7 +8,6 @@ module.exports = (socket, event) => {
     try {
       const userInfo = await Auth.verify(socket.token);
       if (userInfo !== false) {
-        const gitId = userInfo.gitId;
 
         let idx = GameRoom.getIdx();
         // get out ghost!!!!!
@@ -23,6 +22,8 @@ module.exports = (socket, event) => {
           let timeLimit = new Date();
           timeLimit.setMinutes(timeLimit.getMinutes() + 3);
           Interval.makeInterval(socket, `room${idx}`, timeLimit, "wait")
+        
+          socket.nsp.to(`room${idx}`).emit('enterNewUser', GameRoom.room[idx].players);
         } 
 
         // 기존에 있던 개인전 대기룸에 들어감
@@ -34,9 +35,17 @@ module.exports = (socket, event) => {
             temp.add(item.gitId)
             return !alreadyHas
           })
-          // 새로고침 버그 막기
+
           GameRoom.setRoom(unique);
           socket.join(`room${idx}`);
+
+          // 유저가 8명이면 게임 자동 시작
+          if (GameRoom.room[idx].players.length === 8) {
+            socket.emit('getRoomId', `room${idx}`, 'waiting');
+            GameRoom.setStatus(myRoom.slice(4), 'playing');
+          }
+          
+          socket.nsp.to(`room${idx}`).emit('enterNewUser', GameRoom.room[idx].players);
         }
         else {
           idx = GameRoom.increaseIdx();
@@ -46,13 +55,11 @@ module.exports = (socket, event) => {
           let timeLimit = new Date();
           timeLimit.setMinutes(timeLimit.getMinutes() + 3);
           Interval.makeInterval(socket, `room${idx}`, timeLimit, "wait");
+
+          socket.nsp.to(`room${idx}`).emit('enterNewUser', GameRoom.room[idx].players);
         }
 
-        socket.nsp.to(`room${idx}`).emit('enterNewUser', GameRoom.room[idx].players);
-        if (GameRoom.room[idx].players.length === 8) {
-          socket.emit('getRoomId', `room${idx}`, 'waiting');
-          GameRoom.setStatus(myRoom.slice(4), 'playing');
-        }
+        
       }
     } catch(e) {
       console.log("[ERROR] waitGame :::: log: ", e);
