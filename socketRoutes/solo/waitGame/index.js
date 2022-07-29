@@ -13,6 +13,7 @@ module.exports = (socket, event) => {
         // get out ghost!!!!!
         if (Object.keys(userInfo).length === 0) return;
 
+        console.log('solo rooms before', GameRoom.room);
         // 새 개인전룸 생성
         if (Object.keys(GameRoom.room).length === 0 || GameRoom.room[idx] === undefined) {
           GameRoom.createRoom(userInfo);
@@ -39,13 +40,13 @@ module.exports = (socket, event) => {
           GameRoom.setRoom(unique);
           socket.join(`room${idx}`);
 
+          socket.nsp.to(`room${idx}`).emit('enterNewUser', GameRoom.room[idx].players);
+
           // 유저가 8명이면 게임 자동 시작
           if (GameRoom.room[idx].players.length === 8) {
             socket.emit('getRoomId', `room${idx}`, 'waiting');
-            GameRoom.setStatus(myRoom.slice(4), 'playing');
+            GameRoom.setStatus(idx, 'playing');
           }
-          
-          socket.nsp.to(`room${idx}`).emit('enterNewUser', GameRoom.room[idx].players);
         }
         else {
           idx = GameRoom.increaseIdx();
@@ -59,7 +60,8 @@ module.exports = (socket, event) => {
           socket.nsp.to(`room${idx}`).emit('enterNewUser', GameRoom.room[idx].players);
         }
 
-        
+        console.log('solo rooms after', GameRoom.room);
+      
       }
     } catch(e) {
       console.log("[ERROR] waitGame :::: log: ", e);

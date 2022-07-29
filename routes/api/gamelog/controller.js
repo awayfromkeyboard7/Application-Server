@@ -6,28 +6,6 @@ const Problem = require('../../../models/db/problem');
 const User = require('../../../models/db/user');
 const Ranking = require('../../../models/db/ranking');
 
-/*
-[Game Logs] 개인전 / 팀전
-- 해당 게임 랭킹 | 점수
-- 참여자 아이디 배열
-
-POST: /api/gamelog
-{
-  startAt: {
-    type: Date,
-    required: true
-  },
-  problemId: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: 'Problem'
-  },
-  userHistory: {
-    type: [UserHistorySchema],
-    required: true
-  }
-}
-*/
 exports.updateGamelogTeam = async (req, res) => {
   try {
     await GameLog.updateLogTeam(req.body);
