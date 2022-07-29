@@ -29,14 +29,3 @@ exports.verify = async (token) => {
     return false;
   }
 }
-
-// exports.verify = async (token) => {
-//   return new Promise(
-//     (resolve, reject) => {
-//       jwt.verify(token, SECRETKEY, (e, decoded) => {
-//         if (e) reject(e);
-//         resolve(decoded);
-//       });
-//     }
-//   );
-// }

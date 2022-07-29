@@ -8,9 +8,9 @@ module.exports = (socket, event) => {
       if (userInfo !== false) {
         const gitId = userInfo.gitId;
         const teamRoomId = await teamGameRoom.getId(roomId);
-        const teamRoomPeerId = teamGameRoom.getPeerId(roomId);
-
         teamGameRoom.setPeerId(roomId, gitId, peerId);
+        const teamRoomPeerId = teamGameRoom.getPeerId(roomId);
+        
         socket.nsp.to(teamRoomId).emit("getPeerId", gitId, teamRoomPeerId);
       }
     } catch (e) {
