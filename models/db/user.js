@@ -357,4 +357,8 @@ UserSchema.statics.unfollow = async function (myNodeId, friendGitId) {
   );
 };
 
+UserSchema.methods.count = function() {
+	return this.count();
+};
+
 module.exports = mongoose.model("User", UserSchema);

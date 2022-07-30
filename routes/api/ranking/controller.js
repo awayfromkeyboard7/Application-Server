@@ -23,3 +23,20 @@ exports.getAllRanking = async (req, res) => {
     });
   }
 };
+
+exports.paging = async (req, res) => {
+  try {
+    const data = await Ranking.getRanking();
+    const ranking = data.slice(req.body.start, req.body.start + req.body.count);
+
+    res.status(200).json({
+      ranking,
+      success: true
+    });
+  } catch(err) {
+    res.status(409).json({
+      success: false,
+      message: err.message
+    });
+  }
+};

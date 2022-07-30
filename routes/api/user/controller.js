@@ -138,3 +138,19 @@ exports.searchUser = async(req, res) => {
     });
   }
 }
+
+exports.countUser = async (req, res) => {
+  try {
+    const count = await User.count();
+
+    res.status(200).json({
+      count,
+      success: true
+    });
+  } catch(err) {
+    res.status(409).json({
+      success: false,
+      message: err.message
+    });
+  }
+};

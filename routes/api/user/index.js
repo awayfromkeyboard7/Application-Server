@@ -5,5 +5,6 @@ router.post('/get-info', controller.getGitInfo);
 router.post('/getUserInfo', controller.getUserInfo);
 router.post('/search', controller.searchUser);
 router.get('/getMyInfo', controller.getMyInfo);
+router.get('/count', controller.countUser);
 
 module.exports = router;
