@@ -38,7 +38,7 @@ module.exports = (socket, event) => {
         }
       }
     } catch (e) {
-      console.log("[ERROR] startGame :::: log: ", e);
+      console.log(`[ERROR]/startGame/${e.name}/${e.message}`);
     }
   });
 }

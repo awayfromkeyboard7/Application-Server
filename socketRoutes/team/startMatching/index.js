@@ -65,7 +65,7 @@ module.exports = (socket, event) => {
         }
       }
     } catch(e) {
-      console.log("[ERROR] startMatching :::: log: ", e);
+      console.log(`[ERROR]/startMatching/${e.name}/${e.message}`);
     }
   });
 }

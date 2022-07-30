@@ -32,7 +32,7 @@ module.exports = async (socket, event) => {
         }
       }
     } catch (e) {
-      console.log(`[disconnecting][ERROR] log: ${e}`);
+      console.log(`[ERROR]/disconnecting/${e.name}/${e.message}`);
     }
   })
 }

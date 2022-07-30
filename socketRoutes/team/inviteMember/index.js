@@ -11,7 +11,7 @@ module.exports = (socket, event) => {
         socket.to(UserSocket.getSocketId(friendGitId)).emit("comeon", { gitId, avatarUrl });
       }
     } catch (e) {
-      console.log("[ERROR] inviteMember :::: log: ", e);
+      console.log(`[ERROR]/inviteMember/${e.name}/${e.message}`);
     }
   });
 }

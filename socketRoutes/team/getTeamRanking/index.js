@@ -20,7 +20,7 @@ module.exports = (socket, event) => {
         socket.nsp.to(gameLog["roomIdA"]).to(gameLog["roomIdB"]).emit("getTeamRanking", result, gameLog["startAt"]);
       }
     } catch (e) {
-      console.log("[ERROR] getTeamRanking :::: log: ", e);
+      console.log(`[ERROR]/getTeamRanking/${e.name}/${e.message}`);
     }
   });
 }

@@ -64,7 +64,7 @@ module.exports = (socket, event) => {
       
       }
     } catch(e) {
-      console.log("[ERROR] waitGame :::: log: ", e);
+      console.log(`[ERROR]/waitGame/${e.name}/${e.message}`);
     }
   })
 }

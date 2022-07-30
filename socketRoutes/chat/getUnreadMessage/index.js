@@ -12,7 +12,7 @@ module.exports = (socket, event) => {
         socket.emit('unreadMessage', { senderId: sender, count: unreadCount });
       }
     } catch (e) {
-      console.log("[ERROR] getUnreadMessage :::: log: ", e);
+      console.log(`[ERROR]/getUnreadMessage/${e.name}/${e.message}`);
     }
   });
 }

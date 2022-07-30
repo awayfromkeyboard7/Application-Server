@@ -17,7 +17,7 @@ module.exports = (socket, event) => {
         socket.emit("getFollowingList", result);
       }
     } catch(e) {
-      console.log("[ERROR] getFollowingList :::: log: ", e);
+      console.log(`[ERROR]/getFollowingList/${e.name}/${e.message}`);
     }
   })
 }

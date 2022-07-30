@@ -11,7 +11,7 @@ module.exports = (socket, event) => {
         Chat.resetUnreadCount(sender, gitId);
       }
     } catch (e) {
-      console.log("[ERROR] resetUnreadCount :::: log: ", e);
+      console.log(`[ERROR]/resetUnreadCount/${e.name}/${e.message}`);
     }
   })
 }

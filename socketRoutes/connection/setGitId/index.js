@@ -60,7 +60,7 @@ module.exports = (socket, event) => {
       }
     } catch (e) {
       socket.token = null;
-      console.log("[ERROR] setGitId :::: log: ", e);
+      console.log(`[ERROR]/setGitId/${e.name}/${e.message}`);
     }
   });
 }

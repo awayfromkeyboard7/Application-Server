@@ -10,7 +10,7 @@ module.exports = (socket, event) => {
         await User.following(nodeId, targetGitId);
       }
     } catch (e) {
-      console.log("[ERROR] followMemeber :::: log: ", e);
+      console.log(`[ERROR]/followMemeber/${e.name}/${e.message}`);
     }
   });
 };

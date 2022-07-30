@@ -22,7 +22,7 @@ module.exports = (socket, event) => {
         }
       }
     } catch(e) {
-      console.log("[ERROR] createTeam :::: log: ", e);
+      console.log(`[ERROR]/createTeam/${e.name}/${e.message}`);
     }
   });
 }

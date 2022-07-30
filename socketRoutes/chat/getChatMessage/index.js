@@ -16,7 +16,7 @@ module.exports = (socket, event) => {
         socket.token = null;
       }
     } catch (e) {
-      console.log("/socketRoutes/getChatMessage socket ERROR ::::");
+      console.log(`[ERROR]/getChatMessage/${e.name}/${e.message}`);
     }
   });
 }
