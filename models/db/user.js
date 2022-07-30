@@ -282,7 +282,7 @@ UserSchema.statics.getFollowingList = async function (myId) {
 
 UserSchema.statics.paging = function(start, count) {
   const selectOptions = ['_id', 'gitId', 'avatarUrl', 'ranking', 'rank', 'mostLanguage', 'winSolo', 'winTeam', 'totalSolo', 'totalTeam'];
-  return this.find().sort({ ranking: 1 }).skip(start).limit(count).select(selectOptions);
+  return this.find().sort({ totalScore: -1, nodeId: 1 }).skip(start).limit(count).select(selectOptions);
 };
 
 UserSchema.statics.unfollow = async function (myId, friendId) {
