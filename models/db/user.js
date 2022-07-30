@@ -141,8 +141,7 @@ UserSchema.statics.updateUserScore = async function (info) {
 
   let mostUsed = userInfo["mostLanguage"];
   if (
-    mostUsed == "" ||
-    userInfo["language"][info["language"]] >= userInfo["language"][mostUsed]
+    mostUsed == "" || userInfo["language"][info["language"]] >= userInfo["language"][mostUsed]
   ) {
     userInfo["mostLanguage"] = info["language"];
   }
