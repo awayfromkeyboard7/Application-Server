@@ -57,7 +57,7 @@ RankingSchema.statics.getRanking = async function(){
 }
 
 RankingSchema.statics.updateRanking = async function(result){
-  for await(let user of result){
+  for (let user of result){
     if(0 < user["totalSolo"] + user["totalTeam"]){
       user["winRate"] = parseInt(100 * (user["winSolo"] + user["winTeam"]) / (user["totalSolo"] + user["totalTeam"]))
     }
@@ -83,6 +83,6 @@ RankingSchema.statics.updateRanking = async function(result){
       { 
         new: true
       }
-    ).exec();
+    ).exec(function() {console.log('ranking update complete!')});
 }
 module.exports = mongoose.model('Ranking', RankingSchema);

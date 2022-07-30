@@ -15,7 +15,7 @@ exports.updateGamelogTeam = async (req, res) => {
       if (await GameLog.isFinishTeam(req.body)) {
         const gameLog = await GameLog.getLog(req.body["gameId"])
         Interval.deleteInterval([gameLog["roomIdA"],gameLog["roomIdB"]],'team');
-        Ranking.updateRanking(await User.totalRankUpdate());
+        await Ranking.updateRanking(await User.totalRankUpdate());
         // await User.totalRankUpdate()
       }
       res.status(200).json({

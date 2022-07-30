@@ -9,10 +9,12 @@ const UserSchema = new Schema({
   gitId: {
     type: String,
     required: true,
+    unique: true,
   },
   nodeId: {
     type: Number,
     required: true,
+    unique: true,
   },
   avatarUrl: {
     type: String,
@@ -184,7 +186,7 @@ UserSchema.statics.totalRankUpdate = async function () {
   const result = await this.aggregate([
     {
       $setWindowFields: {
-        partitionBy: "$state",
+        // partitionBy: "$state",
         sortBy: {
           totalScore: -1,
         },
@@ -196,6 +198,8 @@ UserSchema.statics.totalRankUpdate = async function () {
       },
     },
   ]);
+  console.log("TOTAL RANKING UPDATE START");
+  
   for (let i = 0; i < result.length; i++) {
     let gitId = result[i]["gitId"];
     await this.findOneAndUpdate(
@@ -210,6 +214,7 @@ UserSchema.statics.totalRankUpdate = async function () {
       { new: true }
     );
   }
+  console.log("TOTAL RANKING UPDATE", result.length);
   return result;
 };
 

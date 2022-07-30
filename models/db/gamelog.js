@@ -48,7 +48,7 @@ const GameLogSchema = new Schema({
   },
   gameMode: {
     type: String,
-    default : 'personal'
+    default : 'solo'
   },
   problemId: {
     type: Schema.Types.ObjectId,
@@ -224,18 +224,6 @@ GameLogSchema.statics.isFinishTeam = async function(data){
     }
     gameLog.save();
     return true;
-
-    // for (let team = 0; team < 2; team++){
-    //   for (let member = 0; member < result[team].length; member++) {
-    //     result[team][member]["ranking"] = team + 1;
-    //   }
-    // } 
-    // for (let winner = 0; winner < result[0].length; winner++) {
-    //   userScores[result[0][winner]["gitId"]] = winnerScore;
-    // }
-
-    // gameLog.save();
-    // return userScores;
   };
 
   gameLog.save();
