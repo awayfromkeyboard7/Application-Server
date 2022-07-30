@@ -23,7 +23,7 @@ exports.updateGamelogTeam = async (req, res) => {
     } else {
       res.status(403).json({
         success: false,
-        message: err.message
+        message: 'Invalid JWT Token'
       });
     }
   } catch(err) {
@@ -51,7 +51,7 @@ exports.updateGamelog = async (req, res) => {
     } else {
       res.status(403).json({
         success: false,
-        message: err.message
+        message: 'Invalid JWT Token'
       });
     }
   } catch(err) {
@@ -82,7 +82,7 @@ exports.createGamelog = async (req, res) => {
     } else {
       res.status(403).json({
         success: false,
-        message: err.message
+        message: 'Invalid JWT Token'
       });
     }
   } catch(err) {
@@ -110,7 +110,7 @@ exports.getGamelog = async (req, res) => {
     } else {
       res.status(403).json({
         success: false,
-        message: err.message
+        message: 'Invalid JWT Token'
       });
     }
   } catch(err) {

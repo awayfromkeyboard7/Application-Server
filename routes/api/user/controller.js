@@ -72,7 +72,7 @@ exports.getGitInfo = async(req, res) => {
 exports.getUser = async(req, res) => {
   try {
     const payload = await Auth.verify(req.cookies['jwt']);
-    if (payload.gitId === req.body.gitId) {
+    if (payload !== false) {
       const UserInfo = await User.getUserInfo(req.body.gitId);
       res.status(200).json({
         UserInfo,
@@ -81,7 +81,7 @@ exports.getUser = async(req, res) => {
     } else {
       res.status(403).json({
         success: false,
-        message: err.message
+        message: 'Invalid JWT Token'
       });
     }
   } catch(err) {

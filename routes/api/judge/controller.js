@@ -36,7 +36,7 @@ exports.sendCode = async function(req, res) {
   } else {
     res.status(403).json({
       success: false,
-      message: err.message
+      message: 'Invalid JWT Token'
     });
   }
 }
