@@ -170,6 +170,12 @@ UserSchema.statics.getUserInfo = async function (id) {
   return user;
 };
 
+//유저 전체정보 반환
+UserSchema.statics.getUserInfoByGitId = async function (gitId) {
+  const user = await this.findOne({ gitId });
+  return user;
+};
+
 //전체 랭킹 업데이트
 UserSchema.statics.totalRankUpdate = async function () {
   const result = await this.aggregate([
