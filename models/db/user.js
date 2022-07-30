@@ -115,6 +115,7 @@ UserSchema.statics.createUser = function (info) {
 
 UserSchema.statics.updateUserScore = async function (info) {
   const userInfo = await this.findOne({ gitId: info["gitId"] });
+  // const userInfo = await this.findById(mongoose.Types.ObjectId(info["Id"]));
   //유저 점수&랭크 업데이트
   userInfo["totalScore"] += info["score"];
   if (userInfo["totalScore"] < 0) {
@@ -150,7 +151,7 @@ UserSchema.statics.updateUserScore = async function (info) {
     userInfo["mostLanguage"] = info["language"];
   }
   await userInfo.save();
-  return true;
+  return userInfo[""];
 };
 
 // 게임 끝난 후 업데이트

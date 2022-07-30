@@ -165,8 +165,13 @@ GameLogSchema.statics.isFinish = async function(data){
     // User.updateUserInfo(gitId,data);
     let i = 0
     let info ={}
+
+    //랭킹업데이트 시간 단축
+    let cumul = [0]*101
+
     for await (const user of gameLog["userHistory"]){
       user["ranking"] = i+1;
+      // info["Id"] = user["userId"]
       info["gitId"] = user["gitId"]
       info["mode"] = 'solo'
       info["passRate"] = user["passRate"]
@@ -203,6 +208,7 @@ GameLogSchema.statics.isFinishTeam = async function(data){
 
     for await (const winner of result[0]){
       winner["ranking"] = 1;
+      // info["Id"] = winner["userId"]
       info["gitId"] = winner["gitId"]
       info["mode"] = 'team'
       info["passRate"] = result[0][0]["passRate"]
@@ -214,6 +220,7 @@ GameLogSchema.statics.isFinishTeam = async function(data){
 
     for await (const loser of result[1]){
       loser["ranking"] = 2;
+      // info["Id"] = loser["userId"]
       info["gitId"] = loser["gitId"]
       info["mode"] = 'team'
       info["passRate"] = result[1][0]["passRate"]
