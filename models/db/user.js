@@ -139,13 +139,14 @@ UserSchema.statics.updateUserScore = async function (info) {
   //사용 언어 추가 밑 갱신
   userInfo["language"][info["language"]] += 1;
 
-  mostUsed = userInfo["mostLanguage"];
+  let mostUsed = userInfo["mostLanguage"];
   if (
     mostUsed == "" ||
     userInfo["language"][info["language"]] >= userInfo["language"][mostUsed]
   ) {
     userInfo["mostLanguage"] = info["language"];
   }
+  userInfo.markModified('language');
   await userInfo.save();
   return true;
 };
