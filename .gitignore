@@ -7,3 +7,4 @@ err.log
 deploy.sh
 Dockerfile
 temp.js
+deletebot.js

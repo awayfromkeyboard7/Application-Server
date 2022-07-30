@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const { stringify } = require("uuid");
-const crypto = require('../keycrypto');
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
@@ -245,14 +244,14 @@ UserSchema.statics.addGameLog = async function (gameLog){
 }
 
 UserSchema.statics.following = async function (myNodeId, targetGitId) {
-  const nodeId = parseInt(crypto.decrypt(myNodeId))
+  // const nodeId = parseInt(crypto.decrypt(myNodeId))
 
   const targetUser = await this.findOne({ gitId: targetGitId });
 
   // 나 자신을 팔로우 예외처리
-  if (targetUser["nodeId"] !== nodeId) {
+  if (targetUser["nodeId"] !== myNodeId) {
     await this.findOneAndUpdate(
-      { nodeId: nodeId },
+      { nodeId: myNodeId },
       {
         $addToSet: {
           following: targetUser["nodeId"]
@@ -265,7 +264,7 @@ UserSchema.statics.following = async function (myNodeId, targetGitId) {
       { nodeId: targetUser["nodeId"] },
       {
         $addToSet: {
-          follower: nodeId
+          follower: myNodeId
         },
       }
     );
@@ -292,8 +291,8 @@ UserSchema.statics.getFollowerListWithGitId = async function (myGitId) {
 
 UserSchema.statics.getFollowingList = async function (myNodeId) {
   try {
-    const nodeId = parseInt(crypto.decrypt(myNodeId));
-    const user = await this.findOne({ nodeId: nodeId });
+    // const nodeId = parseInt(crypto.decrypt(myNodeId));
+    const user = await this.findOne({ nodeId: myNodeId });
     // Promise.all을 사용한 이유 https://joyful-development.tistory.com/20
     const followingList = await Promise.all (user['following'].map( async (friendNodeId) => {
       const friend = await this.findOne({ nodeId: friendNodeId });
@@ -328,8 +327,8 @@ UserSchema.statics.getFollowingUserWithGitId = async function (myGitId) {
 
 UserSchema.statics.getUserInfoWithNodeId = async function (myNodeId) {
   try {
-    const nodeId = parseInt(crypto.decrypt(myNodeId));
-    return await this.findOne({ nodeId: nodeId });
+    // const nodeId = parseInt(crypto.decrypt(myNodeId));
+    return await this.findOne({ nodeId: myNodeId });
   } catch (e) {
     console.log(`[getUserInfoWithNodeId][ERROR] :::: myNodeId: ${myNodeId}`);
     console.log(`[getUserInfoWithNodeId][ERROR] :::: log: ${e}`);

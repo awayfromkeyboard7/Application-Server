@@ -14,14 +14,23 @@
 
 
 config:
-  target: "http://localhost:5000"
+  target: "http://localhost:3000"
   phases:
     - duration: 60
       arrivalRate: 25
 
 scenarios:
-  - name: My socket.io test
+  - name: solo play test
     engine: socketio
     flow:
-      - emit:
-          channel: "exitWait"
+      - post:
+          url: "/api/user/get-info"
+          json:
+            accessToken: "stresstestbot"
+          capture:
+            cookie: "$"
+            as: "jj"
+      - log: "{{ jj }}"
+
+      - emit: 
+          channel: "waitGame"
