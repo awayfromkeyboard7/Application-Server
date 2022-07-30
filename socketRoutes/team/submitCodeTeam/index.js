@@ -23,7 +23,7 @@ module.exports = (socket, event) => {
         socket.nsp.to(teamRoomId).emit("teamGameOver");
       }
     } catch(e) {
-      console.log("[ERROR] submitCodeTeam :::: log: ", e);
+      console.log(`[ERROR]/submitCodeTeam/${e.name}/${e.message}`);
     }
   });
 }

@@ -10,7 +10,7 @@ module.exports = (socket, event) => {
         await User.unfollow(nodeId, targetGitId);
       }
     } catch (e) {
-      console.log("[ERROR] unFollowMemeber :::: log: ", e);
+      console.log(`[ERROR]/unFollowMemeber/${e.name}/${e.message}`);
     }
   });
 }

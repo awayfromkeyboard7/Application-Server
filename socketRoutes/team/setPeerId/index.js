@@ -14,7 +14,7 @@ module.exports = (socket, event) => {
         socket.nsp.to(teamRoomId).emit("getPeerId", gitId, teamRoomPeerId);
       }
     } catch (e) {
-      console.log("[ERROR] setPeerId :::: log: ", e);
+      console.log(`[ERROR]/setPeerId/${e.name}/${e.message}`);
     }
   });
 }

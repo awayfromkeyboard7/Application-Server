@@ -9,7 +9,7 @@ module.exports = (socket, event) => {
         GameRoom.setStatus(myRoom.slice(4), 'playing');
       }
     } catch (e) {
-      console.log(`[getRoomId][ERROR] :::: log: ${e}`);
+      console.log(`[ERROR]/getRoomId/${e.name}/${e.message}`);
     }
   })
 }

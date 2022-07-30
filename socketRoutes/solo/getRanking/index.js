@@ -19,8 +19,7 @@ module.exports = (socket, event) => {
         socket.nsp.to(myRoom).emit(event, info["userHistory"], info["startAt"]);
       }
     } catch(e) {
-      console.log("[getRanking][ERROR] :::: id: ", id);
-      console.log("[getRanking][ERROR] :::: log: ", e);
+      console.log(`[ERROR]/getRanking/${e.name}/${e.message}`);
     }
   });
 }

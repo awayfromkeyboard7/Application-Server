@@ -29,9 +29,8 @@ exports.sendCode = async function(req, res) {
         console.log("Send result to Client");
         res.status(200).json(result.body);
       })
-      .catch(err => {
-        console.log("Error: from docker");
-        console.error(err);
+      .catch(e => {
+        console.log(`[ERROR]/judge/${e.name}/${e.message}`);
         res.status(404)
       })
   } else {

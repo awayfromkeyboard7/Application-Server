@@ -29,7 +29,7 @@ module.exports = (socket, event) => {
         socket.bangjang = roomId;
       }
     } catch (e) {
-      console.log("[ERROR] acceptInvite :::: log: ", e);
+      console.log(`[ERROR]/acceptInvite/${e.name}/${e.message}`);
     }
   });
 }

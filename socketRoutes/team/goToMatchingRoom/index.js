@@ -15,7 +15,7 @@ module.exports = (socket, event) => {
         }
       }
     } catch (e) {
-      console.log("[ERROR] sendCahtMessage :::: log: ", e);
+      console.log(`[ERROR]/goToMatchingRoom/${e.name}/${e.message}`);
     }
   })
 }

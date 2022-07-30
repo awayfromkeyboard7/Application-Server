@@ -15,8 +15,7 @@ module.exports = (socket, event) => {
       });
       socket.nsp.to(myRoom).emit(event, info["userHistory"]);    
     } catch (e) {
-      console.log(`[submitCode][ERROR] :::: gameLogId: ${gameLogId}`);
-      console.log(`[submitCode][ERROR] :::: log: ${e}`);
+      console.log(`[ERROR]/submitCode/${e.name}/${e.message}`);
     }
   });
 }

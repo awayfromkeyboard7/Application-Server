@@ -6,11 +6,17 @@ const Auth = require("../../../models/auth");
 /* event: exitWait */
 module.exports = (socket, event) => {
   socket.on(event, async () => {
-    let myRoom = await GameRoom.getRoom(socket);
     // solo 일때 room{idx}형식.
     // team 일때 uuid형식 리턴 또는 undefined.
     // console.log('exitWait myRoom: ', myRoom)
     // console.log('exitWait total solo room: ', GameRoom.room)
+
+    let myRoom = await GameRoom.getRoom(socket);
+
+    if (myRoom === undefined) {
+      return;
+    }
+
     try {
       const userInfo = await Auth.verify(socket.token);
       if (userInfo !== false) {
@@ -19,8 +25,8 @@ module.exports = (socket, event) => {
         if (myRoom?.includes("room")) {
           GameRoom.deletePlayer(socket, gitId);
           GameRoom.deletePrevRoom(gitId);
-          if (GameRoom.room[myRoom.slice(4)] !== undefined) {
-            socket.to(myRoom).emit(event, GameRoom.room[myRoom.slice(4)].players);
+          if (GameRoom.room[myRoom?.slice(4)] !== undefined) {
+            socket.to(myRoom).emit(event, GameRoom.room[myRoom?.slice(4)].players);
           }
         } 
         // mode: team
@@ -60,7 +66,7 @@ module.exports = (socket, event) => {
         socket.join(socket.id);
       }
     } catch(e) {
-      console.log(`[ERROR] exitWait :::: log: ${e}`);
+      console.log(`[ERROR]/exitWait/${e.name}/${e.message}`);
     }
   });
 };

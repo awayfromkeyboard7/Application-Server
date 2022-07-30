@@ -16,7 +16,7 @@ module.exports = (socket, event) => {
         socket.to(UserSocket.getSocketId(receiver)).emit('unreadMessage', { senderId: gitId, count: unreadMessage });
       }
     } catch (e) {
-      console.log("[ERROR] sendCahtMessage :::: log: ", e);
+      console.log(`[ERROR]/sendCahtMessage/${e.name}/${e.message}`);
     }
   });
 }
