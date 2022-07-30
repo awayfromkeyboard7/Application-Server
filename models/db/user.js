@@ -174,9 +174,9 @@ UserSchema.statics.totalRankUpdate = async function () {
     },
   ]);
   for (let i = 0; i < result.length; i++) {
-    let gitId = result[i]["gitId"];
-    await this.findOneAndUpdate(
-      { gitId: gitId },
+    let userId = result[i]["_id"];
+    this.findByIdAndUpdate(
+      mongoose.Types.ObjectId(userId),
       {
         $set: {
           ranking: result[i]["ranking"],
