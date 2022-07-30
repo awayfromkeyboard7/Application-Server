@@ -8,9 +8,7 @@ module.exports = (socket, event) => {
       const userInfo = await Auth.verify(socket.token);
       
       if (userInfo !== false) {
-        const nodeId = userInfo.nodeId;
-        console.log("getFollowingList :::: nodeId: ", nodeId);
-        const followingList = await User.getFollowingList(nodeId);
+        const followingList = await User.getFollowingList(userInfo.userId);
         const result = await Promise.all (followingList.filter(friend => {
           return UserSocket.isExist(friend.gitId)
         }))

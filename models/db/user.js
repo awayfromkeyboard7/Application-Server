@@ -2,10 +2,6 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
-  token: {
-    type: String,
-    required: true,
-  },
   gitId: {
     type: String,
     required: true,
@@ -99,13 +95,8 @@ UserSchema.statics.findAll = function () {
 };
 
 // 기존 유저 토큰 업데이트
-UserSchema.statics.isExist = function (nodeId, token) {
-  // console.log("nodeId:", nodeId);
-  return this.findOneAndUpdate(
-    { nodeId: nodeId },
-    { token: token },
-    { new: true }
-  );
+UserSchema.statics.isExist = function (nodeId) {
+  return this.findOne({ nodeId: nodeId });
 };
 
 // 신규 유저 등록
@@ -151,20 +142,6 @@ UserSchema.statics.updateUserScore = async function (info) {
   }
   await userInfo.save();
   return true;
-};
-
-// 게임 끝난 후 업데이트
-UserSchema.statics.updateUserInfo = async function (gitId, info) {
-  return await this.findOneAndUpdate(
-    { gitId: gitId },
-    {
-      $push: {
-        problemHistory: mongoose.Types.ObjectId(info["problemId"]),
-        gameLogHistory: mongoose.Types.ObjectId(info["gameLogId"]),
-      },
-    },
-    { new: true }
-  );
 };
 
 //유저 전체정보 반환
@@ -241,58 +218,55 @@ UserSchema.statics.addGameLog = async function (gameLog) {
   }
 };
 
-UserSchema.statics.following = async function (nodeId, targetGitId) {
-  const targetUser = await this.findOne({ gitId: targetGitId });
-
+UserSchema.statics.following = async function (myId, friendId) {
   // 나 자신을 팔로우 예외처리
-  if (targetUser["nodeId"] !== nodeId) {
-    await this.findOneAndUpdate(
-      { nodeId: nodeId },
+  if (myId !== friendId) {
+    await this.findByIdAndUpdate(
+      mongoose.Types.ObjectId(myId),
       {
         $addToSet: {
-          following: targetUser["nodeId"],
+          following: friendId,
         },
-      },
-      { new: true }
+      }
     );
 
-    await this.findOneAndUpdate(
-      { nodeId: targetUser["nodeId"] },
+    await this.findByIdAndUpdate(
+      mongoose.Types.ObjectId(friendId),
       {
         $addToSet: {
-          follower: nodeId,
+          follower: myId,
         },
       }
     );
   }
 };
 
-UserSchema.statics.getFollowerListWithGitId = async function (myGitId) {
-  const user = await this.findOne({ gitId: myGitId });
+UserSchema.statics.getFollowerList = async function (myId) {
+  const user = await this.findById(mongoose.Types.ObjectId(myId));
   // Promise.all을 사용한 이유 https://joyful-development.tistory.com/20
   try {
     if (user !== null) {
       const followerList = await Promise.all(
-        user["follower"].map(async (friendNodeId) => {
-          const friend = await this.findOne({ nodeId: friendNodeId });
+        user["follower"].map(async (friendId) => {
+          const friend = await this.findById(mongoose.Types.ObjectId(friendId));
           return friend.gitId;
         })
       );
       return followerList;
     }
   } catch (e) {
-    console.log(`[getFollowerListWithGitId][ERROR] :::: myGitId: ${myGitId}`);
+    console.log(`[getFollowerListWithGitId][ERROR] :::: myId: ${myId}`);
     console.log(`[getFollowerListWithGitId][ERROR] :::: log: ${e}`);
   }
 };
 
-UserSchema.statics.getFollowingList = async function (nodeId) {
+UserSchema.statics.getFollowingList = async function (myId) {
   try {
-    const user = await this.findOne({ nodeId: nodeId });
+    const user = await this.findById(mongoose.Types.ObjectId(myId));
     // Promise.all을 사용한 이유 https://joyful-development.tistory.com/20
     const followingList = await Promise.all(
-      user["following"].map(async (friendNodeId) => {
-        const friend = await this.findOne({ nodeId: friendNodeId });
+      user["following"].map(async (friendId) => {
+        const friend = await this.findById(mongoose.Types.ObjectId(friendId));
         return {
           gitId: friend?.gitId,
           avatarUrl: friend?.avatarUrl,
@@ -301,61 +275,35 @@ UserSchema.statics.getFollowingList = async function (nodeId) {
     );
     return followingList;
   } catch (e) {
-    console.log(`[getFollowingList][ERROR] :::: myNodeId: ${nodeId}`);
+    console.log(`[getFollowingList][ERROR] :::: myId: ${myId}`);
     console.log(`[getFollowingList][ERROR] :::: log: ${e}`);
   }
 };
 
-UserSchema.statics.getFollowingUserWithGitId = async function (myGitId) {
-  const user = await this.findOne({ gitId: myGitId });
-  try {
-    // Promise.all을 사용한 이유 https://joyful-development.tistory.com/20
-    if (user !== null) {
-      const followingList = await Promise.all(
-        user["following"].map(async (friendNodeId) => {
-          const friend = await this.findOne({ nodeId: friendNodeId });
-          return friend.gitId;
-        })
-      );
-      return followingList;
-    }
-  } catch (e) {
-    console.log(`[getFollowingUserWithGitId][ERROR] :::: myGitId: ${myGitId}`);
-    console.log(`[getFollowingUserWithGitId][ERROR] :::: log: ${e}`);
-  }
+UserSchema.statics.paging = function(start, count) {
+  const selectOptions = ['_id', 'gitId', 'avatarUrl', 'ranking', 'rank', 'mostLanguage', 'winSolo', 'winTeam', 'totalSolo', 'totalTeam'];
+  return this.find().sort({ ranking: 1 }).skip(start).limit(count).select(selectOptions);
 };
 
-UserSchema.statics.getUserInfoWithNodeId = async function (nodeId) {
-  try {
-    return await this.findOne({ nodeId: nodeId });
-  } catch (e) {
-    console.log(`[getUserInfoWithNodeId][ERROR] :::: nodeId: ${nodeId}`);
-    console.log(`[getUserInfoWithNodeId][ERROR] :::: log: ${e}`);
-  }
-};
-
-UserSchema.statics.unfollow = async function (myNodeId, friendGitId) {
-  const user = await this.getUserInfoWithNodeId(myNodeId);
-  const friend = await this.findOne({ gitId: friendGitId });
-
-  await this.findOneAndUpdate(
-    { nodeId: user["nodeId"] },
+UserSchema.statics.unfollow = async function (myId, friendId) {
+  await this.findByIdAndUpdate(
+    mongoose.Types.ObjectId(myId),
     {
       $pull: {
-        following: friend["nodeId"],
+        following: friendId,
       },
     }
   );
 
-  await this.findOneAndUpdate(
-    { nodeId: friend["nodeId"] },
+  await this.findByIdAndUpdate(
+    mongoose.Types.ObjectId(friendId),
     {
       $pull: {
-        follower: user["nodeId"],
+        follower: myId,
       },
     }
   );
-};
+}
 
 UserSchema.methods.count = function() {
 	return this.count();

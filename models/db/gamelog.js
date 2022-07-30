@@ -162,7 +162,7 @@ GameLogSchema.statics.isFinish = async function(data){
         return b.passRate - a.passRate;
       }
     });
-    // User.updateUserInfo(gitId,data);
+
     let i = 0
     let info ={}
     for await (const user of gameLog["userHistory"]){
