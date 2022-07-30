@@ -3,6 +3,7 @@ const controller = require('./controller');
 
 router.post('/update', controller.updateGamelog);
 router.post('/createNew', controller.createGamelog);
+router.post('/getProblem', controller.getProblem);
 router.post('/getGameLog', controller.getGamelog);
 router.post('/updateTeam', controller.updateGamelogTeam);
 

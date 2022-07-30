@@ -93,7 +93,7 @@ exports.createGamelog = async (req, res) => {
   }
 };
 
-exports.getGamelog = async (req, res) => {
+exports.getProblem = async (req, res) => {
   try {
     const payload = await Auth.verify(req.cookies['jwt']);
     if (payload !== false) {
@@ -103,6 +103,31 @@ exports.getGamelog = async (req, res) => {
       const problemId = mongoose.Types.ObjectId(req.body.mode === 'team' ? '62cea4c0de41eb81f44ed976' : '62e0f67f8f1ac997694d4e86');
       const problems = await Problem.getProblem(problemId);
       info.problemId = problems
+      res.status(200).json({
+        info,
+        success: true
+      });
+    } else {
+      res.status(403).json({
+        success: false,
+        message: 'Invalid JWT Token'
+      });
+    }
+  } catch(err) {
+    res.status(409).json({
+      success: false,
+      message: err.message
+    });
+  }
+};
+
+exports.getGamelog = async (req, res) => {
+  try {
+    const payload = await Auth.verify(req.cookies['jwt']);
+    if (payload !== false) {
+      logId = req.body['gameLogId']
+      let info = await GameLog.getLog(logId);
+
       res.status(200).json({
         info,
         success: true

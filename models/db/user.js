@@ -164,14 +164,9 @@ UserSchema.statics.updateUserInfo = async function (gitId, info) {
   );
 };
 
-UserSchema.statics.getUserImage = async function (gitId) {
-  const user = await this.findOne({ gitId: gitId });
-  return user["imgUrl"];
-};
-
 //유저 전체정보 반환
-UserSchema.statics.getUserInfo = async function (gitId) {
-  const user = await this.findOne({ gitId: gitId });
+UserSchema.statics.getUserInfo = async function (id) {
+  const user = await this.findById(mongoose.Types.ObjectId(id));
   return user;
 };
 

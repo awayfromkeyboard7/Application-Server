@@ -5,6 +5,11 @@ const Schema = mongoose.Schema;
 
 /* userHistory: Array of attributes updated after game closed */
 const UserHistorySchema = new Schema({
+  userId: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: 'User',
+  },
   gitId: {
     type: String,
     required: true

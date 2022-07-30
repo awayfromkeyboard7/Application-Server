@@ -12,7 +12,7 @@ module.exports = (socket, event) => {
         socket.join(teamRoomId);
         let players = teamGameRoom.getPlayers(roomId);
         if (!(await players.map(item => item.gitId).includes(gitId))) {
-          teamGameRoom.addPlayer(roomId, { gitId, avatarUrl });
+          teamGameRoom.addPlayer(roomId, userInfo);
           players = teamGameRoom.getPlayers(roomId);
         }
         socket.emit('setUsers', players);

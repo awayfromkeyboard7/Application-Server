@@ -8,7 +8,7 @@ module.exports = (socket, event) => {
       if (userInfo !== false) {
         const gitId = userInfo.gitId;
         const avatarUrl = userInfo.avatarUrl;
-        socket.to(UserSocket.getSocketId(friendGitId)).emit("comeon", { gitId, avatarUrl });
+        socket.to(UserSocket.getSocketId(friendGitId)).emit("comeon", userInfo);
       }
     } catch (e) {
       console.log(`[ERROR]/inviteMember/${e.name}/${e.message}`);

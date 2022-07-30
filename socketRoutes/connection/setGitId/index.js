@@ -33,7 +33,7 @@ module.exports = (socket, event) => {
             socket.join(prevRoomId);
             let players = TeamRoom.getPlayers(socket.bangjang);
             if (!(await players.map(item => item.gitId).includes(gitId))) {
-              TeamRoom.addPlayer(socket.bangjang, { gitId, avatarUrl });
+              TeamRoom.addPlayer(socket.bangjang, userInfo);
               players = TeamRoom.getPlayers(socket.bangjang);
             }
             socket.emit('setUsers', players);

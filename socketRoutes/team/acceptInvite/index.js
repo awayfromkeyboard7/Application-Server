@@ -6,7 +6,6 @@ module.exports = (socket, event) => {
     try {
       const userInfo = await Auth.verify(socket.token);
       if (userInfo !== false) {
-        const gitId = userInfo.gitId;
         teamGameRoom.addPlayer(roomId, userInfo);
  
         const temp = new Set();
