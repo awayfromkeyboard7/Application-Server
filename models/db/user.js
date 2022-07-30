@@ -67,6 +67,10 @@ const UserSchema = new Schema({
       CPP: 0,
     },
   },
+  mostLanguage: {
+    type: String,
+    default: "",
+  },
   totalPassRate: {
     type: Number,
     default: false,
@@ -138,14 +142,13 @@ UserSchema.statics.updateUserScore = async function (info) {
   userInfo["totalPassRate"] += info["passRate"];
   //사용 언어 추가 밑 갱신
   userInfo["language"][info["language"]] += 1;
-
+  userInfo.markModified('language');
   let mostUsed = userInfo["mostLanguage"];
   if (
     mostUsed == "" || userInfo["language"][info["language"]] >= userInfo["language"][mostUsed]
   ) {
     userInfo["mostLanguage"] = info["language"];
   }
-  userInfo.markModified('language');
   await userInfo.save();
   return true;
 };
