@@ -1,5 +1,4 @@
 const request = require('superagent');
-const mongoose = require('mongoose');
 
 exports.getCode = async (req, res) => {
   try {

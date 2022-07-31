@@ -15,6 +15,7 @@ CodeSchema.statics.createCode = async function(data){
 
 // 코드 읽어오기
 CodeSchema.statics.getCode = async function(codeId){
-  return await this.findById(mongoose.Types.ObjectId(codeId))
+  const data = await this.findById(mongoose.Types.ObjectId(codeId))
+  return data["code"]
 }
 module.exports = mongoose.model('Code', CodeSchema);

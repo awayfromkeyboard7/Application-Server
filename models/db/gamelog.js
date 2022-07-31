@@ -25,7 +25,6 @@ const UserHistorySchema = new Schema({
   },
   code: {
     type: Schema.Types.ObjectId,
-    default: "",
     ref: "Code",
   },
   submitAt: {
@@ -107,16 +106,16 @@ GameLogSchema.statics.createTeamLog = async function(teamA, teamB, roomIdA, room
   return newLog._id;
 }
 
-GameLogSchema.statics.updateLog = function(data) {
+GameLogSchema.statics.updateLog = async function(data) {
   
-  const codeId = Code.createCode(data["code"])
+  const code = await Code.createCode(data["code"])
 
   return this.findOneAndUpdate(
     { _id: mongoose.Types.ObjectId(data['gameId']) },
     { 
       $set: { 
         'userHistory.$[element].language': data['language'],
-        'userHistory.$[element].code': codeId,
+        'userHistory.$[element].code': code["_id"],
         'userHistory.$[element].submitAt': data['submitAt'],
         'userHistory.$[element].ranking': data['ranking'],
         'userHistory.$[element].passRate': data['passRate']
