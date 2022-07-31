@@ -161,12 +161,11 @@ UserSchema.statics.totalRankUpdate = async function () {
   const result = await this.aggregate([
     {
       $setWindowFields: {
-        partitionBy: "$state",
         sortBy: {
           totalScore: -1,
         },
         output: {
-          ranking: {
+          newRanking: {
             $rank: {},
           },
         },
@@ -174,18 +173,20 @@ UserSchema.statics.totalRankUpdate = async function () {
     },
   ]);
   for (let i = 0; i < result.length; i++) {
-    let userId = result[i]["_id"];
-    this.findByIdAndUpdate(
-      mongoose.Types.ObjectId(userId),
-      {
-        $set: {
-          ranking: result[i]["ranking"],
-          rankingPercent:
-            parseInt((1000 * result[i]["ranking"]) / result.length) / 10,
+    if (result[i]["ranking"] != result[i]["newRanking"]){
+      let userId = result[i]["_id"];
+      this.findByIdAndUpdate(
+        mongoose.Types.ObjectId(userId),
+        {
+          $set: {
+            ranking: result[i]["newRanking"],
+            rankingPercent:
+              parseInt((1000 * result[i]["newRanking"]) / result.length) / 10,
+          },
         },
-      },
-      { new: true }
-    );
+        { new: true }
+      );
+    }
   }
   return result;
 };
