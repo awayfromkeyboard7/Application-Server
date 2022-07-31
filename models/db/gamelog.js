@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Problem = require('./problem');
 const User = require('./user');
+const Code = require('./code');
 const Schema = mongoose.Schema;
 
 /* userHistory: Array of attributes updated after game closed */
@@ -23,8 +24,8 @@ const UserHistorySchema = new Schema({
     default : ''
   },
   code: {
-    type: String,
-    default: ''
+    type: Schema.Types.ObjectId,
+    ref: "Code",
   },
   submitAt: {
     type: Date,
@@ -105,13 +106,16 @@ GameLogSchema.statics.createTeamLog = async function(teamA, teamB, roomIdA, room
   return newLog._id;
 }
 
-GameLogSchema.statics.updateLog = function(data) {
+GameLogSchema.statics.updateLog = async function(data) {
+  
+  const code = await Code.createCode(data["code"])
+
   return this.findOneAndUpdate(
     { _id: mongoose.Types.ObjectId(data['gameId']) },
     { 
       $set: { 
         'userHistory.$[element].language': data['language'],
-        'userHistory.$[element].code': data['code'],
+        'userHistory.$[element].code': code["_id"],
         'userHistory.$[element].submitAt': data['submitAt'],
         'userHistory.$[element].ranking': data['ranking'],
         'userHistory.$[element].passRate': data['passRate']
