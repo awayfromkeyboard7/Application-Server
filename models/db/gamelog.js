@@ -165,9 +165,10 @@ GameLogSchema.statics.isFinish = async function(data){
 
     let i = 0
     let info ={}
+
     for await (const user of gameLog["userHistory"]){
       user["ranking"] = i+1;
-      info["gitId"] = user["gitId"]
+      info["userId"] = user["userId"]
       info["mode"] = 'solo'
       info["passRate"] = user["passRate"]
       info["language"] = user["language"]
