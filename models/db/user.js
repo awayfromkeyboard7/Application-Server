@@ -4,8 +4,7 @@ const Schema = mongoose.Schema;
 const UserSchema = new Schema({
   token: {
     type: String,
-    default: ""
-    // required: true,
+    default : ""
   },
   gitId: {
     type: String,
