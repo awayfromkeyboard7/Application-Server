@@ -44,7 +44,7 @@ module.exports = (socket, event) => {
           UserSocket.setSocketId(gitId, socket.id);
           socket.gitId = gitId;
     
-          const followerList = await User.getFollowerListWithGitId(socket.gitId);
+          const followerList = await User.getFollowerList(userInfo.userId);
           // console.log(followerList);
           await Promise.all (followerList.filter(friend => {
             if (UserSocket.isExist(friend)) {

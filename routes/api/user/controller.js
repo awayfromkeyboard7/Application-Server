@@ -38,7 +38,7 @@ exports.getGitInfo = async(req, res) => {
     }
 
     try {
-      let user = await User.isExist(githubData['id'], token);
+      let user = await User.isExist(githubData['id']);
       if (user === null) {
         user = await User.createUser(info);
       }
@@ -131,6 +131,38 @@ exports.searchUser = async(req, res) => {
         message: 'Invalid JWT Token'
       });
     }
+  } catch(err) {
+    res.status(409).json({
+      success: false,
+      message: err.message
+    });
+  }
+}
+
+exports.countUser = async (req, res) => {
+  try {
+    const count = await User.count();
+
+    res.status(200).json({
+      count,
+      success: true
+    });
+  } catch(err) {
+    res.status(409).json({
+      success: false,
+      message: err.message
+    });
+  }
+};
+
+exports.pagingRanking = async (req, res) => {
+  try {
+    const ranking = await User.paging(req.body.start, req.body.count);
+    console.log('paging user >>', req.body.start, req.body.count);
+    res.status(200).json({
+      ranking,
+      success: true 
+    })
   } catch(err) {
     res.status(409).json({
       success: false,
