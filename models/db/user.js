@@ -21,15 +21,6 @@ const UserSchema = new Schema({
     type: Number,
     default: 0,
   },
-  problemHistory: {
-    type: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Problem",
-      },
-    ],
-    default: [],
-  },
   gameLogHistory: {
     type: [
       {
@@ -204,21 +195,28 @@ UserSchema.statics.addGameLog = async function (gameLog) {
   for (let j = 0; j < allUser.length; j++) {
     for (let i = 0; i < allUser[j].length; i++) {
       let currentUser = await allUser[j][i];
-      let userLog = await this.find({ gitId: currentUser["gitId"] });
-      let gameLogHistory = userLog[0]["gameLogHistory"];
-      let problemHistory = userLog[0]["problemHistory"];
-      gameLogHistory.push(gameLogId);
-      problemHistory.push(problemId);
-      await this.findOneAndUpdate(
-        { gitId: currentUser["gitId"] },
+      // let userLog = await this.find({ gitId: currentUser["gitId"] });
+      // let gameLogHistory = userLog[0]["gameLogHistory"];
+      // gameLogHistory.push(gameLogId);
+      // await this.findOneAndUpdate(
+      //   { gitId: currentUser["gitId"] },
+      //   {
+      //     $set: {
+      //       gameLogHistory: gameLogHistory,
+      //     },
+      //   },
+      //   { new: true }
+      // );
+      
+      await this.findByIdAndUpdate(
+        mongoose.Types.ObjectId(currentUser["userId"]),
         {
-          $set: {
-            problemHistory: problemHistory,
-            gameLogHistory: gameLogHistory,
+          $addToSet: {
+            gameLogHistory: gameLogId,
           },
-        },
-        { new: true }
+        }
       );
+
     }
   }
 };
