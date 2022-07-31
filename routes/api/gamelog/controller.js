@@ -180,7 +180,15 @@ exports.userRankLog = async (req, res) => {
     function toStringByFormatting(source, delimiter = '.') {
       const month = leftPad(source.getMonth() + 1);
       const day = leftPad(source.getDate());
+
       return [month, day].join(delimiter);
+    }
+
+    function toStringByFormattingHours(source, delimiter = ':') {
+      const hours = leftPad(source.getHours());
+      const Mnutes = leftPad(source.getMinutes());
+
+      return [hours, Mnutes].join(delimiter);
     }
 
     for (let i = 0; i < gameLogIdLength; i++) {
@@ -192,7 +200,7 @@ exports.userRankLog = async (req, res) => {
           if (userHistoryString.includes(userGitId) && gameLog.userHistory[j].ranking !== 0) {
             const ranking = gameLog.userHistory[j].ranking;
             const submitAt = gameLog.userHistory[j].submitAt
-            const key = toStringByFormatting(submitAt);
+            const key = `${toStringByFormatting(submitAt)} ${toStringByFormattingHours(submitAt)}`;
             if (RankLogArr.length >= 10) {
               break;
             } else {
