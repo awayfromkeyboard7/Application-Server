@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const UserSchema = new Schema({
   token: {
     type: String,
-    required: true,
+    default : ""
   },
   gitId: {
     type: String,
@@ -189,7 +189,7 @@ UserSchema.statics.totalRankUpdate = async function () {
           },
         },
         { new: true }
-      );
+      ).exec();
     }
   }
   return result;
