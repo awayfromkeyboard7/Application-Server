@@ -198,11 +198,10 @@ UserSchema.statics.totalRankUpdate = async function () {
       },
     },
   ]);
-  console.log("TOTAL RANKING UPDATE START");
   
   for (let i = 0; i < result.length; i++) {
     let gitId = result[i]["gitId"];
-    await this.findOneAndUpdate(
+    this.findOneAndUpdate(
       { gitId: gitId },
       {
         $set: {
