@@ -1,10 +1,12 @@
 const request = require('superagent');
+const Code = require('../../../models/db/code');
+const Auth = require('../../../models/auth');
 
 exports.getCode = async (req, res) => {
   try {
     const payload = await Auth.verify(req.cookies['jwt']);
     if (payload !== false) {
-      let info = await GameLog.getCode(req.body['codeId']);
+      let info = await Code.getCode(req.body['codeId']);
 
       res.status(200).json({
         info,
