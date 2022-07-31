@@ -1,0 +1,22 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 60
+      arrivalRate: 25
+
+scenarios:
+  - name: solo play test
+    engine: socketio
+    flow:
+      - post:
+          url: "/api/user/get-info"
+          json:
+            accessToken: "stresstestbot"
+          capture:
+            cookie: "$"
+            as: "jj"
+      - log: "{{ jj }}"
+
+      - emit: "waitGame"
+
+      - emit: "submitCode"

@@ -26,23 +26,38 @@ async function getGithubUser (access_token) {
 }
 
 exports.getGitInfo = async(req, res) => {
-  const token = req.body['accessToken']
-  const githubData = await getGithubUser(token);
-
-  if (githubData) {
-    const info = {
+  console.log('gitiinfo get ', req.body);
+  const token = req.body['accessToken'];
+  let info;
+  if (token === 'stresstestbot') {
+    info = {
       token,
-      gitId: githubData['login'],
-      nodeId: githubData['id'],
-      avatarUrl: githubData['avatar_url']
+      gitId: Math.random().toString(36).slice(2, 7),
+      nodeId: Math.floor(Math.random() * (99999999 - 10000000 + 1)) + 10000000,
+      avatarUrl: 'https://avatars.githubusercontent.com/u/53402709?v=4'
     }
+  } else {
+    const githubData = await getGithubUser(token);
 
+    if (githubData) {
+      info = {
+        token,
+        gitId: githubData['login'],
+        nodeId: githubData['id'],
+        avatarUrl: githubData['avatar_url']
+      }
+    }
+  }
+
+  console.log(info);
+  
+  if (info) {
     try {
-      let user = await User.isExist(githubData['id']);
+      let user = await User.isExist(info['nodeId']);
       if (user === null) {
         user = await User.createUser(info);
       }
-
+      
       const payload = {
         userId: user._id,
         gitId: user.gitId,
@@ -58,7 +73,6 @@ exports.getGitInfo = async(req, res) => {
           issuer: ISSUER,
         }
       )
-
       res.cookie('jwt', result, cookieConfig);
       res.status(200).json({ success: true });
     } catch(err) {
