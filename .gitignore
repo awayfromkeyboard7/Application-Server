@@ -7,6 +7,5 @@ err.log
 deploy.sh
 Dockerfile
 temp.js
-upload.js
 lambda.js
 test.py
