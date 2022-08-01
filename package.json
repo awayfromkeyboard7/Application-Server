@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/awayfromkeyboard7/Application-Server#readme",
   "dependencies": {
+    "aws-sdk": "2.1185.0",
     "cookie-parser": "1.4.6",
     "cors": "2.8.5",
     "dotenv": "16.0.1",
