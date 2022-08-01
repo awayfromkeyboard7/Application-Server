@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Problem = require('./problem');
 const User = require('./user');
 const Code = require('./code');
+const UserHistory = require('./userHistory');
 const Schema = mongoose.Schema;
 
 /* userHistory: Array of attributes updated after game closed */
@@ -88,6 +89,13 @@ const GameLogSchema = new Schema({
 });
 
 GameLogSchema.statics.createLog = function(data) {
+
+  const userHistory = data["userHistory"].map(history =>
+    history["mode"] = data["gameMode"]
+    history[""]
+  )
+
+  UserHistory.create()
   return this.create(data);
 }
 
@@ -101,6 +109,7 @@ GameLogSchema.statics.createTeamLog = async function(teamA, teamB, roomIdA, room
     roomIdB,
     totalUsers: 2
   }
+
   const newLog = await this.create(data);
   // console.log('newLog>>>>', newLog._id)
   return newLog._id;

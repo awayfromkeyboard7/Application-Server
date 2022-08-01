@@ -8,6 +8,7 @@ const Ranking = require('../../../models/db/ranking');
 const Auth = require('../../../models/auth');
 
 exports.updateGamelogTeam = async (req, res) => {
+  console.log("pass here???",req.body)
   try {
     const payload = await Auth.verify(req.cookies['jwt']);
     if (payload.gitId === req.body.gitId) {
