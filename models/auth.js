@@ -15,7 +15,7 @@ exports.verify = async (token) => {
         });
       }
     );
-  
+
     if (payload !== undefined) {
       return { 
         userId: payload.userId,

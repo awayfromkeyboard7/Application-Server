@@ -6,11 +6,10 @@ const prevRoom = {};
 const waitIdices = new Set();
 /* room status: waiting, playing, full */
 
-function getRoom(socket) {
-  const rooms = socket.rooms;
-  // console.log("getRoom", rooms.filter((room) => room != socket.id));
-  for (const room of rooms) {
-    if (room !== socket.id) {
+function getRoom(rooms) {
+  for (let room of rooms) {
+    console.log(room, room.includes('room'));
+    if (room.includes('room')) {
       return room;
     }
   }
@@ -35,7 +34,7 @@ function createRoom(userInfo) {
 
 function deletePlayer(socket, userName, delay) {
   try {
-    const myRoom = getRoom(socket);
+    const myRoom = getRoom(socket.rooms);
     if (myRoom !== undefined) {
       const idx = myRoom.slice(4);
       room[idx].players = room[idx].players.filter(item => item.gitId !== userName);
@@ -97,12 +96,11 @@ function getIdx() {
 }
 
 function getPrevRoom(gitId) {
-  console.log('previous solo Room???: ', prevRoom);
   return prevRoom[gitId];
 }
 
-function setPrevRoom(socket) {
-  prevRoom[socket.gitId] = getRoom(socket);
+function setPrevRoom(gitId, socketrooms) {
+  prevRoom[gitId] = getRoom(socketrooms);
 }
 
 function deletePrevRoom(gitId) {

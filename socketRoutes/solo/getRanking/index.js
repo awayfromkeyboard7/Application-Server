@@ -7,7 +7,7 @@ module.exports = (socket, event) => {
     try {
       const userInfo = await Auth.verify(socket.token);
       if (userInfo !== false) {
-        const myRoom = GameRoom.getRoom(socket);
+        const myRoom = GameRoom.getRoom(socket.rooms);
         let info = await GameLog.getLog(id);
         info["userHistory"].sort((a, b) => {
           if (a.passRate === b.passRate) {

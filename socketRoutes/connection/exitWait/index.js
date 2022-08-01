@@ -8,10 +8,8 @@ module.exports = (socket, event) => {
   socket.on(event, async () => {
     // solo 일때 room{idx}형식.
     // team 일때 uuid형식 리턴 또는 undefined.
-    // console.log('exitWait myRoom: ', myRoom)
-    // console.log('exitWait total solo room: ', GameRoom.room)
 
-    let myRoom = await GameRoom.getRoom(socket);
+    let myRoom = await GameRoom.getRoom(socket.rooms);
 
     if (myRoom === undefined) {
       return;
@@ -51,10 +49,9 @@ module.exports = (socket, event) => {
             } 
 
             else {
-              console.log("SOLO EXIT>>>>>>>>", GameRoom.room, socket.rooms);
+              // console.log("SOLO EXIT>>>>>>>>", GameRoom.room, socket.rooms);
               GameRoom.deletePlayer(socket, gitId);
-              console.log("SOLO EXIT AFTER>>>>>>>>", GameRoom.room);
-              // console.log("PLAYERS AFTER EXIT", GameRoom.room[myRoom[4]]);
+              // console.log("SOLO EXIT AFTER>>>>>>>>", GameRoom.room);
               if (GameRoom.room[myRoom.slice(4)] !== undefined) {
                 socket.to(myRoom).emit(event, GameRoom.room[myRoom[4]].players);
               }

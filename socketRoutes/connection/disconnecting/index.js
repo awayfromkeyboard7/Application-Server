@@ -7,19 +7,23 @@ const UserSocket = require("../../../models/usersocket");
 module.exports = async (socket, event) => {
   await socket.on(event, async () => {
     // disconnected when solo play
-    // try&catch yields UNDEFINED ROOM!!!
+    // calling socket.rooms in try&catch yields UNDEFINED ROOM!!!
+    const socketrooms = socket.rooms;
     try {
       const userInfo = await Auth.verify(socket.token);
       if (userInfo !== false) {
         if (socket.mode === 'solo') {
-          GameRoom.setPrevRoom(socket);
+          GameRoom.setPrevRoom(socket.gitId, socketrooms);
+          // console.log("before disconnecting ", GameRoom.prevRoom);
           GameRoom.deletePlayer(socket, socket.gitId);
+          // console.log("after disconnecting ", GameRoom.prevRoom);
+
         }
         else if (socket.mode === 'team') {
           TeamRoom.setPrevRoom(socket);
-          console.log("before!!!!! disconnecting", TeamRoom.teamRoom);
+          // console.log("before!!!!! disconnecting", TeamRoom.teamRoom);
           TeamRoom.deletePlayer(socket.bangjang, socket.gitId);
-          console.log("after!!!!! disconnecting", TeamRoom.teamRoom);
+          // console.log("after!!!!! disconnecting", TeamRoom.teamRoom);
         }
 
         if (socket.id !== undefined) {

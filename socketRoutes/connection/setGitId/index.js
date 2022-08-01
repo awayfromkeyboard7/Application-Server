@@ -11,12 +11,9 @@ module.exports = (socket, event) => {
       socket.token = token;
       socket.mode = mode;
 
-      const userInfo = await Auth.verify(socket.token);
-
+      const userInfo = await Auth.verify(socket.token, event);
       if (userInfo !== false) {
         const gitId = userInfo.gitId;
-        const nodeId = userInfo.nodeId;
-        const avatarUrl = userInfo.avatarUrl;
 
         if (mode === 'solo') {
           const prevRoom = GameRoom.getPrevRoom(gitId);
