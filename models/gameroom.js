@@ -8,7 +8,6 @@ const waitIdices = new Set();
 
 function getRoom(rooms) {
   for (let room of rooms) {
-    console.log(room, room.includes('room'));
     if (room.includes('room')) {
       return room;
     }
@@ -61,10 +60,10 @@ function filterRoom(idx) {
       temp.add(item.players.gitId)
       return !alreadyHas
     });
+    setRoom(unique);
   } catch (e) {
     console.log(`[filterRoom][ERROR] :::: log: ${e}`);
   }
-  setRoom(unique);
 }
 
 function joinRoom(userInfo) {
