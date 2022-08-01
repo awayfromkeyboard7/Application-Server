@@ -6,6 +6,5 @@ out.log
 err.log
 deploy.sh
 Dockerfile
-temp.js
 lambda.js
-test.py
+lambda.py

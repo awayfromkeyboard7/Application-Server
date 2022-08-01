@@ -6,6 +6,7 @@ const s3 = require('../../../models/upload');
 require("dotenv").config();
 
 const judgeJS = process.env.lambdaJS;
+const judgePY = process.env.lambdaPY;
 
 exports.sendCode = async function(req, res) {
   const fileName = await s3.uploadFile(req.body);
@@ -15,7 +16,9 @@ exports.sendCode = async function(req, res) {
     problemId: req.body['problemId']
   }
 
-  const response = await fetch(judgeJS, {
+  const judgeUrl = req.body['language'] === 'JavaScript' ? judgeJS : judgePY;
+
+  const response = await fetch(judgeUrl, {
     method: 'post',
     body: JSON.stringify(payload),
     headers: {'Content-Type': 'application/json'}
