@@ -1,42 +1,34 @@
-const request = require('superagent');
+const fetch = require('node-fetch');
 const Judge = require('../../../models/judge');
 const Auth = require('../../../models/auth');
+const s3 = require('../../../models/upload');
+
 require("dotenv").config();
 
-exports.sendCode = async function(req, res) {
-  // judge 도커에 채점 요청
-  console.log("Some request accepted");
+const judgeJS = process.env.lambdaJS;
 
-  const payload = await Auth.verify(req.cookies['jwt']);
-  if (payload.gitId === req.body.gitId) {
-    const gitId = req.body['gitId'];
-    const problemId = req.body['problemId'];
-    const lang = req.body['language'];
-    const code = req.body['code'];
-    
-    console.log("Send request to Container", req.body);
-    request
-      .post(`${process.env.JUDGE_SERVER_URL}/judge`)
-      .set('Accept', 'application/json')
-      .send({
-        gitId,
-        problemId,
-        lang,
-        code
-      })
-      .then(function(result) {
-        console.log("Accept result from docker");
-        console.log("Send result to Client");
-        res.status(200).json(result.body);
-      })
-      .catch(e => {
-        console.log(`[ERROR]/judge/${e.name}/${e.message}`);
-        res.status(404)
-      })
-  } else {
-    res.status(403).json({
-      success: false,
-      message: 'Invalid JWT Token'
-    });
+exports.sendCode = async function(req, res) {
+  const fileName = await s3.uploadFile(req.body);
+
+  const payload = {
+    fileName: fileName,
+    problemId: req.body['problemId']
   }
+
+  const response = await fetch(judgeJS, {
+    method: 'post',
+    body: JSON.stringify(payload),
+    headers: {'Content-Type': 'application/json'}
+  })
+  const data = await response.json();
+
+  const returnValue = {
+    results: data.result,
+    passRate: data.passRate,
+    msg: data.msg
+  };
+
+  console.log("returnValue from lambda: ", returnValue);
+
+  res.status(200).json(returnValue);
 }
