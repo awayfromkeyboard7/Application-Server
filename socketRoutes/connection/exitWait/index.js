@@ -10,8 +10,9 @@ module.exports = (socket, event) => {
     // team 일때 uuid형식 리턴 또는 undefined.
 
     let myRoom = await GameRoom.getRoom(socket.rooms);
+    let teamRoom = await teamGameRoom.getRoom(socket.bangjang);
 
-    if (myRoom === undefined) {
+    if (myRoom === undefined && teamRoom === undefined) {
       return;
     }
 
