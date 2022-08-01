@@ -107,7 +107,7 @@ GameLogSchema.statics.createTeamLog = async function(teamA, teamB, roomIdA, room
 }
 
 GameLogSchema.statics.updateLog = async function(data) {
-  
+
   const code = await Code.createCode(data["code"])
 
   return this.findOneAndUpdate(
@@ -131,6 +131,7 @@ GameLogSchema.statics.updateLog = async function(data) {
 GameLogSchema.statics.updateLogTeam = async function(data) {
   // console.log("updateLogTeam?>>>>>>>>", data);
   const gameLog = await this.findById(mongoose.Types.ObjectId(data["gameId"]));
+  const code = await Code.createCode(data["code"])
   let myteam = "teamA";
   for (let userInfo of gameLog["teamB"]){
     if (userInfo.gitId === data["gitId"]){
@@ -139,7 +140,7 @@ GameLogSchema.statics.updateLogTeam = async function(data) {
     } 
   }
   gameLog[myteam][0]['language'] = data['language']
-  gameLog[myteam][0]['code'] = data['code']
+  gameLog[myteam][0]['code'] = code['_id']
   gameLog[myteam][0]['submitAt'] = data['submitAt']
   gameLog[myteam][0]['ranking'] = data['ranking']
   gameLog[myteam][0]['passRate'] = data['passRate']
