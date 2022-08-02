@@ -100,7 +100,6 @@ UserSchema.statics.createUser = function (info) {
 };
 
 UserSchema.statics.updateUserScore = async function (info) {
-  console.log("showmeinfo=========",info)
   const userInfo = await this.findOne({ gitId: info["gitId"] });
   //유저 점수&랭크 업데이트
   userInfo["totalScore"] += info["score"];

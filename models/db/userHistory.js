@@ -1,11 +1,15 @@
 const mongoose = require('mongoose');
-const Problem = require('./problem');
 const User = require('./user');
 const Code = require('./code');
 const Schema = mongoose.Schema;
 
 /* userHistory: Array of attributes updated after game closed */
 const UserHistorySchema = new Schema({
+  gameId: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: 'User',
+  },  
   userId: {
     type: Schema.Types.ObjectId,
     required: true,
@@ -26,6 +30,7 @@ const UserHistorySchema = new Schema({
   code: {
     type: Schema.Types.ObjectId,
     ref: "Code",
+    required: false
   },
   submitAt: {
     type: Date,
@@ -45,33 +50,47 @@ const UserHistorySchema = new Schema({
   }
 });
 
-UserHistorySchema.statics.create = function(data) {
-  return this.create(data);
+UserHistorySchema.statics.createHistory = async function(data) {
+  await this.create(data);
 }
 
-UserHistorySchema.statics.update = async function(data) {
-  
-  const code = await Code.createCode(data["code"])
-
-  return this.findOneAndUpdate(
-    { _id: mongoose.Types.ObjectId(data['gameId']) },
-    { 
-      $set: { 
-        'userHistory.$[element].language': data['language'],
-        'userHistory.$[element].code': code["_id"],
-        'userHistory.$[element].submitAt': data['submitAt'],
-        'userHistory.$[element].ranking': data['ranking'],
-        'userHistory.$[element].passRate': data['passRate']
+UserHistorySchema.statics.updateHistory = async function(data,code) {
+  if (code == false){
+    console.log("passhere????????")
+    console.log(data)
+    await this.findOneAndUpdate(
+      {"gitId" : data["gitId"],"gameId": data["gameId"]},
+      {
+        $set: {
+          ranking: data['ranking'],
+        }
+      },
+      {
+        new:true
       }
-    },
-    { 
-      arrayFilters: [{ 'element.gitId': data['gitId'] }],
-      new: true
-    }
-  ).exec();
+    ).exec()
+
+  }else{
+    await this.findOneAndUpdate(
+      {"gitId" : data["gitId"],"gameId": data["gameId"]},
+      {
+        $set: {
+          language: data['language'],
+          code: code["_id"],
+          submitAt: data['submitAt'],
+          ranking: data['ranking'],
+          passRate: data['passRate']
+        }
+      },
+      {
+        new:true
+      }
+    ).exec()
+  }
+  // console.log("showmearray======",array["gitId"],array["gameId"])
 };
 
-GameLogSchema.statics.updateTeam = async function(data) {
+UserHistorySchema.statics.updateTeam = async function(data) {
   // console.log("updateLogTeam?>>>>>>>>", data);
   const gameLog = await this.findById(mongoose.Types.ObjectId(data["gameId"]));
   let myteam = "teamA";
@@ -91,7 +110,7 @@ GameLogSchema.statics.updateTeam = async function(data) {
 };
 
 
-GameLogSchema.statics.getLog = function(logId) {
+UserHistorySchema.statics.getLog = function(logId) {
   return this.findById(mongoose.Types.ObjectId(logId));
 }
 

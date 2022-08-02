@@ -3,6 +3,7 @@ const Problem = require('./problem');
 const User = require('./user');
 const Code = require('./code');
 const UserHistory = require('./userHistory');
+const userHistory = require('./userHistory');
 const Schema = mongoose.Schema;
 
 /* userHistory: Array of attributes updated after game closed */
@@ -88,15 +89,14 @@ const GameLogSchema = new Schema({
 
 });
 
-GameLogSchema.statics.createLog = function(data) {
-
-  const userHistory = data["userHistory"].map(history =>
-    history["mode"] = data["gameMode"]
-    history[""]
-  )
-
-  UserHistory.create()
-  return this.create(data);
+GameLogSchema.statics.createLog = async function(data) {
+  gameLog = await this.create(data)
+  for (let i = 0 ; i<data["userHistory"].length ; i++){
+    data["userHistory"][i]["mode"] = "personal"
+    data["userHistory"][i]["gameId"] = gameLog["_id"]
+    userHistory.createHistory(data["userHistory"][i])
+  }
+  return gameLog;
 }
 
 GameLogSchema.statics.createTeamLog = async function(teamA, teamB, roomIdA, roomIdB) {
@@ -116,9 +116,9 @@ GameLogSchema.statics.createTeamLog = async function(teamA, teamB, roomIdA, room
 }
 
 GameLogSchema.statics.updateLog = async function(data) {
-  
+  // console.log("showme data===========",data)
   const code = await Code.createCode(data["code"])
-
+  userHistory.updateHistory(data,code)
   return this.findOneAndUpdate(
     { _id: mongoose.Types.ObjectId(data['gameId']) },
     { 
@@ -187,6 +187,8 @@ GameLogSchema.statics.isFinish = async function(data){
       info["score"] = userLength - 2*i
       info["win"] = (i+1 - userLength/2) < 1
       i += 1;
+      user["gameId"] = gameLog["_id"]
+      await UserHistory.updateHistory(user,false)
       await User.updateUserScore(info);
     }
     await gameLog.save()
