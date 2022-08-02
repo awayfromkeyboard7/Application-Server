@@ -50,15 +50,28 @@ exports.judgelambda = async function(req, res) {
   const payload = await Auth.verify(req.cookies['jwt']);
   if (payload.gitId === req.body.gitId) {
     console.log("Some request accepted");
+    console.log(req.body);
     
-    const fileName = await s3.uploadFile(req.body);
+    let fileName = '';
+    let body;
+    
+    if (req.body['submit'] === true) {
+      fileName = await s3.uploadFile(req.body);
+      body = {
+        submit: true,
+        fileName: fileName,
+        problemId: req.body['problemId']
+      }
+    } else {
+      body = {
+        submit: false,
+        code: req.body['code'],
+        fileName: `${req.body['gameLogId']}_${req.body['gitId']}`,
+        problemId: req.body['problemId']
+      }
+    }
 
     const judgeUrl = req.body['language'] === 'JavaScript' ? judgeJS : judgePY;
-  
-    const body = {
-      fileName: fileName,
-      problemId: req.body['problemId']
-    }
   
     const response = await fetch(judgeUrl, {
       method: 'post',

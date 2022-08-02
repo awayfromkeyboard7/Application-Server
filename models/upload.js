@@ -13,7 +13,7 @@ const s3 = new AWS.S3({
 
 const uploadFile = async (payload) => {
   const fileType = payload['language'] === 'JavaScript' ? 'js' : 'py';
-  const fileName = `${payload['problemId']}_${payload['gitId']}.${fileType}`;
+  const fileName = `${payload['gameLogId']}_${payload['gitId']}.${fileType}`;
   const code = payload['code'];
 
   const params = {
