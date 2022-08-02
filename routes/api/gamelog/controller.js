@@ -1,10 +1,8 @@
-const request = require("superagent");
 const mongoose = require("mongoose");
 const GameLog = require("../../../models/db/gamelog");
 const Interval = require("../../../models/interval");
 const Problem = require("../../../models/db/problem");
 const User = require("../../../models/db/user");
-const Ranking = require("../../../models/db/ranking");
 const Auth = require("../../../models/auth");
 
 exports.createGamelog = async (req, res) => {
@@ -104,7 +102,7 @@ exports.updateGamelog = async (req, res) => {
         gameLog = await GameLog.finished(gameLog);
         await gameLog.save();
         Interval.deleteInterval(gameLog["roomId"], "solo");
-        Ranking.updateRanking(await User.totalRankUpdate());
+        await User.totalRankUpdate();
       }
       res.status(200).json({
         success: true,
@@ -135,7 +133,7 @@ exports.updateGamelogTeam = async (req, res) => {
           [gameLog["roomIdA"], gameLog["roomIdB"]],
           "team"
         );
-        Ranking.updateRanking(await User.totalRankUpdate());
+        await User.totalRankUpdate();
       }
       res.status(200).json({
         success: true,

@@ -30,6 +30,24 @@ const UserSchema = new Schema({
     ],
     default: [],
   },
+  soloGameLogHistory: {
+    type: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Gamelog",
+      },
+    ],
+    default: [],
+  },
+  teamGameLogHistory: {
+    type: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Gamelog",
+      },
+    ],
+    default: [],
+  },
   ranking: {
     type: Number,
     default: 9999999999,
@@ -188,22 +206,42 @@ UserSchema.statics.totalRankUpdate = async function () {
 
 UserSchema.statics.addGameLog = async function (gameLog) {
   // const problemId = await gameLog.problemId["_id"];
-  const gameLogId = await gameLog._id;
-
-  allUser = [gameLog.userHistory, gameLog.teamA, gameLog.teamB];
-
-  for (let j = 0; j < allUser.length; j++) {
-    for (let i = 0; i < allUser[j].length; i++) {
-      let currentUser = await allUser[j][i];
+  const gameLogId = gameLog._id;
+  const gameMode = gameLog.gameMode;
+  if (gameMode === 'solo') {
+    for (currentUser of gameLog.userHistory) {
       await this.findByIdAndUpdate(
         mongoose.Types.ObjectId(currentUser["userId"]),
         {
           $addToSet: {
             gameLogHistory: gameLogId,
+            soloGameLogHistory: gameLogId,
           },
         }
-      );
-
+      ).exec();
+    }
+  } else {
+    for (currentUser of gameLog.teamA) {
+      await this.findByIdAndUpdate(
+        mongoose.Types.ObjectId(currentUser["userId"]),
+        {
+          $addToSet: {
+            gameLogHistory: gameLogId,
+            teamGameLogHistory: gameLogId,
+          },
+        }
+      ).exec();
+    }
+    for (currentUser of gameLog.teamB) {
+      await this.findByIdAndUpdate(
+        mongoose.Types.ObjectId(currentUser["userId"]),
+        {
+          $addToSet: {
+            gameLogHistory: gameLogId,
+            teamGameLogHistory: gameLogId,
+          },
+        }
+      ).exec();
     }
   }
 };
