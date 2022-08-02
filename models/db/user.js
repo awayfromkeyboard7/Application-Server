@@ -99,9 +99,20 @@ UserSchema.statics.createUser = function (info) {
   return this.create(info);
 };
 
+//유저 전체정보 반환
+UserSchema.statics.getUserInfo = async function (id) {
+  const user = await this.findById(mongoose.Types.ObjectId(id));
+  return user;
+};
+
+//유저 전체정보 반환
+UserSchema.statics.getUserInfoByGitId = async function (gitId) {
+  const user = await this.findOne({ gitId });
+  return user;
+};
+
 UserSchema.statics.updateUserScore = async function (info) {
-  console.log("showmeinfo=========",info)
-  const userInfo = await this.findOne({ gitId: info["gitId"] });
+  const userInfo = await this.findById(mongoose.Types.ObjectId(info["userId"]));
   //유저 점수&랭크 업데이트
   userInfo["totalScore"] += info["score"];
   if (userInfo["totalScore"] < 0) {
@@ -114,7 +125,7 @@ UserSchema.statics.updateUserScore = async function (info) {
   }
 
   //판수, 승리 횟수 추가
-  if (info["mode"] == "solo") {
+  if (info["mode"] === "solo") {
     userInfo["totalSolo"] += 1;
     if (info["win"]) {
       userInfo["winSolo"] += 1;
@@ -138,18 +149,6 @@ UserSchema.statics.updateUserScore = async function (info) {
   }
   await userInfo.save();
   return true;
-};
-
-//유저 전체정보 반환
-UserSchema.statics.getUserInfo = async function (id) {
-  const user = await this.findById(mongoose.Types.ObjectId(id));
-  return user;
-};
-
-//유저 전체정보 반환
-UserSchema.statics.getUserInfoByGitId = async function (gitId) {
-  const user = await this.findOne({ gitId });
-  return user;
 };
 
 //전체 랭킹 업데이트
@@ -188,7 +187,7 @@ UserSchema.statics.totalRankUpdate = async function () {
 };
 
 UserSchema.statics.addGameLog = async function (gameLog) {
-  const problemId = await gameLog.problemId["_id"];
+  // const problemId = await gameLog.problemId["_id"];
   const gameLogId = await gameLog._id;
 
   allUser = [gameLog.userHistory, gameLog.teamA, gameLog.teamB];
@@ -196,19 +195,6 @@ UserSchema.statics.addGameLog = async function (gameLog) {
   for (let j = 0; j < allUser.length; j++) {
     for (let i = 0; i < allUser[j].length; i++) {
       let currentUser = await allUser[j][i];
-      // let userLog = await this.find({ gitId: currentUser["gitId"] });
-      // let gameLogHistory = userLog[0]["gameLogHistory"];
-      // gameLogHistory.push(gameLogId);
-      // await this.findOneAndUpdate(
-      //   { gitId: currentUser["gitId"] },
-      //   {
-      //     $set: {
-      //       gameLogHistory: gameLogHistory,
-      //     },
-      //   },
-      //   { new: true }
-      // );
-      
       await this.findByIdAndUpdate(
         mongoose.Types.ObjectId(currentUser["userId"]),
         {
