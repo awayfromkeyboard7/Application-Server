@@ -76,8 +76,14 @@ exports.getGitInfo = async(req, res) => {
 exports.getUserInfo = async(req, res) => {
   try {
     const payload = await Auth.verify(req.cookies['jwt']);
+    const query = url.parse(req.url, true).query;
     if (payload !== false) {
-      const UserInfo = await User.getUserInfo(req.body.userId);
+      let UserInfo;
+      if (query.userId === 'getmyinformation') {
+        UserInfo = await User.getUserInfo(payload.userId);
+      } else {
+        UserInfo = await User.getUserInfo(query.userId);
+      }
       res.status(200).json({
         UserInfo,
         success: UserInfo ? true : false
@@ -161,8 +167,8 @@ exports.countUser = async (req, res) => {
 
 exports.pagingRanking = async (req, res) => {
   try {
-    const ranking = await User.paging(req.body.start, req.body.count);
-    console.log('paging user >>', req.body.start, req.body.count);
+    const query = url.parse(req.url, true).query;
+    const ranking = await User.paging(query.start, query.count);
     res.status(200).json({
       ranking,
       success: true 
