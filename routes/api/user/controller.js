@@ -23,6 +23,7 @@ async function getGithubUser (access_token) {
     }
   })
   const data = await req.json()
+  console.log(data);
   return data
 }
 

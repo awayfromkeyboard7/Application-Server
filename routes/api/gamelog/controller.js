@@ -5,7 +5,7 @@ const Problem = require("../../../models/db/problem");
 const User = require("../../../models/db/user");
 const Auth = require("../../../models/auth");
 const url = require('url');
-const query = url.parse(req.url, true).query;
+// const query = url.parse(req.url, true).query;
 
 exports.createGamelog = async (req, res) => {
   try {
@@ -41,17 +41,15 @@ exports.createGamelog = async (req, res) => {
 exports.getProblem = async (req, res) => {
   try {
     const payload = await Auth.verify(req.cookies["jwt"]);
+    const query = url.parse(req.url, true).query;
     if (payload !== false) {
-      logId = req.body["gameLogId"];
-      let info = await GameLog.getLog(logId);
-
+      let info = await GameLog.getLog(query.gamelogid);
       const problemId = mongoose.Types.ObjectId(
-        req.body.mode === "team"
-          ? "62cea4c0de41eb81f44ed976"
-          : "62e0f67f8f1ac997694d4e86"
+        query.mode === "team" ? "62cea4c0de41eb81f44ed976" : "62e0f67f8f1ac997694d4e86"
       );
-      const problems = await Problem.getProblem(problemId);
-      info.problemId = problems;
+      const problem = await Problem.getProblem(problemId);
+      info.problemId = problem;
+      console.log(info);
       res.status(200).json({
         info,
         success: true,
