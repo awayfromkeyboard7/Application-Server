@@ -141,8 +141,7 @@ UserSchema.statics.updateUserScore = async function (info) {
 
 //유저 전체정보 반환
 UserSchema.statics.getUserInfo = async function (id) {
-  const user = await this.findById(mongoose.Types.ObjectId(id));
-  return user;
+  return await this.findById(mongoose.Types.ObjectId(id));
 };
 
 //유저 전체정보 반환

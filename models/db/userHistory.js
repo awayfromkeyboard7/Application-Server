@@ -109,6 +109,26 @@ UserHistorySchema.statics.updateTeam = async function(data) {
   return 
 };
 
+UserHistorySchema.statics.getOtherLog = async function(gameId){
+  // console.log(gameId)
+  return await this.find(
+    {
+      gameId : gameId
+    }
+  )
+}
+
+UserHistorySchema.statics.getAllLog = async function(userId){
+  console.log(userId)
+  return await this.find(
+    {
+      userId : userId,
+      // ranking: 1
+      // ranking: { $gte: 1, $lte: 3}, 
+    },
+      {_id:0,"gameId" :1}
+    ).limit(30)
+}
 
 UserHistorySchema.statics.getLog = function(logId) {
   return this.findById(mongoose.Types.ObjectId(logId));
