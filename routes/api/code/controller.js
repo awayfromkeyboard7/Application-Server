@@ -8,7 +8,7 @@ exports.getCode = async (req, res) => {
     const query = url.parse(req.url, true).query;
     console.log(query);
     if (payload !== false) {
-      let info = await Code.getCode(query.codeId);
+      let info = await Code.getCode(query.id);
       res.status(200).json({
         info,
         success: true

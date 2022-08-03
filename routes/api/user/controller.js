@@ -28,9 +28,7 @@ async function getGithubUser (access_token) {
 }
 
 exports.getGitInfo = async(req, res) => {
-  const token = req.headers.Authorization;
-  console.log(req.headers);
-  console.log('getGitInfo', token);
+  const token = req.headers.authorization;
   const githubData = await getGithubUser(token);
 
   if (githubData) {
@@ -80,10 +78,10 @@ exports.getUserInfo = async(req, res) => {
     const query = url.parse(req.url, true).query;
     if (payload !== false) {
       let UserInfo;
-      if (query.userId === 'getmyinformation') {
+      if (query.id === 'getmyinformation') {
         UserInfo = await User.getUserInfo(payload.userId);
       } else {
-        UserInfo = await User.getUserInfo(query.userId);
+        UserInfo = await User.getUserInfo(query.id);
       }
       res.status(200).json({
         UserInfo,
@@ -108,7 +106,7 @@ exports.searchUser = async(req, res) => {
     const payload = await Auth.verify(req.cookies['jwt']);
     const query = url.parse(req.url, true).query;
     if (payload !== false) {
-      const UserInfo = await User.getUserInfoByGitId(query.gitId);
+      const UserInfo = await User.getUserInfoByGitId(query.gitid);
       res.status(200).json({
         UserInfo,
         success: UserInfo ? true : false

@@ -2,9 +2,8 @@ const router = require('express').Router();
 const controller = require('./controller');
 
 router.post('/', controller.createGamelog);
+router.get('/', controller.getGamelog);
 router.get('/problem', controller.getProblem);
-router.post('/getGameLog', controller.getGamelog);
-router.post('/update', controller.updateGamelog);
-router.post('/updateTeam', controller.updateGamelogTeam);
+router.put('/:mode', controller.updateGamelog);
 
 module.exports = router;
