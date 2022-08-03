@@ -26,9 +26,9 @@ module.exports = (socket, event) => {
             const waitingRoomPlayers = await teamGameRoom.getPlayers(waitingRoomBangJang)
             const teamRoomPlayers = await teamGameRoom.getPlayers(roomId); 
       
-            const gameLogId = await GameLog.createTeamLog(waitingRoomPlayers, teamRoomPlayers, waitingRoomId, teamRoomId);
+            const gameLog = await GameLog.createTeamLog(waitingRoomPlayers, teamRoomPlayers, waitingRoomId, teamRoomId);
             // console.log(gameLogId);
-            User.addGameLog(await GameLog.getLog(gameLogId));
+            User.addGameLog(gameLog);
 
             socket.nsp.to(waitingRoomId).emit("matchingComplete", waitingRoomPlayers, teamRoomPlayers);
             socket.nsp.to(teamRoomId).emit("matchingComplete", teamRoomPlayers, waitingRoomPlayers);

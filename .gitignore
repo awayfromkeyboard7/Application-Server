@@ -8,3 +8,5 @@ deploy.sh
 Dockerfile
 lambda.js
 lambda.py
+makeGameLog.js
+makeTeamGameLog.js

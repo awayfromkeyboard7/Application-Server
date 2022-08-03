@@ -3,6 +3,7 @@ const fetch = require('node-fetch');
 const User = require('../../../models/db/user');
 const Auth = require('../../../models/auth');
 const jwt = require('jsonwebtoken');
+const url = require('url');
 
 require("dotenv").config();
 
@@ -26,7 +27,9 @@ async function getGithubUser (access_token) {
 }
 
 exports.getGitInfo = async(req, res) => {
-  const token = req.body['accessToken']
+  const token = req.headers.Authorization;
+  console.log(req.headers);
+  console.log('getGitInfo', token);
   const githubData = await getGithubUser(token);
 
   if (githubData) {
@@ -119,8 +122,9 @@ exports.getMyInfo = async(req, res) => {
 exports.searchUser = async(req, res) => {
   try {
     const payload = await Auth.verify(req.cookies['jwt']);
+    const query = url.parse(req.url, true).query;
     if (payload !== false) {
-      const UserInfo = await User.getUserInfoByGitId(req.body.gitId);
+      const UserInfo = await User.getUserInfoByGitId(query.gitId);
       res.status(200).json({
         UserInfo,
         success: UserInfo ? true : false

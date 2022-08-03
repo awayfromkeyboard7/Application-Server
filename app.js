@@ -3,7 +3,6 @@ const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const db = require("./lib/db");
-const Auth = require("./models/auth");
 const SocketRoutes = require("./socketRoutes");
 
 const app = express();
