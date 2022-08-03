@@ -53,8 +53,8 @@ module.exports = (socket, event) => {
               
               // TODO1 양 팀의 유저들로 새 게임로그 생성
               // TODO2 client에서 teamGameStart 이벤트　on
-              socket.nsp.to(waitingRoomId).emit("teamGameStart", waitingRoomBangJang, gameLogId);
-              socket.nsp.to(teamRoomId).emit("teamGameStart", roomId, gameLogId);
+              socket.nsp.to(waitingRoomId).emit("teamGameStart", waitingRoomBangJang, gameLog._id);
+              socket.nsp.to(teamRoomId).emit("teamGameStart", roomId, gameLog._id);
               
               Interval.makeInterval(socket, [firstTeamId,secondTeamId], timeLimit2, "team")
             }, 5001);
