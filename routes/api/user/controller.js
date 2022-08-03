@@ -102,29 +102,6 @@ exports.getUserInfo = async(req, res) => {
   }
 }
 
-exports.getMyInfo = async(req, res) => {
-  try {
-    const payload = await Auth.verify(req.cookies['jwt']);
-    if (payload !== false) {
-      const UserInfo = await User.getUserInfo(payload.userId);
-      res.status(200).json({
-        UserInfo,
-        success: UserInfo ? true : false
-      });
-    } else {
-      res.status(403).json({
-        success: false,
-        message: 'Invalid JWT Token'
-      });
-    }
-  } catch(err) {
-    res.status(409).json({
-      success: false,
-      message: err.message
-    });
-  }
-}
-
 exports.searchUser = async(req, res) => {
   try {
     const payload = await Auth.verify(req.cookies['jwt']);

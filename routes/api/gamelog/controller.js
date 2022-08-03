@@ -4,6 +4,8 @@ const Interval = require("../../../models/interval");
 const Problem = require("../../../models/db/problem");
 const User = require("../../../models/db/user");
 const Auth = require("../../../models/auth");
+const url = require('url');
+const query = url.parse(req.url, true).query;
 
 exports.createGamelog = async (req, res) => {
   try {
