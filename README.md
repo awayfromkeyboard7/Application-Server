@@ -1,11 +1,17 @@
 ## 👩‍💻 API 
 | 번호 | URL | 기능 | request | response | 
 | ---------------------- | ------------------------- | -------------------------- | ------------------------- | ------------------------- |
-| 1 | GET `/api/login` | 로그인 요청 |  | {{ url: 깃허브 로그인 요청 url }}
-| 2 | GET `/api/user/get-info` | 유저 정보를 가져온다. | | {{ <br>gitId: 깃허브 아이디,<br> imgUrl: 프로필 이미지 url,<br> totalScore: 유저가 획득한 점수,<br> problemHistory: 유저가 푼 문제,<br> gameHistory: 유저가 참여한 게임 기록<br>}} 
-| 3 | GET `/api/problem` | 문제 하나를 랜덤으로 가져온다. |  | {{ <br>_id: 문제번호,<br>title: 문제이름 ,<br>content: 문제설명,<br>inputText:입력값설명,<br>outputText:출력값설명,<br>examples: <br>[{<br>inputText:입력값예시 ,<br>outputText:출력값예시<br>}]<br>}}
-| 4 | POST `/api/gamelog/createNew` | 새로운 로그를 생성한다 | {{ gitId : user_name }} | 너무 기네요~ 밑에 참고 |
-| 5 | POST `/api/gamelog/update` | 게임종료 후 게임로그를 갱신한다. | {{ <br>gameId: string(gameObjId) ,<br> language: 유저가 선택한 언어,<br> code: 유저가 제출한 코드, <br> passRate: 테스트케이스 통과율, <br>gitId:,<br> }} | | 
+| 1 | GET `/api/user/login` | 로그인 요청 | {{ Authorization: accessToken }} | jwt token
+| 2 | GET `/api/user/info` | 유저 정보 요청 | {{ id: user.ObjId }}| {{ <br>gitId: 깃허브 아이디,<br> imgUrl: 프로필 이미지 url,<br> totalScore: 유저가 획득한 점수,<br> problemHistory: 유저가 푼 문제,<br> gameHistory: 유저가 참여한 게임 기록<br>}} 
+| 3 | GET `/api/user/search` | 유저 검색 | {{ id: user.ObjId or 'getmyinformation' }} | {{ userInfo: 유저 정보 }}
+| 4 | GET `/api/user/rank` | 랭크 요청 | {{ start: 시작 인덱스, count: 20 }} | {{ <br> userInfos: start~start+count만큼의 유저 정보 <br> }}
+| 5 | GET `/api/code` | 로그인 요청 | {{ id: ObjId }} | {{ code: 유저 제출 코드 }}
+| 6 | POST `/api/gamelog/` | 새로운 로그 생성 | {{ gitId : user_name }} | 너무 기네요~ 밑에 참고 |
+| 7 | GET `/api/gamelog/` | 로그 요청 | {{ gitId : user_name }} | 너무 기네요~ 밑에 참고 |
+| 8 | GET `/api/gamelog/problem` | 문제 랜덤 요청 | {{ id: problem.ObjId }} | {{ <br>_id: 문제번호,<br>title: 문제이름 ,<br>content: 문제설명,<br>inputText:입력값설명,<br>outputText:출력값설명,<br>examples: <br>[{<br>inputText:입력값예시 ,<br>outputText:출력값예시<br>}]<br>}}
+| 9 | PUT `/api/gamelog/:mode` | 게임종료 후 게임로그 갱신 | parameters: solo/team <br> {{ <br>gameId: string(gameObjId) ,<br> language: 유저가 선택한 언어,<br> code: 유저가 제출한 코드, <br> passRate: 테스트케이스 통과율, <br>gitId:,<br> }} | | 
+| 10 | POST `/api/judge/` | 채점요청 | {{ <br>gitId <br>code <br>problemId <br>language <br>gameLogId <br>submit <br>}} | {{ <br>results <br>passRate <br>msg <br>}} |
+
 ```
 /* 4. game log createNew response */
 {{
