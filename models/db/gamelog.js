@@ -105,8 +105,7 @@ GameLogSchema.statics.createTeamLog = async function (
     roomIdB,
     totalUsers: 2,
   };
-  const newLog = await this.create(data);
-  return newLog._id;
+  return this.create(data);
 };
 
 GameLogSchema.statics.updateLog = async function (data) {
@@ -192,7 +191,7 @@ GameLogSchema.statics.finishedTeam = async function (gameLog) {
         return b[0].passRate - a[0].passRate;
       }
     });
-    console.log(result);
+
     const winnerScore = result[1].length;
     const loserScore = -1 * result[0].length;
     const info = {};
