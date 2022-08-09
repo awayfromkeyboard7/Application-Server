@@ -131,6 +131,7 @@ exports.pagingRanking = async (req, res) => {
     const ranking = await User.paging(query.start, query.count);
     res.status(200).json({
       ranking,
+      next: ranking.length === parseInt(query.count),
       success: true 
     })
   } catch(err) {
